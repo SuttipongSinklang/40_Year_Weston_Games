@@ -118,38 +118,79 @@ bench.rotation.y = -0.55;
 bench.scale.setScalar(0.9);
 scene.add(bench);
 
-/* ── โมเดลตัวละคร (GLB จาก folder) ── */
-const MODEL_URL = 'assets/chan_fat.glb';
-let character = null;          // group ที่หมุน/เด้งได้
-let baseY = 0;                 // ความสูงเท้าแช่พื้น
-let vy = 0;                    // ความเร็วแกน Y ตอนกระโดด
-const GRAV = 22;
+/* ── โมเดลตัวละคร (GLB มี Animation: Walking / Running) ── */
+const MODEL_URL_WALK = 'assets/chan_fat_walking.glb';
+const MODEL_URL_RUN = 'assets/chan_fat_running.glb';
+
+let character = null;            // group ที่หมุน/แสดงตัวละคร
+let walkModel = null, runModel = null;
+const mixers = [];
+let walkAction = null, runAction = null;
 
 const loaderEl = document.getElementById('loader');
-new GLTFLoader().load(
-  MODEL_URL,
-  (gltf) => {
-    const model = gltf.scene;
-    const box = new THREE.Box3().setFromObject(model);
-    const size = box.getSize(new THREE.Vector3());
-    const scale = 1.58 / size.y;                      // ทำให้สูง ~1.58 หน่วย
-    model.scale.setScalar(scale);
-    box.setFromObject(model);
-    baseY = -box.min.y;                               // ยกเท้าให้แตะพื้น
-    model.position.y = baseY;
-    model.traverse(o => { if (o.isMesh) { o.castShadow = true; } });
+const gltfLoader = new GLTFLoader();
+
+/* ปรับขนาด + วางเท้าให้แตะพื้น */
+function fitModel(model, targetH) {
+  const box = new THREE.Box3().setFromObject(model);
+  const size = box.getSize(new THREE.Vector3());
+  model.scale.setScalar(targetH / size.y);
+  box.setFromObject(model);
+  model.position.y = -box.min.y + 0.02;
+}
+
+function loadCharacter(url) {
+  return new Promise((resolve, reject) =>
+    gltfLoader.load(url, resolve, undefined, reject));
+}
+
+Promise.all([loadCharacter(MODEL_URL_WALK), loadCharacter(MODEL_URL_RUN)])
+  .then(([walkGltf, runGltf]) => {
+    walkModel = walkGltf.scene;
+    runModel = runGltf.scene;
+
+    [walkModel, runModel].forEach(m => {
+      fitModel(m, 1.58);
+      m.traverse(o => { if (o.isMesh) { o.castShadow = true; } });
+    });
+    runModel.visible = false;   // เริ่มต้นแสดงท่ายืนของโมเดล Walking
 
     character = new THREE.Group();
-    character.add(model);
+    character.add(walkModel, runModel);
     scene.add(character);
+
+    const mixerWalk = new THREE.AnimationMixer(walkModel);
+    const mixerRun = new THREE.AnimationMixer(runModel);
+    mixers.push(mixerWalk, mixerRun);
+    walkAction = mixerWalk.clipAction(walkGltf.animations[0]);
+    runAction = mixerRun.clipAction(runGltf.animations[0]);
+
     loaderEl.classList.add('done');
     setTimeout(() => toast('ยินดีต้อนรับ! แตะตัวละครเพื่อออกกำลังกาย 👆'), 500);
-  },
-  undefined,
-  () => { loaderEl.querySelector('p').textContent = 'โหลดโมเดลไม่สำเร็จ'; }
-);
+  })
+  .catch(() => { loaderEl.querySelector('p').textContent = 'โหลดโมเดลไม่สำเร็จ'; });
 
-/* ── อินเทอร์แอ็กชัน: ลาก = หมุน, แตะ = กระโดด +1 ── */
+/* ── ลำดับ Animation เมื่อแตะ: วิ่ง → เดินคูลดาวน์ → ยืน ── */
+let phaseTimer = null;
+function startAnimSeq() {
+  if (!runAction) return;
+  clearTimeout(phaseTimer);
+  // เฟสวิ่ง
+  runModel.visible = true; walkModel.visible = false;
+  walkAction.stop();
+  runAction.reset().play();
+  phaseTimer = setTimeout(() => {
+    // เฟสเดิน (คูลดาวน์)
+    runModel.visible = false; walkModel.visible = true;
+    runAction.stop();
+    walkAction.reset().play();
+    phaseTimer = setTimeout(() => {
+      walkAction.stop();
+    }, 2100);
+  }, 3200);
+}
+
+/* ── อินเทอร์แอ็กชัน: ลาก = หมุน, แตะ = เล่น Animation +1 ── */
 let dragging = false, moved = false, lastX = 0, lastInput = performance.now();
 
 canvas.addEventListener('pointerdown', e => {
@@ -172,31 +213,23 @@ canvas.addEventListener('pointerup', e => {
 
 /* ── Game loop ── */
 const clock = new THREE.Clock();
+let elapsed = 0;
 function tick() {
   requestAnimationFrame(tick);
-  const t = clock.getElapsedTime();
+  const dt = Math.min(clock.getDelta(), 0.05);
+  elapsed += dt;
+  mixers.forEach(m => m.update(dt));
 
   if (character) {
     // หมุนช้า ๆ เมื่อไม่ได้แตะนาน 3 วิ
     if (performance.now() - lastInput > 3000) character.rotation.y += 0.004;
-    // ฟิสิกส์กระโดด
-    vy -= GRAV * 0.016;
-    character.position.y += vy * 0.016;
-    if (character.position.y <= 0) {
-      if (vy < -6) squash();
-      character.position.y = 0; vy = 0;
-    }
     // หายใจเบา ๆ ตอนยืน
-    const breathe = 1 + Math.sin(t * 2.2) * 0.008;
+    const breathe = 1 + Math.sin(elapsed * 2.2) * 0.008;
     character.scale.set(2 - breathe, breathe, 2 - breathe);
   }
   renderer.render(scene, camera);
 }
 tick();
-
-function squash() {
-  character.scale.set(1.14, 0.84, 1.14);
-}
 
 /* ── Resize ── */
 function resize() {
@@ -213,10 +246,10 @@ resize();
    3) GAME LOGIC — ภารกิจ / XP / Streak (mockup)
    ═══════════════════════════════════════════════ */
 const missions = [
-  'เล่นเกมยืดเหยียด 5 ครั้ง',
-  'กระโดดเพื่อยืดขา 5 ครั้ง',
+  'วิ่งออกกำลังกาย 5 ครั้ง',
+  'วิ่งเผาผลาญแคลอรี 5 ครั้ง',
   'ออกกำลังกายกับตัวละคร 5 ครั้ง',
-  'เผาผลาญแคลอรี 5 ครั้ง',
+  'เดินคูลดาวน์หลังวิ่ง 5 ครั้ง',
 ];
 let mIdx = 0, mDone = 2, mTotal = 5;
 let xp = 82;
@@ -236,9 +269,9 @@ updateMission();
 xpFill.style.width = xp + '%';
 
 function workout(e) {
-  // กระโดด
-  vy = 7.2;
-  // +1 ลอยตรงนpointที่แตะ
+  // เล่นอนิเมชันวิ่ง → เดิน
+  startAnimSeq();
+  // +1 ลอยตรงจุดที่แตะ
   const pop = document.createElement('div');
   pop.className = 'pop';
   pop.textContent = '+1 💪';
