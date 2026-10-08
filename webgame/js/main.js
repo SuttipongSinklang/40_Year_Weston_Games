@@ -274,7 +274,7 @@ new ResizeObserver(resize).observe(canvas);
 resize();
 
 /* ═══════════════════════════════════════════════
-   3) GAME LOGIC — ภารกิจ / XP / Streak (mockup)
+   3) GAME LOGIC — ภารกิจ / เป้าหมาย / Streak (mockup)
    ═══════════════════════════════════════════════ */
 const missions = [
   'ออกกำลังกายกับตัวละคร 5 ครั้ง',
@@ -283,21 +283,26 @@ const missions = [
   'สะสมแตะตัวละคร 5 ครั้ง',
 ];
 let mIdx = 0, mDone = 2, mTotal = 5;
-let xp = 82;
+let goalPct = 62, goalHit = false;
 
 const missionDone = document.getElementById('missionDone');
 const missionTotal = document.getElementById('missionTotal');
 const missionFill = document.getElementById('missionFill');
 const missionName = document.getElementById('missionName');
-const xpFill = document.getElementById('xpFill');
+const goalFill = document.getElementById('goalFill');
+const goalPctEl = document.getElementById('goalPct');
 
 function updateMission() {
   missionDone.textContent = mDone;
   missionTotal.textContent = mTotal;
   missionFill.style.width = (mDone / mTotal * 100) + '%';
 }
+function updateGoal() {
+  goalFill.style.width = goalPct + '%';
+  goalPctEl.textContent = goalPct;
+}
 updateMission();
-xpFill.style.width = xp + '%';
+updateGoal();
 
 function workout(e) {
   // +1 ลอยตรงจุดที่แตะ
@@ -310,10 +315,13 @@ function workout(e) {
   document.getElementById('popLayer').appendChild(pop);
   setTimeout(() => pop.remove(), 1000);
 
-  // XP
-  xp = Math.min(100, xp + 6);
-  xpFill.style.width = xp + '%';
-  if (xp >= 100) { setTimeout(() => { toast('เลเวลอัป! 🎉 Lv.6'); xp = 10; xpFill.style.width = xp + '%'; }, 600); }
+  // เป้าหมายวันนี้ (%)
+  goalPct = Math.min(100, goalPct + 8);
+  updateGoal();
+  if (goalPct >= 100 && !goalHit) {
+    goalHit = true;
+    setTimeout(() => toast('ครบเป้าหมายวันนี้แล้ว! 🎉'), 600);
+  }
 
   // ภารกิจ
   if (mDone < mTotal) {
@@ -321,7 +329,7 @@ function workout(e) {
     updateMission();
     if (mDone === mTotal) {
       setTimeout(() => {
-        toast('ภารกิจสำเร็จ! รับ +100 XP 🎉');
+        toast('ภารกิจสำเร็จ! 🎉');
         setTimeout(() => {
           mIdx = (mIdx + 1) % missions.length;
           mDone = 0;

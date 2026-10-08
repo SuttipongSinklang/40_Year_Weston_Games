@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600;700&family=Nunito:wght@800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=8">
+<link rel="stylesheet" href="css/style.css?v=9">
 <script type="importmap">
 {
   "imports": {
@@ -44,12 +44,11 @@
     <!-- HUD บน (mockup ตามรูปอ้างอิง) -->
     <header class="hud-top">
       <div class="profile-row">
-        <div class="avatar"><span>😎</span><i class="lv">Lv.5</i></div>
+        <div class="avatar"><span>😎</span></div>
         <div class="profile-info">
-          <h1>Player 1</h1>
-          <div class="xp-bar"><div class="xp-fill" id="xpFill"></div></div>
+          <h1><span class="goal-hint">เป้าหมายวันนี้</span><span class="goal-pct"><b id="goalPct">62</b>%</span></h1>
+          <div class="xp-bar"><div class="xp-fill" id="goalFill"></div></div>
         </div>
-        <div class="coin-chip"><span>🪙</span> 1,250</div>
       </div>
 
       <div class="streak-banner">
@@ -61,8 +60,8 @@
 
       <div class="stats-grid">
         <div class="stat-card">
-          <span class="stat-ico">🍎</span>
-          <div><h3>โภชนาการ</h3><p><b>18%</b> <em>↑2.4%</em></p></div>
+          <span class="stat-ico">📉</span>
+          <div><h3>ไขมัน</h3><p><b>18%</b> <em>↓2.4%</em></p></div>
         </div>
         <div class="stat-card">
           <span class="stat-ico">💪</span>
@@ -243,6 +242,6 @@
   </nav>
 </div>
 
-<script type="module" src="js/main.js?v=8"></script>
+<script type="module" src="js/main.js?v=9"></script>
 </body>
 </html>
