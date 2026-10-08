@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
 /* ═══════════════════════════════════════════════
    1) NAV — สลับหน้าจอ
@@ -26,21 +27,40 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.15;
 
 const scene = new THREE.Scene();
 scene.fog = new THREE.Fog(0x9fdcf5, 14, 34);
 
 const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
 
-/* แสง */
-scene.add(new THREE.HemisphereLight(0xcdeeff, 0x6fbf73, 1.15));
-const sun = new THREE.DirectionalLight(0xfff4d6, 1.7);
-sun.position.set(4, 7, 3.5);
+/* ── แสง (key อุ่น + fill เย็น + rim ด้านหลัง + environment) ── */
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+
+scene.add(new THREE.HemisphereLight(0xcdeeff, 0x6fbf73, 0.5));
+
+// แสงหลัก (key) โทนอุ่น จากบน-ขวา-หน้า พร้อมเงานุ่ม
+const sun = new THREE.DirectionalLight(0xfff0d8, 2.4);
+sun.position.set(3.5, 6, 4);
 sun.castShadow = true;
-sun.shadow.mapSize.set(1024, 1024);
-sun.shadow.camera.left = -7; sun.shadow.camera.right = 7;
-sun.shadow.camera.top = 7;  sun.shadow.camera.bottom = -7;
+sun.shadow.mapSize.set(2048, 2048);
+sun.shadow.camera.left = -5; sun.shadow.camera.right = 5;
+sun.shadow.camera.top = 5;  sun.shadow.camera.bottom = -5;
+sun.shadow.bias = -0.0004;
+sun.shadow.normalBias = 0.02;
 scene.add(sun);
+
+// แสงเติมโทนเย็น ฝั่งซ้าย ลดเงาทึบ
+const fill = new THREE.DirectionalLight(0xbfe3ff, 0.7);
+fill.position.set(-4, 3, 2.5);
+scene.add(fill);
+
+// แสงขอบ (rim) จากด้านหลัง ทำให้ตัวละครเด่นแยกจากพื้นหลัง
+const rim = new THREE.DirectionalLight(0x9fd8ff, 1.2);
+rim.position.set(-1.5, 4, -5);
+scene.add(rim);
 
 /* ── พื้นหญ้า + ทางเดิน (mockup สวน) ── */
 const ground = new THREE.Mesh(
@@ -116,6 +136,11 @@ bench.rotation.y = -0.55;
 bench.scale.setScalar(0.9);
 scene.add(bench);
 
+// คุมความเข้ม environment ของของในฉาก ให้สีการ์ตูนยังสดอยู่
+scene.traverse(o => {
+  if (o.isMesh && o.material && o.material.isMeshStandardMaterial) o.material.envMapIntensity = 0.25;
+});
+
 /* ── โมเดลตัวละคร (GLB จาก folder, ยืนนิ่งไม่มี Animation) ── */
 const MODEL_URL = 'assets/changrid_fat.glb';
 let character = null;            // group ที่หมุนได้
@@ -137,7 +162,12 @@ gltfLoader.load(
   (gltf) => {
     const model = gltf.scene;
     fitModel(model, 1.32);          // ขนาดพอดีจอมือถือ
-    model.traverse(o => { if (o.isMesh) { o.castShadow = true; } });
+    model.traverse(o => {
+      if (o.isMesh) {
+        o.castShadow = true;
+        if (o.material) o.material.envMapIntensity = 0.55;
+      }
+    });
 
     character = new THREE.Group();
     character.add(model);
