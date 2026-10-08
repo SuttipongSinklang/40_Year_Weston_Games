@@ -147,6 +147,8 @@ body{
   font-weight:900; font-size:13px; box-shadow:0 3px 0 rgba(30,58,95,.12);
 }
 .coin-chip span{margin-right:2px}
+.coin-chip .ico{display:inline-flex; width:20px; height:20px; vertical-align:-4px}
+.coin-chip .ico img{width:100%; height:100%; object-fit:contain}
 
 .streak-banner{
   margin:10px auto 0; width:max-content; max-width:100%;
@@ -156,7 +158,8 @@ body{
   box-shadow:0 3px 0 rgba(30,58,95,.12); font-size:13px;
 }
 .streak-banner b{font-weight:600}
-.streak-flame{font-size:17px; animation:flick 1.6s ease-in-out infinite}
+.streak-flame{width:22px; height:22px; display:inline-flex; animation:flick 1.6s ease-in-out infinite}
+.streak-flame img{width:100%; height:100%; object-fit:contain; filter:drop-shadow(0 1px 1px rgba(0,0,0,.18))}
 @keyframes flick{0%,100%{transform:scale(1) rotate(-4deg)}50%{transform:scale(1.16) rotate(4deg)}}
 .streak-banner .divider{width:2px; height:14px; background:var(--cream-dk); border-radius:2px}
 .streak-day b{font-family:var(--font-num); font-weight:900; color:var(--green-dk)}
@@ -175,6 +178,7 @@ body{
   background:#fff; border:2px solid var(--cream-dk);
   display:flex; align-items:center; justify-content:center; font-size:19px;
 }
+.stat-ico img{width:26px; height:26px; object-fit:contain}
 .stat-card h3{font-size:11.5px; font-weight:500; color:#5B7191; line-height:1.1}
 .stat-card p{font-family:var(--font-num); font-size:16px; font-weight:900; line-height:1.2}
 .stat-card p b{font-size:16px}
@@ -195,6 +199,8 @@ body{
   border:2px solid #fff; box-shadow:0 2px 5px rgba(0,0,0,.25);
   animation:bing 1.4s ease-in-out infinite;
 }
+.mission-ico{display:inline-flex; width:30px; height:30px; vertical-align:-8px; margin-right:4px}
+.mission-ico img{width:100%; height:100%; object-fit:contain; filter:drop-shadow(0 2px 2px rgba(30,58,95,.2))}
 @keyframes bing{0%,100%{transform:scale(1)}50%{transform:scale(1.14)}}
 .mission-card h3{font-size:13px; font-weight:600}
 .mission-card > p{font-family:var(--font-num); font-size:15px; font-weight:900; color:var(--orange-dk); margin-top:1px}
@@ -247,7 +253,11 @@ body{
   font-size:22px; font-weight:600; text-align:center; margin-bottom:14px;
   text-shadow:0 2px 4px rgba(255,255,255,.6);
 }
-.trophy-ico{display:inline-block; animation:trophyBob 2.4s ease-in-out infinite}
+.trophy-ico{display:inline-flex; width:40px; height:34px; vertical-align:-6px; margin-right:4px; animation:trophyBob 2.4s ease-in-out infinite}
+.trophy-ico img{width:100%; height:100%; object-fit:contain; filter:drop-shadow(0 2px 3px rgba(30,58,95,.25))}
+.head-ico{display:inline-flex; width:30px; height:30px; vertical-align:-5px; margin-right:4px}
+.head-ico img{width:100%; height:100%; object-fit:contain; filter:drop-shadow(0 2px 2px rgba(30,58,95,.22))}
+.head-ico.sm{width:22px; height:22px; vertical-align:-3px}
 @keyframes trophyBob{0%,100%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(-5px) rotate(6deg)}}
 
 .card{
@@ -278,7 +288,14 @@ body{
   box-shadow:0 3px 0 rgba(30,58,95,.12);
 }
 .lb-row.you{outline:3px solid var(--orange); outline-offset:-1px; position:relative}
-.lb-rank{display:flex; justify-content:center}
+.lb-rank{display:flex; justify-content:center; position:relative}
+.rank-medal{width:40px; height:44px; object-fit:contain; filter:drop-shadow(0 2px 3px rgba(30,58,95,.25))}
+.rank-crown{
+  position:absolute; top:-15px; left:50%; transform:translateX(-46%) rotate(-14deg);
+  width:24px; height:26px; object-fit:contain;
+  filter:drop-shadow(0 1px 2px rgba(0,0,0,.3)); animation:crownFloat 2.2s ease-in-out infinite;
+}
+@keyframes crownFloat{0%,100%{transform:translateX(-46%) rotate(-14deg) translateY(0)}50%{transform:translateX(-46%) rotate(-10deg) translateY(-3px)}}
 .rank-badge{
   width:34px; height:34px; border-radius:50%;
   display:flex; align-items:center; justify-content:center;
@@ -308,8 +325,8 @@ body{
   border:1.5px solid #fff; margin-bottom:4px; box-shadow:inset 0 1.5px 2px rgba(30,58,95,.15);
 }
 .lb-scorebar i{display:block; height:100%; background:linear-gradient(180deg,var(--green-lt),var(--green-dk)); border-radius:999px}
-.lb-flame{font-family:var(--font-num); font-weight:900; font-size:13px}
-.lb-flame span{font-size:11px; margin-right:2px}
+.lb-flame{font-family:var(--font-num); font-weight:900; font-size:13px; display:flex; align-items:center; justify-content:flex-end; gap:3px}
+.lb-flame img{width:15px; height:15px; object-fit:contain}
 
 /* ── Goals ── */
 .goal-hero{display:flex; align-items:center; gap:16px; padding:16px; margin-bottom:12px}
@@ -337,6 +354,7 @@ body{
   background:#fff; border:2px solid var(--cream-dk);
   display:flex; align-items:center; justify-content:center;
 }
+.goal-ico img{width:30px; height:30px; object-fit:contain}
 .goal-mid{flex:1; min-width:0}
 .goal-mid h4{font-size:13.5px; font-weight:500; display:flex; justify-content:space-between; gap:8px}
 .goal-mid h4 b{font-family:var(--font-num); font-weight:900; color:var(--green-dk); font-size:12.5px; white-space:nowrap}
@@ -446,7 +464,10 @@ body{
   display:flex; align-items:center; justify-content:center; color:#fff;
   transition:all .2s cubic-bezier(.34,1.56,.64,1);
 }
-.nav-ico svg{width:24px; height:24px; stroke:#fff; fill:none; stroke-width:2.1; stroke-linecap:round; stroke-linejoin:round}
+.nav-ico img{
+  width:30px; height:30px; object-fit:contain;
+  filter:drop-shadow(0 2px 2px rgba(30,58,95,.35));
+}
 .nav-btn label{font-size:10.5px; font-weight:500; color:var(--navy); cursor:pointer}
 .nav-btn i{
   width:26px; height:4px; border-radius:999px; background:var(--navy);
