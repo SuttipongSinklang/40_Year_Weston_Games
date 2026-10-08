@@ -360,9 +360,9 @@ const maxScore = players[0].score;
 document.getElementById('lbPerson').insertAdjacentHTML('beforeend', players.map((p, i) => `
   <div class="lb-row ${p.you ? 'you' : ''}">
     <div class="lb-rank">
-      ${i < 3
-        ? `<img class="rank-medal" src="assets/icons/medal_${['gold', 'silver', 'bronze'][i]}.png" alt="อันดับ ${i + 1}">${i === 0 ? '<img class="rank-crown" src="assets/icons/crown.png" alt="">' : ''}`
-        : `<span class="rank-badge">${i + 1}</span>`}
+      <span class="rank-badge ${i < 3 ? 'rank-' + (i + 1) : ''}">
+        ${i < 3 ? '<span class="crown">👑</span>' : ''}${i + 1}
+      </span>
     </div>
     <div class="lb-player">
       <span class="lb-ava">${p.ava}</span>
@@ -370,7 +370,7 @@ document.getElementById('lbPerson').insertAdjacentHTML('beforeend', players.map(
     </div>
     <div class="lb-score">
       <div class="lb-scorebar"><i style="width:${Math.round(p.score / maxScore * 100)}%"></i></div>
-      <div class="lb-flame"><img src="assets/icons/flame.png" alt="">${p.score.toLocaleString()}</div>
+      <div class="lb-flame"><span>🔥</span>${p.score.toLocaleString()}</div>
     </div>
   </div>`).join(''));
 
@@ -385,9 +385,9 @@ const maxTeam = teams[0].score;
 document.getElementById('lbTeam').insertAdjacentHTML('beforeend', teams.map((t, i) => `
   <div class="lb-row">
     <div class="lb-rank">
-      ${i < 3
-        ? `<img class="rank-medal" src="assets/icons/medal_${['gold', 'silver', 'bronze'][i]}.png" alt="อันดับ ${i + 1}">${i === 0 ? '<img class="rank-crown" src="assets/icons/crown.png" alt="">' : ''}`
-        : `<span class="rank-badge">${i + 1}</span>`}
+      <span class="rank-badge ${i < 3 ? 'rank-' + (i + 1) : ''}">
+        ${i < 3 ? '<span class="crown">👑</span>' : ''}${i + 1}
+      </span>
     </div>
     <div class="lb-player">
       <span class="lb-ava">${t.ava}</span>
@@ -395,7 +395,7 @@ document.getElementById('lbTeam').insertAdjacentHTML('beforeend', teams.map((t, 
     </div>
     <div class="lb-score">
       <div class="lb-scorebar"><i style="width:${Math.round(t.score / maxTeam * 100)}%"></i></div>
-      <div class="lb-flame"><img src="assets/icons/flame.png" alt="">${t.score.toLocaleString()}</div>
+      <div class="lb-flame"><span>🔥</span>${t.score.toLocaleString()}</div>
     </div>
   </div>`).join(''));
 
@@ -409,14 +409,14 @@ document.querySelectorAll('.pill').forEach(pill => pill.addEventListener('click'
    5) GOALS (mockup)
    ═══════════════════════════════════════════════ */
 const goals = [
-  { ico: 'assets/icons/st_foot.png', name: 'เดิน', done: 7420, total: 10000, unit: 'ก้าว', pct: 74 },
-  { ico: 'assets/icons/st_zzz.png', name: 'นอนหลับ', done: 7, total: 7, unit: 'ชม.', pct: 100 },
-  { ico: 'assets/icons/st_pin.png', name: 'วิ่ง', done: 1.2, total: 3, unit: 'กม.', pct: 40 },
-  { ico: 'assets/icons/st_scale.png', name: 'น้ำหนัก', done: 62.4, total: 65, unit: 'กก.', pct: 96 },
+  { ico: '🚶', name: 'เดิน', done: 7420, total: 10000, unit: 'ก้าว', pct: 74 },
+  { ico: '💧', name: 'ดื่มน้ำ', done: 5, total: 8, unit: 'แก้ว', pct: 62 },
+  { ico: '🏃', name: 'วิ่ง', done: 1.2, total: 3, unit: 'กม.', pct: 40 },
+  { ico: '😴', name: 'นอนหลับ', done: 7, total: 7, unit: 'ชม.', pct: 100 },
 ];
 document.getElementById('goalList').innerHTML = goals.map(g => `
   <div class="goal-item card">
-    <span class="goal-ico"><img src="${g.ico}" alt="${g.name}"></span>
+    <span class="goal-ico">${g.ico}</span>
     <div class="goal-mid">
       <h4><span>${g.name} ${g.unit}</span><b>${g.done.toLocaleString()}/${g.total.toLocaleString()}</b></h4>
       <div class="goal-track"><div class="goal-fill" data-w="${g.pct}"></div></div>
