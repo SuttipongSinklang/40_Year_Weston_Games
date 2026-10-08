@@ -117,7 +117,7 @@ bench.scale.setScalar(0.9);
 scene.add(bench);
 
 /* ── โมเดลตัวละคร (GLB จาก folder, ยืนนิ่งไม่มี Animation) ── */
-const MODEL_URL = 'assets/chan_fat.glb';
+const MODEL_URL = 'assets/changrid_fat.glb';
 let character = null;            // group ที่หมุนได้
 
 const loaderEl = document.getElementById('loader');
