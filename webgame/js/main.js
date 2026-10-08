@@ -31,8 +31,6 @@ const scene = new THREE.Scene();
 scene.fog = new THREE.Fog(0x9fdcf5, 14, 34);
 
 const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
-camera.position.set(0, 1.32, 4.25);
-camera.lookAt(0, 0.9, 0);
 
 /* แสง */
 scene.add(new THREE.HemisphereLight(0xcdeeff, 0x6fbf73, 1.15));
@@ -150,7 +148,7 @@ Promise.all([loadCharacter(MODEL_URL_WALK), loadCharacter(MODEL_URL_RUN)])
     runModel = runGltf.scene;
 
     [walkModel, runModel].forEach(m => {
-      fitModel(m, 1.58);
+      fitModel(m, 1.32);          // ย่อขนาดตัวละครให้พอดีจอมือถือ
       m.traverse(o => { if (o.isMesh) { o.castShadow = true; } });
     });
     runModel.visible = false;   // เริ่มต้นแสดงท่ายืนของโมเดล Walking
@@ -231,12 +229,18 @@ function tick() {
 }
 tick();
 
-/* ── Resize ── */
+/* ── Resize + จัดเฟรมกล้องตามสัดส่วนจอ (จอแคบ = ถอยออก กันตัวละครล้นจอ) ── */
+function frameCamera() {
+  const zoom = THREE.MathUtils.clamp(0.5 / camera.aspect, 0.85, 1.18);
+  camera.position.set(0, 0.85 + 0.45 * zoom, 4.55 * zoom);
+  camera.lookAt(0, 0.85, 0);
+}
 function resize() {
   const w = canvas.clientWidth || canvas.parentElement.clientWidth;
   const h = canvas.clientHeight || canvas.parentElement.clientHeight;
   renderer.setSize(w, h, false);
   camera.aspect = w / h;
+  frameCamera();
   camera.updateProjectionMatrix();
 }
 new ResizeObserver(resize).observe(canvas);
