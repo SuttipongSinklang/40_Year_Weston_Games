@@ -119,7 +119,7 @@ bench.scale.setScalar(0.9);
 scene.add(bench);
 
 /* ── โมเดลตัวละคร (GLB จาก folder) ── */
-const MODEL_URL = 'assets/pe_fat.glb';
+const MODEL_URL = 'assets/chan_fat.glb';
 let character = null;          // group ที่หมุน/เด้งได้
 let baseY = 0;                 // ความสูงเท้าแช่พื้น
 let vy = 0;                    // ความเร็วแกน Y ตอนกระโดด
