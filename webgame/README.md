@@ -1,7 +1,7 @@
 # Weston Fit Quest 🎮
 
 เว็บเกมฟิตเนสสำหรับมือถือ (mockup) — สร้างจากรูปอ้างอิง `Home.png` และ `Leader Board Person.png`
-ตัวละครกลางจอเป็นโมเดล 3D จากไฟล์ `Meshy_AI_Cap_Kid_1008024533_texture.glb`
+ตัวละครกลางจอเป็นโมเดล 3D "พี่เป้_Fat" (ไฟล์ต้นฉบับ `พี่เป้_Fat.glb`)
 
 ## วิธีเล่น / วิธีรัน
 
@@ -39,7 +39,7 @@ webgame/
 ├── css/style.css       # สไตล์ mockup (โทนสีตามรูปอ้างอิง)
 ├── js/main.js          # Three.js + logic เกม + ข้อมูล mockup
 └── assets/
-    └── character.glb   # โมเดล 3D (สำเนาจากไฟล์ Meshy ต้นฉบับ)
+    └── pe_fat.glb       # โมเดล 3D พี่เป้_Fat (สำเนาจากไฟล์ พี่เป้_Fat.glb)
 ```
 
 ## หมายเหตุ
