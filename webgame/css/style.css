@@ -37,19 +37,7 @@ body{
   }
 }
 
-/* ═══════════ ฉากหลังสตูดิโอมืด (หน้าหลัก ตามรูปอ้างอิง) ═══════════ */
-.studio-decor{
-  position:absolute; inset:0; z-index:0; overflow:hidden; pointer-events:none;
-  background:radial-gradient(120% 90% at 50% 42%, #3F3F3F 0%, #2A2A2A 38%, #171717 72%, #0D0D0D 100%);
-}
-.studio-glow{
-  position:absolute; left:50%; top:38%; width:72%; aspect-ratio:1;
-  transform:translate(-50%,-50%); border-radius:50%;
-  background:radial-gradient(circle, rgba(255,255,255,.10) 0%, rgba(255,255,255,0) 62%);
-  filter:blur(8px);
-}
-
-/* ═══════════ ฉากหลังท้องฟ้าธรรมชาติ (หน้าย่อยอื่น ๆ) ═══════════ */
+/* ═══════════ ฉากหลังท้องฟ้าธรรมชาติ (CSS) ═══════════ */
 .sky-decor{position:absolute; inset:0; z-index:0; overflow:hidden; pointer-events:none}
 .sun{
   position:absolute; top:7%; right:10%; width:64px; height:64px; border-radius:50%;
@@ -103,8 +91,8 @@ body{
 #loader{
   position:absolute; inset:0; z-index:5; display:flex; flex-direction:column;
   align-items:center; justify-content:center; gap:14px;
-  background:radial-gradient(120% 90% at 50% 42%, #3F3F3F, #161616);
-  transition:opacity .5s; font-weight:600; color:#E8E8E8;
+  background:linear-gradient(180deg,var(--sky-lt),var(--sky));
+  transition:opacity .5s; font-weight:600;
 }
 #loader.done{opacity:0; pointer-events:none}
 .loader-ring{
