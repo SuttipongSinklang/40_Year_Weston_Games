@@ -116,14 +116,9 @@ bench.rotation.y = -0.55;
 bench.scale.setScalar(0.9);
 scene.add(bench);
 
-/* ── โมเดลตัวละคร (GLB มี Animation: Walking / Running) ── */
-const MODEL_URL_WALK = 'assets/chan_fat_walking.glb';
-const MODEL_URL_RUN = 'assets/chan_fat_running.glb';
-
-let character = null;            // group ที่หมุน/แสดงตัวละคร
-let walkModel = null, runModel = null;
-const mixers = [];
-let walkAction = null, runAction = null;
+/* ── โมเดลตัวละคร (GLB จาก folder, ยืนนิ่งไม่มี Animation) ── */
+const MODEL_URL = 'assets/chan_fat.glb';
+let character = null;            // group ที่หมุนได้
 
 const loaderEl = document.getElementById('loader');
 const gltfLoader = new GLTFLoader();
@@ -137,58 +132,25 @@ function fitModel(model, targetH) {
   model.position.y = -box.min.y + 0.02;
 }
 
-function loadCharacter(url) {
-  return new Promise((resolve, reject) =>
-    gltfLoader.load(url, resolve, undefined, reject));
-}
-
-Promise.all([loadCharacter(MODEL_URL_WALK), loadCharacter(MODEL_URL_RUN)])
-  .then(([walkGltf, runGltf]) => {
-    walkModel = walkGltf.scene;
-    runModel = runGltf.scene;
-
-    [walkModel, runModel].forEach(m => {
-      fitModel(m, 1.32);          // ย่อขนาดตัวละครให้พอดีจอมือถือ
-      m.traverse(o => { if (o.isMesh) { o.castShadow = true; } });
-    });
-    runModel.visible = false;   // เริ่มต้นแสดงท่ายืนของโมเดล Walking
+gltfLoader.load(
+  MODEL_URL,
+  (gltf) => {
+    const model = gltf.scene;
+    fitModel(model, 1.32);          // ขนาดพอดีจอมือถือ
+    model.traverse(o => { if (o.isMesh) { o.castShadow = true; } });
 
     character = new THREE.Group();
-    character.add(walkModel, runModel);
+    character.add(model);
     scene.add(character);
-
-    const mixerWalk = new THREE.AnimationMixer(walkModel);
-    const mixerRun = new THREE.AnimationMixer(runModel);
-    mixers.push(mixerWalk, mixerRun);
-    walkAction = mixerWalk.clipAction(walkGltf.animations[0]);
-    runAction = mixerRun.clipAction(runGltf.animations[0]);
 
     loaderEl.classList.add('done');
     setTimeout(() => toast('ยินดีต้อนรับ! แตะตัวละครเพื่อออกกำลังกาย 👆'), 500);
-  })
-  .catch(() => { loaderEl.querySelector('p').textContent = 'โหลดโมเดลไม่สำเร็จ'; });
+  },
+  undefined,
+  () => { loaderEl.querySelector('p').textContent = 'โหลดโมเดลไม่สำเร็จ'; }
+);
 
-/* ── ลำดับ Animation เมื่อแตะ: วิ่ง → เดินคูลดาวน์ → ยืน ── */
-let phaseTimer = null;
-function startAnimSeq() {
-  if (!runAction) return;
-  clearTimeout(phaseTimer);
-  // เฟสวิ่ง
-  runModel.visible = true; walkModel.visible = false;
-  walkAction.stop();
-  runAction.reset().play();
-  phaseTimer = setTimeout(() => {
-    // เฟสเดิน (คูลดาวน์)
-    runModel.visible = false; walkModel.visible = true;
-    runAction.stop();
-    walkAction.reset().play();
-    phaseTimer = setTimeout(() => {
-      walkAction.stop();
-    }, 2100);
-  }, 3200);
-}
-
-/* ── อินเทอร์แอ็กชัน: ลาก = หมุน, แตะ = เล่น Animation +1 ── */
+/* ── อินเทอร์แอ็กชัน: ลาก = หมุน, แตะ = +1 ── */
 let dragging = false, moved = false, lastX = 0, lastInput = performance.now();
 
 canvas.addEventListener('pointerdown', e => {
@@ -216,7 +178,6 @@ function tick() {
   requestAnimationFrame(tick);
   const dt = Math.min(clock.getDelta(), 0.05);
   elapsed += dt;
-  mixers.forEach(m => m.update(dt));
 
   if (character) {
     // หมุนช้า ๆ เมื่อไม่ได้แตะนาน 3 วิ
@@ -250,10 +211,10 @@ resize();
    3) GAME LOGIC — ภารกิจ / XP / Streak (mockup)
    ═══════════════════════════════════════════════ */
 const missions = [
-  'วิ่งออกกำลังกาย 5 ครั้ง',
-  'วิ่งเผาผลาญแคลอรี 5 ครั้ง',
   'ออกกำลังกายกับตัวละคร 5 ครั้ง',
-  'เดินคูลดาวน์หลังวิ่ง 5 ครั้ง',
+  'เผาผลาญแคลอรี 5 ครั้ง',
+  'เล่นเกมยืดเหยียด 5 ครั้ง',
+  'สะสมแตะตัวละคร 5 ครั้ง',
 ];
 let mIdx = 0, mDone = 2, mTotal = 5;
 let xp = 82;
@@ -273,8 +234,6 @@ updateMission();
 xpFill.style.width = xp + '%';
 
 function workout(e) {
-  // เล่นอนิเมชันวิ่ง → เดิน
-  startAnimSeq();
   // +1 ลอยตรงจุดที่แตะ
   const pop = document.createElement('div');
   pop.className = 'pop';
