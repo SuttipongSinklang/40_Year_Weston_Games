@@ -28,22 +28,23 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.15;
+renderer.toneMappingExposure = 1.08;
 
 const scene = new THREE.Scene();
-scene.fog = new THREE.Fog(0x9fdcf5, 14, 34);
+scene.fog = new THREE.Fog(0xbfe3f2, 10, 34);  // หมอกบรรยากาศ: ของไกลจางแบบธรรมชาติ
 
 const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
 
-/* ── แสง (key อุ่น + fill เย็น + rim ด้านหลัง + environment) ── */
+/* ── แสงกลางแจ้งแบบธรรมชาติ: แสงจากท้องฟ้า + แดด + แสงเติมบาง ๆ ── */
 const pmrem = new THREE.PMREMGenerator(renderer);
 scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
 
-scene.add(new THREE.HemisphereLight(0xcdeeff, 0x6fbf73, 0.5));
+// แสงกระจายจากท้องฟ้า/พื้นดิน — เงานุ่มเหมือนกลางแจ้งจริง
+scene.add(new THREE.HemisphereLight(0xbfe5ff, 0x7cbf7a, 0.7));
 
-// แสงหลัก (key) โทนอุ่น จากบน-ขวา-หน้า พร้อมเงานุ่ม
-const sun = new THREE.DirectionalLight(0xfff0d8, 2.4);
-sun.position.set(3.5, 6, 4);
+// แดด (key) สีขาวอุ่นเหมือนกลางวัน ส่องจากบน-ขวา-หน้า
+const sun = new THREE.DirectionalLight(0xfff5e8, 2.2);
+sun.position.set(4, 7, 3);
 sun.castShadow = true;
 sun.shadow.mapSize.set(2048, 2048);
 sun.shadow.camera.left = -5; sun.shadow.camera.right = 5;
@@ -52,15 +53,10 @@ sun.shadow.bias = -0.0004;
 sun.shadow.normalBias = 0.02;
 scene.add(sun);
 
-// แสงเติมโทนเย็น ฝั่งซ้าย ลดเงาทึบ
-const fill = new THREE.DirectionalLight(0xbfe3ff, 0.7);
-fill.position.set(-4, 3, 2.5);
+// แสงเติมจากท้องฟ้าฝั่งตรงข้าม (บางเบา)
+const fill = new THREE.DirectionalLight(0xd6ecff, 0.45);
+fill.position.set(-4, 3.5, 2.5);
 scene.add(fill);
-
-// แสงขอบ (rim) จากด้านหลัง ทำให้ตัวละครเด่นแยกจากพื้นหลัง
-const rim = new THREE.DirectionalLight(0x9fd8ff, 1.2);
-rim.position.set(-1.5, 4, -5);
-scene.add(rim);
 
 /* ── พื้นหญ้า + ทางเดิน (mockup สวน) ── */
 const ground = new THREE.Mesh(
@@ -79,6 +75,41 @@ path.rotation.x = -Math.PI / 2;
 path.position.set(0, 0.01, 3.4);
 path.receiveShadow = true;
 scene.add(path);
+
+/* ── เนินเขาไกล ๆ (โดนหมอกเบลอจางแบบธรรมชาติ) ── */
+[[-13, -17, 11, 3.4, 0x7fbf9a],
+ [  0, -20, 14, 4.2, 0x8fcba8],
+ [ 13, -18, 10, 3.0, 0x76b894],
+ [-24, -21, 12, 3.8, 0x89c6a2]].forEach(([x, z, r, h, c]) => {
+  const hill = new THREE.Mesh(
+    new THREE.SphereGeometry(r, 24, 16),
+    new THREE.MeshStandardMaterial({ color: c, roughness: 1 })
+  );
+  hill.scale.y = h / r;
+  hill.position.set(x, 0, z);
+  scene.add(hill);
+});
+
+/* ── เงาสัมผัสใต้ตัวละคร (ให้ยืนแนบพื้น ไม่เหมือนลอย) ── */
+const contactShadow = (() => {
+  const c = document.createElement('canvas');
+  c.width = c.height = 128;
+  const g = c.getContext('2d');
+  const grad = g.createRadialGradient(64, 64, 8, 64, 64, 60);
+  grad.addColorStop(0, 'rgba(18,58,30,.38)');
+  grad.addColorStop(1, 'rgba(18,58,30,0)');
+  g.fillStyle = grad;
+  g.fillRect(0, 0, 128, 128);
+  const mesh = new THREE.Mesh(
+    new THREE.PlaneGeometry(0.95, 0.95),
+    new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(c), transparent: true, depthWrite: false })
+  );
+  mesh.rotation.x = -Math.PI / 2;
+  mesh.position.y = 0.015;
+  mesh.renderOrder = 1;
+  return mesh;
+})();
+scene.add(contactShadow);
 
 /* หญ้าพุ่มเล็ก ๆ กระจาย (ให้เข้าในกรอบจอแนวตัั้ง) */
 const tuftGeo = new THREE.ConeGeometry(0.09, 0.22, 5);
@@ -138,7 +169,7 @@ scene.add(bench);
 
 // คุมความเข้ม environment ของของในฉาก ให้สีการ์ตูนยังสดอยู่
 scene.traverse(o => {
-  if (o.isMesh && o.material && o.material.isMeshStandardMaterial) o.material.envMapIntensity = 0.25;
+  if (o.isMesh && o.material && o.material.isMeshStandardMaterial) o.material.envMapIntensity = 0.2;
 });
 
 /* ── โมเดลตัวละคร (GLB จาก folder, ยืนนิ่งไม่มี Animation) ── */
@@ -165,7 +196,7 @@ gltfLoader.load(
     model.traverse(o => {
       if (o.isMesh) {
         o.castShadow = true;
-        if (o.material) o.material.envMapIntensity = 0.55;
+        if (o.material) o.material.envMapIntensity = 0.35;
       }
     });
 

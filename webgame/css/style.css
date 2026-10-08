@@ -26,7 +26,7 @@ body{
 /* ── กรอบมือถือ (แสดงบนจอ desktop เป็น mockup โทรศัพท์) ── */
 #app{
   position:relative; width:100%; height:100vh; height:100dvh;
-  background:linear-gradient(180deg,var(--sky-lt) 0%,var(--sky) 46%,var(--sky-pale) 78%,#DFF4E0 100%);
+  background:linear-gradient(180deg,#2E8FD8 0%,#5BB6EA 34%,#93D3F2 60%,#C7EAF8 84%,#E4F5EB 100%);
   overflow:hidden; user-select:none;
 }
 @media (min-width:560px){
@@ -37,44 +37,52 @@ body{
   }
 }
 
-/* ═══════════ ฉากหลังท้องฟ้า (CSS mockup) ═══════════ */
+/* ═══════════ ฉากหลังท้องฟ้าธรรมชาติ (CSS) ═══════════ */
 .sky-decor{position:absolute; inset:0; z-index:0; overflow:hidden; pointer-events:none}
 .sun{
-  position:absolute; top:9%; right:8%; width:70px; height:70px; border-radius:50%;
-  background:radial-gradient(circle,#FFF7C9 0%,#FFE473 55%,#FFD34D 100%);
-  box-shadow:0 0 34px 10px rgba(255,224,115,.55);
+  position:absolute; top:7%; right:10%; width:64px; height:64px; border-radius:50%;
+  background:radial-gradient(circle,#FFFBE8 0%,#FFEFA8 55%,#FFE27E 100%);
+  box-shadow:0 0 46px 18px rgba(255,238,170,.5), 0 0 130px 64px rgba(255,238,170,.16);
 }
-.cloud{position:absolute; background:#fff; border-radius:999px; opacity:.92; filter:drop-shadow(0 6px 8px rgba(30,58,95,.08))}
-.cloud::before,.cloud::after{content:''; position:absolute; background:#fff; border-radius:50%}
-.c1{width:120px;height:34px;top:9%;left:8%;animation:drift 26s linear infinite alternate}
-.c1::before{width:52px;height:52px;top:-24px;left:18px}
-.c1::after{width:38px;height:38px;top:-16px;left:58px}
-.c2{width:96px;height:28px;top:16%;right:10%;animation:drift 32s linear infinite alternate-reverse}
-.c2::before{width:42px;height:42px;top:-19px;left:14px}
-.c2::after{width:30px;height:30px;top:-12px;left:48px}
-.c3{width:88px;height:26px;top:24%;left:14%;animation:drift 30s linear infinite alternate}
-.c3::before{width:38px;height:38px;top:-17px;left:12px}
-.c3::after{width:28px;height:28px;top:-11px;left:42px}
-.c4{width:70px;height:22px;top:31%;right:18%;animation:drift 36s linear infinite alternate-reverse}
-.c4::before{width:32px;height:32px;top:-14px;left:10px}
-.c4::after{width:24px;height:24px;top:-9px;left:32px}
-@keyframes drift{from{transform:translateX(-26px)}to{transform:translateX(40px)}}
 
-/* เส้นขอบฟ้าเมือง (mockup) */
-.skyline{
-  position:absolute; left:0; right:0; top:56%; height:90px; opacity:.35;
-  background:
-    linear-gradient(180deg,#7FAECB 0%,#8FBBD5 100%);
-  -webkit-mask-image: repeating-linear-gradient(90deg,
-    #000 0 34px, transparent 34px 40px,
-    #000 40px 62px, transparent 62px 70px,
-    #000 70px 96px, transparent 96px 104px,
-    #000 104px 128px, transparent 128px 136px);
-  mask-image: repeating-linear-gradient(90deg,
-    #000 0 34px, transparent 34px 40px,
-    #000 40px 62px, transparent 62px 70px,
-    #000 70px 96px, transparent 96px 104px,
-    #000 104px 128px, transparent 128px 136px);
+/* ── เมฆลอยจากขวาไปซ้าย วนลูปตลอด (ความเร็วต่างกันตามขนาด) ── */
+.cloud{
+  position:absolute; background:#fff; border-radius:999px; opacity:.95;
+  box-shadow:0 10px 16px rgba(31,58,95,.08);
+  animation:sail linear infinite;
+}
+.cloud::before,.cloud::after{content:''; position:absolute; background:#fff; border-radius:50%}
+.c1{width:140px;height:40px;top:6%; animation-duration:75s;  animation-delay:-18s}
+.c1::before{width:60px;height:60px;top:-27px;left:22px}
+.c1::after{width:44px;height:44px;top:-18px;left:70px}
+.c2{width:100px;height:30px;top:13%;animation-duration:95s; animation-delay:-62s}
+.c2::before{width:44px;height:44px;top:-20px;left:15px}
+.c2::after{width:32px;height:32px;top:-13px;left:52px}
+.c3{width:120px;height:34px;top:20%;animation-duration:85s; animation-delay:-35s}
+.c3::before{width:52px;height:52px;top:-23px;left:18px}
+.c3::after{width:38px;height:38px;top:-15px;left:60px}
+.c4{width:78px;height:24px;top:26%;animation-duration:110s;animation-delay:-84s}
+.c4::before{width:34px;height:34px;top:-15px;left:11px}
+.c4::after{width:25px;height:25px;top:-10px;left:37px}
+.c5{width:110px;height:32px;top:9%; animation-duration:100s;animation-delay:-50s}
+.c5::before{width:48px;height:48px;top:-21px;left:17px}
+.c5::after{width:35px;height:35px;top:-14px;left:56px}
+@keyframes sail{from{left:115%}to{left:-45%}}
+
+/* ── นกบิน (ปีกกระพือ) ── */
+.bird{position:absolute; width:20px; height:10px; animation:sail linear infinite}
+.bird::before,.bird::after{
+  content:''; position:absolute; top:2px; width:10px; height:9px;
+  border-top:2.5px solid #33607E; border-radius:50% 50% 0 0;
+  animation:flap .8s ease-in-out infinite alternate;
+}
+.bird::before{left:0}
+.bird::after{right:0}
+.bird.b1{top:15%; animation-duration:70s; animation-delay:-30s}
+.bird.b2{top:21%; animation-duration:95s; animation-delay:-8s; scale:.7}
+@keyframes flap{
+  from{transform:scaleY(1)}
+  to{transform:scaleY(.45)}
 }
 
 /* ═══════════ 3D Canvas ═══════════ */
