@@ -158,7 +158,7 @@ tick();
 function frameCamera() {
   const zoom = THREE.MathUtils.clamp(0.5 / camera.aspect, 0.85, 1.18);
   camera.position.set(0, 0.85 + 0.45 * zoom, 4.55 * zoom);
-  camera.lookAt(0, 0.85, 0);
+  camera.lookAt(0, 1.18, 0);   // เล็งสูงขึ้น → ตัวละคร + เงาถอยลงไปยืนบนถนนในภาพพื้นหลัง
 }
 function resize() {
   const w = canvas.clientWidth || canvas.parentElement.clientWidth;
