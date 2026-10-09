@@ -63,7 +63,7 @@ const rim = new THREE.DirectionalLight(0xbfe3f2, 0.6);
 rim.position.set(-1.5, 4, -5);
 scene.add(rim);
 
-/* ── ฉากหลัง: ภาพ Weston Myer Campus (CSS) — 3D มีตัวละคร + ต้นไม้ Tree 2 ── */
+/* ── ฉากหลัง: ภาพ Weston Myer Campus (CSS) — 3D เหลือแค่ตัวละคร ── */
 
 /* ── แผ่นรับเงาโปร่งใส (เงาตกบนพื้นภาพพื้นหลังโดยไม่เห็นพื้น 3D) ── */
 const shadowCatcher = new THREE.Mesh(
@@ -113,31 +113,6 @@ gltfLoader.load(
   undefined,
   () => { loaderEl.querySelector('p').textContent = 'โหลดโมเดลไม่สำเร็จ'; }
 );
-
-/* ── ต้นไม้ Tree 2 — โหลดครั้งเดียวแล้ว clone ไปวางสองข้างเฟรม ── */
-const TREE_SPOTS = [
-  [-2.0, -3.0, 2.4], [2.1, -3.6, 2.6],
-  [-3.3, -6.5, 2.8], [3.5, -7.5, 3.0],
-];
-gltfLoader.load('assets/tree2.glb', gltf => {
-  const proto = gltf.scene;
-  const box = new THREE.Box3().setFromObject(proto);
-  const size = box.getSize(new THREE.Vector3());
-  TREE_SPOTS.forEach(([x, z, h]) => {
-    const t = proto.clone();
-    t.scale.setScalar(h / size.y);
-    const b2 = new THREE.Box3().setFromObject(t);
-    t.position.set(x, -b2.min.y, z);
-    t.rotation.y = Math.random() * Math.PI * 2;
-    t.traverse(o => {
-      if (o.isMesh) {
-        o.castShadow = true;
-        if (o.material) o.material.envMapIntensity = 0.3;
-      }
-    });
-    scene.add(t);
-  });
-});
 
 /* ── อินเทอร์แอ็กชัน: ลาก = หมุน, แตะ = +1 ── */
 let dragging = false, moved = false, lastX = 0, lastInput = performance.now();
