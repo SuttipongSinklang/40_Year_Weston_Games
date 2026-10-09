@@ -437,7 +437,7 @@ body{
   background:var(--cream); border:2px solid var(--cream-dk); border-radius:999px;
   padding:2px 11px; box-shadow:0 2px 0 rgba(30,58,95,.14);
 }
-.nav-btn.active label{font-weight:600; background:var(--orange); color:#fff; border-color:var(--orange-dk)}
+.nav-btn.active label{font-weight:600; background:var(--orange); color:var(--navy); border-color:var(--orange-dk)}
 .nav-btn i{
   width:26px; height:4px; border-radius:999px; background:var(--navy);
   opacity:0; transform:scaleX(.4); transition:all .25s cubic-bezier(.34,1.56,.64,1);
