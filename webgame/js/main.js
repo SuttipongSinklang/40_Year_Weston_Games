@@ -28,7 +28,7 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.05;
+renderer.toneMappingExposure = 1.0;
 
 const scene = new THREE.Scene();
 scene.fog = new THREE.Fog(0xbfe3f2, 24, 60);  // หมอกบรรยากาศ: ตัวไกล (ตึก) ยังชัด ของไกลมากจาง
@@ -40,10 +40,10 @@ const pmrem = new THREE.PMREMGenerator(renderer);
 scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
 
 // แสงกระจายจากท้องฟ้า/พื้นดิน — ลดลงเล็กน้อยกันสีซีด
-scene.add(new THREE.HemisphereLight(0xbfe5ff, 0x7cbf7a, 0.68));
+scene.add(new THREE.HemisphereLight(0xbfe5ff, 0x7cbf7a, 0.5));
 
 // แสงหลัก (key) ขาวนุ่มจากบน-หน้า-ซ้าย
-const sun = new THREE.DirectionalLight(0xfff6ea, 1.95);
+const sun = new THREE.DirectionalLight(0xffffff, 1.8);
 sun.position.set(-3.5, 5.5, 3.5);
 sun.castShadow = true;
 sun.shadow.mapSize.set(2048, 2048);
@@ -54,7 +54,7 @@ sun.shadow.normalBias = 0.02;
 scene.add(sun);
 
 // แสงเติมจากท้องฟ้าฝั่งตรงข้าม (บางเบา)
-const fill = new THREE.DirectionalLight(0xd6ecff, 0.5);
+const fill = new THREE.DirectionalLight(0xd6ecff, 0.38);
 fill.position.set(4, 3.5, 2.5);
 scene.add(fill);
 
