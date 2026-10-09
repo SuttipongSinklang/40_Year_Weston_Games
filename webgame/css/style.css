@@ -449,18 +449,16 @@ body{
 }
 .nav-btn:active{transform:translateY(2px)}
 .nav-ico{
-  width:58px; height:52px;
+  width:72px; height:66px;
   display:flex; align-items:center; justify-content:center;
   transition:all .2s cubic-bezier(.34,1.56,.64,1);
 }
-.nav-ico img{width:46px; height:46px; object-fit:contain; filter:drop-shadow(0 3px 4px rgba(30,58,95,.3))}
-.nav-btn label{font-size:10.5px; font-weight:500; color:var(--navy); cursor:pointer}
+.nav-ico img{width:64px; height:64px; object-fit:contain; filter:drop-shadow(0 3px 4px rgba(30,58,95,.3))}
 .nav-btn i{
   width:26px; height:4px; border-radius:999px; background:var(--navy);
   opacity:0; transform:scaleX(.4); transition:all .25s cubic-bezier(.34,1.56,.64,1);
 }
 .nav-btn.active i{opacity:1; transform:none}
-.nav-btn.active .nav-ico{transform:translateY(-6px) scale(1.16)}
-.nav-btn.active label{font-weight:600}
+.nav-btn.active .nav-ico{transform:translateY(-6px) scale(1.12)}
 
 .hidden{display:none!important}
