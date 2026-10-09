@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600;700&family=Nunito:wght@800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=9">
+<link rel="stylesheet" href="css/style.css?v=10">
 <script type="importmap">
 {
   "imports": {
@@ -60,19 +60,19 @@
 
       <div class="stats-grid">
         <div class="stat-card">
-          <span class="stat-ico">📉</span>
+          <span class="stat-ico"><img src="assets/icons/fat.png" alt="ไขมัน"></span>
           <div><h3>ไขมัน</h3><p><b>18%</b> <em>↓2.4%</em></p></div>
         </div>
         <div class="stat-card">
-          <span class="stat-ico">💪</span>
+          <span class="stat-ico"><img src="assets/icons/muscle.png" alt="กล้ามเนื้อ"></span>
           <div><h3>กล้ามเนื้อ</h3><p><b>36%</b> <em>↑1.1%</em></p></div>
         </div>
         <div class="stat-card">
-          <span class="stat-ico">📊</span>
+          <span class="stat-ico"><img src="assets/icons/bmi.png" alt="BMI"></span>
           <div><h3>BMI</h3><p><b>22.5</b> <em>↑0.3</em></p></div>
         </div>
         <div class="stat-card">
-          <span class="stat-ico">⚖️</span>
+          <span class="stat-ico"><img src="assets/icons/weight.png" alt="น้ำหนัก"></span>
           <div><h3>น้ำหนัก</h3><p><b>62.4</b> <em>↑0.5</em></p></div>
         </div>
       </div>
@@ -80,6 +80,7 @@
 
     <!-- การ์ดภารกิจ (mockup) -->
     <aside class="mission-card" id="missionCard">
+      <span class="mission-ico"><img src="assets/icons/mission.png" alt="ภารกิจ"></span>
       <i class="mission-alert">!</i>
       <h3>ภารกิจ</h3>
       <p><b id="missionDone">2</b>/<span id="missionTotal">5</span></p>
@@ -106,7 +107,7 @@
 
     <div class="page-scroll">
       <header class="page-head">
-        <h2><span class="trophy-ico">🏆</span> Leaderboard</h2>
+        <h2><span class="head-ico"><img src="assets/icons/rank.png" alt="อันดับ"></span> Leaderboard</h2>
       </header>
 
       <div class="pill-tabs">
@@ -136,7 +137,7 @@
     </div>
 
     <div class="page-scroll">
-      <header class="page-head"><h2>🎯 เป้าหมายของฉัน</h2></header>
+      <header class="page-head"><h2><span class="head-ico"><img src="assets/icons/target.png" alt="เป้าหมาย"></span> เป้าหมายของฉัน</h2></header>
 
       <div class="goal-hero card">
         <svg viewBox="0 0 120 120" class="goal-ring">
@@ -165,7 +166,7 @@
     </div>
 
     <div class="page-scroll">
-      <header class="page-head"><h2>📅 ปฏิทิน</h2></header>
+      <header class="page-head"><h2><span class="head-ico"><img src="assets/icons/calendar.png" alt="ปฏิทิน"></span> ปฏิทิน</h2></header>
 
       <div class="cal-card card">
         <div class="cal-nav">
@@ -201,7 +202,7 @@
     </div>
 
     <div class="page-scroll">
-      <header class="page-head"><h2>👥 สังคม</h2></header>
+      <header class="page-head"><h2><span class="head-ico"><img src="assets/icons/team.png" alt="ทีม"></span> ทีม</h2></header>
 
       <div class="search-bar">🔍 ค้นหาเพื่อน…</div>
 
@@ -215,33 +216,23 @@
   <!-- ══════════════════════ BOTTOM NAV ══════════════════════ -->
   <nav class="bottom-nav">
     <button class="nav-btn active" data-screen="home">
-      <span class="nav-ico">
-        <svg viewBox="0 0 24 24"><path d="M4 11.2 12 4l8 7.2"/><path d="M6.3 10v10h11.4V10"/><path d="M10 20v-5.5h4V20"/></svg>
-      </span><label>หน้าหลัก</label><i></i>
+      <span class="nav-ico"><img src="assets/icons/home.png" alt="หน้าหลัก"></span><label>หน้าหลัก</label><i></i>
     </button>
     <button class="nav-btn" data-screen="trophy">
-      <span class="nav-ico">
-        <svg viewBox="0 0 24 24"><path d="M8 21h8M12 17.5V21M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M7 6H4v1a3 3 0 0 0 3 3M17 6h3v1a3 3 0 0 1-3 3"/></svg>
-      </span><label>ถ้วยรางวัล</label><i></i>
+      <span class="nav-ico"><img src="assets/icons/rank.png" alt="อันดับ"></span><label>อันดับ</label><i></i>
     </button>
     <button class="nav-btn" data-screen="goal">
-      <span class="nav-ico">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="4.4"/><circle cx="12" cy="12" r="1.1" fill="currentColor"/></svg>
-      </span><label>เป้าหมาย</label><i></i>
+      <span class="nav-ico"><img src="assets/icons/target.png" alt="เป้าหมาย"></span><label>เป้าหมาย</label><i></i>
     </button>
     <button class="nav-btn" data-screen="calendar">
-      <span class="nav-ico">
-        <svg viewBox="0 0 24 24"><rect x="3.8" y="5" width="16.4" height="15" rx="2.5"/><path d="M8 3v4M16 3v4M3.8 10.5h16.4"/></svg>
-      </span><label>ปฏิทิน</label><i></i>
+      <span class="nav-ico"><img src="assets/icons/calendar.png" alt="ปฏิทิน"></span><label>ปฏิทิน</label><i></i>
     </button>
     <button class="nav-btn" data-screen="social">
-      <span class="nav-ico">
-        <svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.3"/><path d="M3.4 19.5c0-3.1 2.5-5.1 5.6-5.1s5.6 2 5.6 5.1"/><path d="M16.2 5.7a2.8 2.8 0 0 1 0 5.4M17.6 14.7c2.2.6 3.4 2.2 3.4 4.3"/></svg>
-      </span><label>สังคม</label><i></i>
+      <span class="nav-ico"><img src="assets/icons/team.png" alt="ทีม"></span><label>ทีม</label><i></i>
     </button>
   </nav>
 </div>
 
-<script type="module" src="js/main.js?v=9"></script>
+<script type="module" src="js/main.js?v=10"></script>
 </body>
 </html>

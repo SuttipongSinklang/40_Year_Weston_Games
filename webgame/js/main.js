@@ -365,13 +365,13 @@ const players = [
 ];
 const maxScore = players[0].score;
 
+const rankCell = i => i < 3
+  ? `<img class="rank-img" src="assets/icons/rank${i + 1}.png" alt="อันดับ ${i + 1}">`
+  : `<span class="rank-badge">${i + 1}</span>`;
+
 document.getElementById('lbPerson').insertAdjacentHTML('beforeend', players.map((p, i) => `
   <div class="lb-row ${p.you ? 'you' : ''}">
-    <div class="lb-rank">
-      <span class="rank-badge ${i < 3 ? 'rank-' + (i + 1) : ''}">
-        ${i < 3 ? '<span class="crown">👑</span>' : ''}${i + 1}
-      </span>
-    </div>
+    <div class="lb-rank">${rankCell(i)}</div>
     <div class="lb-player">
       <span class="lb-ava">${p.ava}</span>
       <span class="lb-name">${p.name}${p.you ? '<span class="you-chip">คุณ</span>' : ''}</span>
@@ -392,11 +392,7 @@ const teams = [
 const maxTeam = teams[0].score;
 document.getElementById('lbTeam').insertAdjacentHTML('beforeend', teams.map((t, i) => `
   <div class="lb-row">
-    <div class="lb-rank">
-      <span class="rank-badge ${i < 3 ? 'rank-' + (i + 1) : ''}">
-        ${i < 3 ? '<span class="crown">👑</span>' : ''}${i + 1}
-      </span>
-    </div>
+    <div class="lb-rank">${rankCell(i)}</div>
     <div class="lb-player">
       <span class="lb-ava">${t.ava}</span>
       <span class="lb-name">${t.name}</span>
