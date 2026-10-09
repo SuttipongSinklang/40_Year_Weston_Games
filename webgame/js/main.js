@@ -63,37 +63,7 @@ const rim = new THREE.DirectionalLight(0xbfe3f2, 0.6);
 rim.position.set(-1.5, 4, -5);
 scene.add(rim);
 
-/* ── พื้นหญ้า + ทางเดิน (mockup สวน) ── */
-const ground = new THREE.Mesh(
-  new THREE.CircleGeometry(30, 56),
-  new THREE.MeshStandardMaterial({ color: 0x58c169, roughness: 1 })
-);
-ground.rotation.x = -Math.PI / 2;
-ground.receiveShadow = true;
-scene.add(ground);
-
-const path = new THREE.Mesh(
-  new THREE.PlaneGeometry(1.7, 9),
-  new THREE.MeshStandardMaterial({ color: 0xecd9a8, roughness: 1 })
-);
-path.rotation.x = -Math.PI / 2;
-path.position.set(0, 0.01, 3.4);
-path.receiveShadow = true;
-scene.add(path);
-
-/* ── เนินเขาไกล ๆ (โดนหมอกเบลอจางแบบธรรมชาติ) ── */
-[[-13, -17, 11, 3.4, 0x7fbf9a],
- [  0, -20, 14, 4.2, 0x8fcba8],
- [ 13, -18, 10, 3.0, 0x76b894],
- [-24, -21, 12, 3.8, 0x89c6a2]].forEach(([x, z, r, h, c]) => {
-  const hill = new THREE.Mesh(
-    new THREE.SphereGeometry(r, 24, 16),
-    new THREE.MeshStandardMaterial({ color: c, roughness: 1 })
-  );
-  hill.scale.y = h / r;
-  hill.position.set(x, 0, z);
-  scene.add(hill);
-});
+/* ── พื้นหลัง: ใช้ภาพ Weston Myer Campus (CSS) — ฉาก 3D เหลือแค่ตัวละคร + เงา ── */
 
 /* ── เงาสัมผัสใต้ตัวละคร (ให้ยืนแนบพื้น ไม่เหมือนลอย) ── */
 const contactShadow = (() => {
@@ -115,67 +85,6 @@ const contactShadow = (() => {
   return mesh;
 })();
 scene.add(contactShadow);
-
-/* หญ้าพุ่มเล็ก ๆ กระจาย (ให้เข้าในกรอบจอแนวตัั้ง) */
-const tuftGeo = new THREE.ConeGeometry(0.09, 0.22, 5);
-const tuftMat = new THREE.MeshStandardMaterial({ color: 0x3fae52, roughness: 1 });
-[[-0.75, 0.4], [0.8, 0.2], [-0.5, -1.4], [0.55, -1.1], [-0.9, 2.2], [0.7, 2.6], [-0.35, 3.3]]
-  .forEach(([x, z]) => {
-    const t = new THREE.Mesh(tuftGeo, tuftMat);
-    t.position.set(x, 0.1, z);
-    t.rotation.y = Math.random() * Math.PI;
-    t.castShadow = true;
-    scene.add(t);
-  });
-
-/* ── ต้นไม้การ์ตูน ── */
-function makeTree(x, z, s = 1) {
-  const g = new THREE.Group();
-  const trunk = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.09 * s, 0.13 * s, 0.7 * s, 8),
-    new THREE.MeshStandardMaterial({ color: 0x9a6b4f, roughness: 1 })
-  );
-  trunk.position.y = 0.35 * s;
-  trunk.castShadow = true;
-  g.add(trunk);
-  [[0, 0.95, 0, 0.52], [0.3, 0.72, 0.12, 0.38], [-0.28, 0.78, -0.1, 0.34]].forEach(([ox, oy, oz, r]) => {
-    const leaf = new THREE.Mesh(
-      new THREE.SphereGeometry(r * s, 18, 14),
-      new THREE.MeshStandardMaterial({ color: 0x4cc45f, roughness: .95 })
-    );
-    leaf.position.set(ox * s, oy * s, oz * s);
-    leaf.castShadow = true;
-    g.add(leaf);
-  });
-  g.position.set(x, 0, z);
-  return g;
-}
-scene.add(makeTree(-0.95, -1.15, 1.2));
-scene.add(makeTree(1.0, -1.9, 1.0));
-scene.add(makeTree(-0.78, -2.7, 0.85));
-scene.add(makeTree(1.18, -0.45, 0.95));
-
-/* ── ม้านั่ง (mockup) ── */
-const bench = new THREE.Group();
-const woodMat = new THREE.MeshStandardMaterial({ color: 0xc98a5b, roughness: .9 });
-const legMat = new THREE.MeshStandardMaterial({ color: 0x5b7191, roughness: .8 });
-const seat = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.09, 0.42), woodMat);
-seat.position.y = 0.42; seat.castShadow = true; bench.add(seat);
-const back = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.34, 0.07), woodMat);
-back.position.set(0, 0.66, -0.19); back.castShadow = true; bench.add(back);
-[[-0.55], [0.55]].forEach(([ox]) => {
-  const leg = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.42, 0.36), legMat);
-  leg.position.set(ox, 0.21, 0); bench.add(leg);
-});
-bench.position.set(1.05, 0, 0.75);
-bench.rotation.y = -0.55;
-bench.scale.setScalar(0.9);
-scene.add(bench);
-
-// คุมความเข้ม environment ของของในฉาก ให้สีการ์ตูนยังสดอยู่
-scene.traverse(o => {
-  if (o.isMesh && o.material && o.material.isMeshStandardMaterial) o.material.envMapIntensity = 0.2;
-});
 
 /* ── โมเดลตัวละคร (GLB จาก folder, ยืนนิ่งไม่มี Animation) ── */
 const MODEL_URL = 'assets/changrid_fat.glb';
