@@ -1,0 +1,9 @@
+{
+  "appId": "com.weston.fitquest",
+  "appName": "Weston Fit Quest",
+  "webDir": "www",
+  "backgroundColor": "#FFF8EE",
+  "server": { "androidScheme": "https" },
+  "android": { "allowMixedContent": false },
+  "ios": { "contentInset": "automatic" }
+}

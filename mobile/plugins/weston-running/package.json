@@ -1,0 +1,11 @@
+{
+  "name": "@weston/running",
+  "version": "1.0.0",
+  "description": "Private durable native GPS capture for Weston Fit Quest",
+  "type": "module",
+  "main": "dist/esm/index.js",
+  "module": "dist/esm/index.js",
+  "files": ["android", "ios", "dist", "Package.swift"],
+  "capacitor": { "android": { "src": "android" }, "ios": { "src": "ios" } },
+  "peerDependencies": { "@capacitor/core": "^8.5.3" }
+}

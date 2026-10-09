@@ -1,0 +1,155 @@
+{
+  "id": "cb145f09-cdab-4323-8c79-c75d8158e7d5",
+  "run": {
+    "id": "cb145f09-cdab-4323-8c79-c75d8158e7d5",
+    "status": "finished",
+    "started_at": "2026-10-09T06:53:55.479Z",
+    "ended_at": "2026-10-09T06:54:42.405Z",
+    "elapsed_ms": 37914,
+    "resumed_at": null,
+    "updated_at": 1791528882405,
+    "segment": 1,
+    "distance_m": 122.12909443125898,
+    "points": [
+      {
+        "lat": 13.757798333333334,
+        "lng": 100.5018,
+        "accuracy": 5,
+        "timestamp": 1791528835479,
+        "segment": 0,
+        "active_ms": 0,
+        "distance_m": 0
+      },
+      {
+        "lat": 13.757898333333333,
+        "lng": 100.5018,
+        "accuracy": 5,
+        "timestamp": 1791528838582,
+        "segment": 0,
+        "active_ms": 3103,
+        "distance_m": 11.11949266442996
+      },
+      {
+        "lat": 13.757998333333333,
+        "lng": 100.5018,
+        "accuracy": 5,
+        "timestamp": 1791528841617,
+        "segment": 0,
+        "active_ms": 6138,
+        "distance_m": 22.23898532885992
+      },
+      {
+        "lat": 13.7583,
+        "lng": 100.5018,
+        "accuracy": 5,
+        "timestamp": 1791528852230,
+        "segment": 1,
+        "active_ms": 7739,
+        "distance_m": 22.23898532885992
+      },
+      {
+        "lat": 13.758398333333334,
+        "lng": 100.5018,
+        "accuracy": 5,
+        "timestamp": 1791528854253,
+        "segment": 1,
+        "active_ms": 9762,
+        "distance_m": 33.1731531156218
+      },
+      {
+        "lat": 13.758498333333334,
+        "lng": 100.5018,
+        "accuracy": 5,
+        "timestamp": 1791528858482,
+        "segment": 1,
+        "active_ms": 13991,
+        "distance_m": 44.29264578005176
+      },
+      {
+        "lat": 13.758598333333333,
+        "lng": 100.5018,
+        "accuracy": 5,
+        "timestamp": 1791528860379,
+        "segment": 1,
+        "active_ms": 15888,
+        "distance_m": 55.41213844448171
+      },
+      {
+        "lat": 13.758698333333333,
+        "lng": 100.5018,
+        "accuracy": 5,
+        "timestamp": 1791528863362,
+        "segment": 1,
+        "active_ms": 18871,
+        "distance_m": 66.53163110891167
+      },
+      {
+        "lat": 13.758798333333333,
+        "lng": 100.5018,
+        "accuracy": 5,
+        "timestamp": 1791528866404,
+        "segment": 1,
+        "active_ms": 21913,
+        "distance_m": 77.65112377334162
+      },
+      {
+        "lat": 13.758898333333333,
+        "lng": 100.5018,
+        "accuracy": 5,
+        "timestamp": 1791528870451,
+        "segment": 1,
+        "active_ms": 25960,
+        "distance_m": 88.77061643777158
+      },
+      {
+        "lat": 13.759,
+        "lng": 100.5018,
+        "accuracy": 5,
+        "timestamp": 1791528872468,
+        "segment": 1,
+        "active_ms": 27977,
+        "distance_m": 100.07543398006713
+      },
+      {
+        "lat": 13.7591,
+        "lng": 100.5018,
+        "accuracy": 5,
+        "timestamp": 1791528877979,
+        "segment": 1,
+        "active_ms": 33488,
+        "distance_m": 111.19492664449709
+      },
+      {
+        "lat": 13.759198333333334,
+        "lng": 100.5018,
+        "accuracy": 5,
+        "timestamp": 1791528879881,
+        "segment": 1,
+        "active_ms": 35390,
+        "distance_m": 122.12909443125898
+      }
+    ],
+    "splits": [],
+    "events": [
+      {
+        "type": "pause",
+        "index": 1,
+        "at": 1791528843218,
+        "lat": 13.757998333333333,
+        "lng": 100.5018,
+        "fix_at": 1791528841617
+      },
+      {
+        "type": "resume",
+        "index": 1,
+        "at": 1791528852230,
+        "lat": 13.7583,
+        "lng": 100.5018,
+        "fix_at": 1791528852230
+      }
+    ]
+  },
+  "owner": null,
+  "share": true,
+  "cloud_state": "pending"
+}

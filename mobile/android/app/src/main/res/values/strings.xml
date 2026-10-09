@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Weston Fit Quest</string>
+    <string name="title_activity_main">Weston Fit Quest</string>
+    <string name="package_name">com.weston.fitquest</string>
+    <string name="custom_url_scheme">com.weston.fitquest</string>
+</resources>
