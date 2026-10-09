@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600;700&family=Nunito:wght@800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=14">
+<link rel="stylesheet" href="css/style.css?v=15">
 <script type="importmap">
 {
   "imports": {
@@ -78,10 +78,14 @@
       </div>
     </header>
 
-    <!-- การ์ดภารกิจ (mockup) -->
-    <aside class="mission-card" id="missionCard">
-      <span class="mission-ico"><img src="assets/icons/mission.png" alt="ภารกิจ"></span>
+    <!-- ปุ่มไอคอนภารกิจ (กดเพื่อเปิดการ์ด) -->
+    <button class="mission-btn" id="missionBtn" aria-label="ภารกิจ">
+      <img src="assets/icons/mission.png" alt="ภารกิจ">
       <i class="mission-alert">!</i>
+    </button>
+
+    <!-- การ์ดภารกิจ (เด้งขึ้นเมื่อกดไอคอน) -->
+    <aside class="mission-card" id="missionCard">
       <h3>ภารกิจ</h3>
       <p><b id="missionDone">2</b>/<span id="missionTotal">5</span></p>
       <div class="mission-bar"><div class="mission-fill" id="missionFill"></div></div>
@@ -233,6 +237,6 @@
   </nav>
 </div>
 
-<script type="module" src="js/main.js?v=14"></script>
+<script type="module" src="js/main.js?v=15"></script>
 </body>
 </html>

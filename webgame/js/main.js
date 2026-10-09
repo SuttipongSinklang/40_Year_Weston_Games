@@ -304,6 +304,19 @@ function updateGoal() {
 updateMission();
 updateGoal();
 
+/* ── ปุ่มภารกิจ: กดเปิด/ปิดการ์ด ── */
+const missionBtn = document.getElementById('missionBtn');
+const missionCardEl = document.getElementById('missionCard');
+missionBtn.addEventListener('click', e => {
+  e.stopPropagation();
+  missionCardEl.classList.toggle('open');
+});
+document.addEventListener('click', e => {
+  if (!e.target.closest('#missionCard') && !e.target.closest('#missionBtn')) {
+    missionCardEl.classList.remove('open');
+  }
+});
+
 function workout(e) {
   // +1 ลอยตรงจุดที่แตะ
   const pop = document.createElement('div');

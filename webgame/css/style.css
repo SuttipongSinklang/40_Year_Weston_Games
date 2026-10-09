@@ -184,13 +184,24 @@ body{
 .stat-card p b{font-size:16px}
 .stat-card p em{font-style:normal; font-size:10px; font-weight:900; color:var(--green-dk); background:#D9F5DF; border-radius:999px; padding:1px 5px; margin-left:3px; font-family:var(--font-num)}
 
-/* ═══════════ การ์ดภารกิจ ═══════════ */
+/* ═══════════ ปุ่ม + การ์ดภารกิจ ═══════════ */
+.mission-btn{
+  position:absolute; left:12px; bottom:112px; z-index:3;
+  width:74px; height:74px; background:none; border:none; padding:0; cursor:pointer;
+  transition:transform .18s;
+}
+.mission-btn:active{transform:scale(.9)}
+.mission-btn img{width:100%; height:100%; object-fit:contain; filter:drop-shadow(0 4px 6px rgba(30,58,95,.32))}
 .mission-card{
-  position:absolute; left:12px; bottom:118px; z-index:3;
+  position:absolute; left:12px; bottom:198px; z-index:4;
   width:138px; background:var(--cream); border:2px solid var(--cream-dk);
   border-radius:var(--r-md); padding:10px 12px;
   box-shadow:0 4px 0 rgba(30,58,95,.15);
+  transform-origin:bottom left;
+  opacity:0; transform:translateY(12px) scale(.8); pointer-events:none;
+  transition:opacity .2s, transform .24s cubic-bezier(.34,1.56,.64,1);
 }
+.mission-card.open{opacity:1; transform:none; pointer-events:auto}
 .mission-alert{
   position:absolute; top:-9px; right:-7px; width:24px; height:24px;
   background:var(--red); color:#fff; border-radius:50%;
@@ -200,8 +211,6 @@ body{
   animation:bing 1.4s ease-in-out infinite;
 }
 @keyframes bing{0%,100%{transform:scale(1)}50%{transform:scale(1.14)}}
-.mission-ico{display:inline-flex; width:52px; height:52px; vertical-align:-14px; margin-right:4px}
-.mission-ico img{width:100%; height:100%; object-fit:contain; filter:drop-shadow(0 2px 3px rgba(30,58,95,.25))}
 .mission-card h3{font-size:13px; font-weight:600}
 .mission-card > p{font-family:var(--font-num); font-size:15px; font-weight:900; color:var(--orange-dk); margin-top:1px}
 .mission-bar{
