@@ -418,12 +418,7 @@ body{
 .bottom-nav{
   position:absolute; left:0; right:0; bottom:0; z-index:10;
   display:flex; justify-content:space-evenly; align-items:flex-end; gap:2px;
-  margin:0 10px calc(10px + env(safe-area-inset-bottom));
-  background:var(--cream);
-  border:2.5px solid var(--cream-dk);
-  border-radius:26px;
-  box-shadow:0 4px 0 rgba(30,58,95,.15), 0 10px 20px rgba(30,58,95,.22);
-  padding:10px 6px 8px;
+  padding:10px 6px calc(10px + env(safe-area-inset-bottom));
 }
 .nav-btn{
   position:relative; background:none; border:none; cursor:pointer;
@@ -437,7 +432,12 @@ body{
   transition:all .2s cubic-bezier(.34,1.56,.64,1);
 }
 .nav-ico img{width:64px; height:64px; object-fit:contain; filter:drop-shadow(0 3px 4px rgba(30,58,95,.3))}
-.nav-btn label{font-size:10.5px; font-weight:500; color:var(--navy); cursor:pointer}
+.nav-btn label{
+  font-size:10.5px; font-weight:500; color:var(--navy); cursor:pointer;
+  background:var(--cream); border:2px solid var(--cream-dk); border-radius:999px;
+  padding:2px 11px; box-shadow:0 2px 0 rgba(30,58,95,.14);
+}
+.nav-btn.active label{font-weight:600; background:var(--orange); color:#fff; border-color:var(--orange-dk)}
 .nav-btn i{
   width:26px; height:4px; border-radius:999px; background:var(--navy);
   opacity:0; transform:scaleX(.4); transition:all .25s cubic-bezier(.34,1.56,.64,1);
