@@ -173,12 +173,11 @@ body{
   border-radius:var(--r-md); padding:8px 10px;
   box-shadow:0 3px 0 rgba(30,58,95,.12);
 }
-.stat-ico{
-  flex:none; width:56px; height:56px; border-radius:15px;
-  background:#fff; border:2px solid var(--cream-dk);
-  display:flex; align-items:center; justify-content:center; font-size:19px;
+.stat-ico{flex:none; display:flex; align-items:center; justify-content:center}
+.stat-ico img{
+  width:62px; height:62px; object-fit:contain;
+  filter:drop-shadow(0 2px 3px rgba(30,58,95,.22));
 }
-.stat-ico img{width:48px; height:48px; object-fit:contain}
 .stat-card h3{font-size:11.5px; font-weight:500; color:#5B7191; line-height:1.1}
 .stat-card p{font-family:var(--font-num); font-size:16px; font-weight:900; line-height:1.2}
 .stat-card p b{font-size:16px}
