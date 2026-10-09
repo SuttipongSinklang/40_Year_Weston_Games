@@ -1,7 +1,9 @@
 /* ═══════════════════════════════════════════════════════════
-   Weston Fit Quest — Mobile web game mockup
+   Weston Fit Quest — Mobile-first responsive web game
    โทนสีอ้างอิงจาก Home.png : ครีม #FFF6E3 / ส้ม #F5B83D /
    เขียว #3DBE5B / ฟ้า #4FB3E8 / กรมท่า #1E3A5F
+   เลย์เอาต์: มือถือแนวตั้ง = HUD บน · ตัวละครกลาง · ควบคุมล่าง
+   เดสก์ท็อป/จอกว้าง/แนวนอน = แผง HUD ซ้าย · ตัวละครขวา
    ═══════════════════════════════════════════════════════════ */
 :root{
   --cream:#FFF6E3; --cream-dk:#F4E7C6;
@@ -14,28 +16,94 @@
   --r-lg:22px; --r-md:16px;
   --font-th:'Mitr',sans-serif;
   --font-num:'Nunito','Mitr',sans-serif;
+  /* ── layout tokens (เรขาคณิตคงที่ ไม่ให้ layout กระโดด) ── */
+  --sync-h:76px;              /* พื้นที่สงวนให้แถบสถานะซิงก์ด้านบน (ไม่รวม safe-area) */
+  --nav-h:82px;               /* ความสูง bottom nav (ไม่รวม safe-area) */
+  --side-w:min(420px,40vw);   /* ความกว้างแผง HUD ในโหมดจอกว้าง/แนวนอน */
+  --scroll-thumb:#5B7191; --scroll-track:transparent; --scroll-hover:#1E3A5F;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scrollbar-color:var(--scroll-thumb) var(--scroll-track);scrollbar-width:thin}
+*{scrollbar-color:var(--scroll-thumb) var(--scroll-track);scrollbar-width:thin}
+*::-webkit-scrollbar{width:8px;height:8px}
+*::-webkit-scrollbar-track{background:var(--scroll-track)}
+*::-webkit-scrollbar-thumb{background:var(--scroll-thumb);border-radius:999px}
+*::-webkit-scrollbar-thumb:hover,*::-webkit-scrollbar-thumb:active{background:var(--scroll-hover)}
+@media (forced-colors:active){*{scrollbar-color:auto;scrollbar-width:auto}}
 html,body{height:100%}
 body{
   font-family:var(--font-th); color:var(--navy);
   background:#223649; overflow:hidden;
   display:flex; align-items:center; justify-content:center;
 }
+button{font-family:var(--font-th); cursor:pointer}
 
-/* ── กรอบมือถือ (แสดงบนจอ desktop เป็น mockup โทรศัพท์) ── */
+/* ── คีย์บอร์ด: ต้องเห็น focus ชัดเจน ── */
+:focus{outline:none}
+:focus-visible{outline:3px solid var(--navy); outline-offset:2px}
+.bottom-nav :focus-visible{outline-color:#fff; outline-offset:-2px}
+
+/* ── ตัวเกมเต็ม viewport (ไม่มีกรอบ mockup โทรศัพท์บนเดสก์ท็อปแล้ว) ── */
 #app{
   position:relative; width:100%; height:100vh; height:100dvh;
+  max-width:100vw;
   background:linear-gradient(180deg,var(--sky-lt) 0%,var(--sky) 46%,var(--sky-pale) 78%,#DFF4E0 100%);
   overflow:hidden; user-select:none;
 }
-@media (min-width:560px){
-  #app{
-    width:412px; height:min(880px,95vh);
-    border-radius:44px; border:11px solid #101c28;
-    box-shadow:0 30px 80px rgba(0,0,0,.55), inset 0 0 0 2px #2c3f52;
-  }
+
+/* ═══════════ แถบสถานะการเชื่อมต่อ (cloud status) ═══════════ */
+.sync-bar{
+  position:absolute; z-index:9;
+  top:calc(env(safe-area-inset-top,0px) + 6px); left:10px; right:10px;
+  height:var(--sync-h);
+  display:flex; align-items:center; gap:10px;
+  background:rgba(255,255,255,.94); border:2px solid #fff;
+  border-radius:999px; padding:5px 6px 5px 14px;
+  box-shadow:0 4px 0 rgba(30,58,95,.1), 0 8px 22px rgba(30,58,95,.18);
 }
+.sync-dot{
+  flex:none; width:9px; height:9px; border-radius:50%;
+  background:var(--green-lt);
+  box-shadow:0 0 0 3px rgba(76,224,107,.28);
+  animation:syncPulse 1.8s ease-in-out infinite;
+}
+@keyframes syncPulse{
+  0%,100%{box-shadow:0 0 0 3px rgba(76,224,107,.28)}
+  50%{box-shadow:0 0 0 7px rgba(76,224,107,.1)}
+}
+.sync-text{flex:1; min-width:0; display:flex; flex-direction:column; gap:1px}
+#syncStatus{
+  font-size:12.5px; font-weight:600; color:var(--navy);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+#syncDetail{
+  font-size:10.5px; color:#5B7191;
+  white-space:normal; overflow-wrap:anywhere; line-height:1.45;
+}
+#syncRetry{
+  flex:none; min-height:44px; padding:0 14px;
+  font-size:11.5px; font-weight:600; color:#fff;
+  background:linear-gradient(180deg,var(--orange),#EDAD30);
+  border:2px solid var(--orange-dk); border-radius:999px;
+  box-shadow:0 3px 0 var(--orange-sh);
+}
+#syncRetry:active{transform:translateY(2px); box-shadow:0 1px 0 var(--orange-sh)}
+
+/* ═══════════ ปุ่มสลับเต็มจอ ═══════════ */
+.fullscreen-btn{
+  position:absolute; z-index:11;
+  bottom:calc(env(safe-area-inset-bottom,0px) + var(--nav-h) + 182px); right:10px;
+  width:44px; height:44px; border-radius:50%;
+  background:rgba(255,255,255,.94); border:2px solid #fff; color:var(--navy);
+  box-shadow:0 3px 0 rgba(30,58,95,.15), 0 6px 14px rgba(30,58,95,.2);
+  display:flex; align-items:center; justify-content:center;
+}
+.fullscreen-btn svg{width:21px; height:21px; stroke:currentColor; fill:none; stroke-width:2.1; stroke-linecap:round; stroke-linejoin:round}
+.fullscreen-btn .ico-compress{display:none}
+.fullscreen-btn:active{transform:translateY(2px); box-shadow:0 1px 0 rgba(30,58,95,.15)}
+.fullscreen-btn.active{background:var(--orange); border-color:var(--orange-dk); color:#fff; box-shadow:0 3px 0 var(--orange-sh)}
+.fullscreen-btn.active .ico-expand{display:none}
+.fullscreen-btn.active .ico-compress{display:block}
 
 /* ═══════════ ฉากหลังท้องฟ้า (CSS mockup) ═══════════ */
 .sky-decor{position:absolute; inset:0; z-index:0; overflow:hidden; pointer-events:none}
@@ -98,14 +166,23 @@ body{
 .screen{position:absolute; inset:0; opacity:0; visibility:hidden; transform:translateY(12px); transition:opacity .28s, transform .28s, visibility .28s; z-index:2}
 .screen.active{opacity:1; visibility:visible; transform:none}
 
-/* ═══════════ HUD หน้าหลัก ═══════════ */
+/* ═══════════ ชั้น UI หน้าหลัก ═══════════
+   มือถือ: HUD อยู่บน (สงวนที่ให้แถบสถานะซิงก์) + ควบคุมล่าง
+   จอกว้าง/แนวนอน: เปลี่ยนเป็นแผงซ้าย (ดู media ด้านล่าง) */
+.home-ui{position:absolute; inset:0; z-index:3; pointer-events:none}
 .hud-top{
-  position:absolute; top:0; left:0; right:0; z-index:3;
-  padding:calc(10px + env(safe-area-inset-top)) 12px 0;
-  pointer-events:none;
+  position:absolute; top:0; left:0; right:0;
+  padding:calc(8px + env(safe-area-inset-top,0px) + var(--sync-h)) 12px 0;
+  pointer-events:auto;
 }
-.hud-top > *{pointer-events:auto}
+.home-controls{
+  position:absolute; left:12px; right:12px;
+  bottom:calc(var(--nav-h) + 10px + env(safe-area-inset-bottom,0px));
+  display:flex; gap:10px; align-items:stretch;
+}
+.home-controls > *{pointer-events:auto}
 
+/* ── HUD: โปรไฟล์ ── */
 .profile-row{display:flex; align-items:center; gap:10px}
 .avatar{
   position:relative; width:52px; height:52px; border-radius:50%;
@@ -117,10 +194,13 @@ body{
   position:absolute; bottom:-6px; left:50%; transform:translateX(-50%);
   font-style:normal; font-family:var(--font-num); font-weight:900; font-size:10px;
   background:var(--green); color:#fff; padding:2px 7px; border-radius:999px;
-  border:2px solid #fff;
+  border:2px solid #fff; white-space:nowrap;
 }
 .profile-info{flex:1; min-width:0}
-.profile-info h1{font-size:17px; font-weight:600; color:#fff; text-shadow:0 2px 4px rgba(30,58,95,.35)}
+.profile-info h1{
+  font-size:17px; font-weight:600; color:#fff; text-shadow:0 2px 4px rgba(30,58,95,.35);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
 .xp-bar{
   margin-top:4px; height:14px; border-radius:999px;
   background:rgba(255,255,255,.55); border:2px solid #fff;
@@ -137,8 +217,9 @@ body{
   flex:none; background:var(--cream); border:2px solid var(--cream-dk);
   border-radius:999px; padding:6px 12px; font-family:var(--font-num);
   font-weight:900; font-size:13px; box-shadow:0 3px 0 rgba(30,58,95,.12);
+  max-width:46%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }
-.coin-chip span{margin-right:2px}
+.coin-ico{margin-right:4px}
 
 .streak-banner{
   margin:10px auto 0; width:max-content; max-width:100%;
@@ -153,11 +234,22 @@ body{
 .streak-banner .divider{width:2px; height:14px; background:var(--cream-dk); border-radius:2px}
 .streak-day b{font-family:var(--font-num); font-weight:900; color:var(--green-dk)}
 
+/* ── ป้ายกำกับข้อมูลตัวอย่าง ── */
+.mock-label{
+  display:inline-block; width:max-content; max-width:100%;
+  margin:10px 0 0; padding:3px 10px;
+  font-size:10.5px; font-weight:500; line-height:1.4;
+  color:var(--orange-dk); background:#FFEFC9; border:1.5px solid #F3D98F;
+  border-radius:999px;
+}
+.page-scroll .mock-label{margin:0 0 10px}
+.lb-list .mock-label{margin:0 0 1px}
+
 .stats-grid{
-  margin-top:10px; display:grid; grid-template-columns:1fr 1fr; gap:8px;
+  margin-top:6px; display:grid; grid-template-columns:1fr 1fr; gap:8px;
 }
 .stat-card{
-  display:flex; align-items:center; gap:9px;
+  display:flex; align-items:center; gap:9px; min-width:0;
   background:var(--cream); border:2px solid var(--cream-dk);
   border-radius:var(--r-md); padding:8px 10px;
   box-shadow:0 3px 0 rgba(30,58,95,.12);
@@ -167,15 +259,17 @@ body{
   background:#fff; border:2px solid var(--cream-dk);
   display:flex; align-items:center; justify-content:center; font-size:19px;
 }
-.stat-card h3{font-size:11.5px; font-weight:500; color:#5B7191; line-height:1.1}
-.stat-card p{font-family:var(--font-num); font-size:16px; font-weight:900; line-height:1.2}
+.stat-card > div{min-width:0}
+.stat-card h3{font-size:11.5px; font-weight:500; color:#5B7191; line-height:1.1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.stat-card p{font-family:var(--font-num); font-size:16px; font-weight:900; line-height:1.2; white-space:nowrap}
 .stat-card p b{font-size:16px}
 .stat-card p em{font-style:normal; font-size:10px; font-weight:900; color:var(--green-dk); background:#D9F5DF; border-radius:999px; padding:1px 5px; margin-left:3px; font-family:var(--font-num)}
 
-/* ═══════════ การ์ดภารกิจ ═══════════ */
+/* ═══════════ คอนโทรลล่าง: การ์ดภารกิจ + ปุ่มออกกำลังกาย ═══════════ */
 .mission-card{
-  position:absolute; left:12px; bottom:118px; z-index:3;
-  width:138px; background:var(--cream); border:2px solid var(--cream-dk);
+  flex:none; width:152px;
+  position:relative;
+  background:var(--cream); border:2px solid var(--cream-dk);
   border-radius:var(--r-md); padding:10px 12px;
   box-shadow:0 4px 0 rgba(30,58,95,.15);
 }
@@ -218,23 +312,31 @@ body{
   100%{opacity:0; transform:translate(-50%,-190%) scale(1)}
 }
 
-/* Toast */
+/* Toast — อยู่ระดับ #app มองเห็นได้ทุกหน้าจอ */
 #toast{
-  position:absolute; left:50%; bottom:132px; transform:translate(-50%,20px); z-index:6;
+  position:absolute; left:50%; z-index:40;
+  bottom:calc(var(--nav-h) + 14px + env(safe-area-inset-bottom,0px));
+  transform:translate(-50%,16px);
+  max-width:calc(100% - 32px); min-height:44px;
+  display:flex; align-items:center;
   background:var(--navy); color:#fff; font-size:14px; font-weight:500;
   border-radius:14px; padding:10px 18px; opacity:0; pointer-events:none;
   box-shadow:0 8px 24px rgba(0,0,0,.35); transition:all .35s cubic-bezier(.22,1,.36,1);
-  white-space:nowrap;
+  text-align:center;
 }
 #toast.show{opacity:1; transform:translate(-50%,0)}
 
 /* ═══════════ หน้าย่อย (leaderboard/goal/calendar/social) ═══════════ */
 .page-scroll{
   position:absolute; inset:0; z-index:2; overflow-y:auto; overscroll-behavior:contain;
-  padding:calc(14px + env(safe-area-inset-top)) 14px calc(112px + env(safe-area-inset-bottom));
-  scrollbar-width:none;
+  padding:calc(12px + env(safe-area-inset-top,0px) + var(--sync-h)) 14px
+          calc(var(--nav-h) + 20px + env(safe-area-inset-bottom,0px));
+  scrollbar-width:thin; scrollbar-color:rgba(30,58,95,.35) transparent;
 }
-.page-scroll::-webkit-scrollbar{display:none}
+/* แสดง scrollbar ให้เห็น (เข้าถึงได้ง่าย) */
+.page-scroll::-webkit-scrollbar{width:8px}
+.page-scroll::-webkit-scrollbar-track{background:transparent}
+.page-scroll::-webkit-scrollbar-thumb{background:rgba(30,58,95,.3); border-radius:999px}
 .page-head h2{
   font-size:22px; font-weight:600; text-align:center; margin-bottom:14px;
   text-shadow:0 2px 4px rgba(255,255,255,.6);
@@ -250,8 +352,8 @@ body{
 /* ── Leaderboard ── */
 .pill-tabs{display:flex; gap:8px; justify-content:center; margin-bottom:12px}
 .pill{
-  font-family:var(--font-th); font-size:14px; font-weight:500;
-  border:2px solid var(--cream-dk); border-radius:999px; padding:6px 26px;
+  min-height:44px; font-family:var(--font-th); font-size:14px; font-weight:500;
+  border:2px solid var(--cream-dk); border-radius:999px; padding:8px 26px;
   background:var(--cream); color:#5B7191; box-shadow:0 3px 0 rgba(30,58,95,.12);
 }
 .pill.active{background:var(--orange); color:#fff; border-color:var(--orange-dk)}
@@ -294,17 +396,35 @@ body{
   font-size:9.5px; font-weight:600; color:#fff; background:var(--orange);
   border-radius:999px; padding:1px 7px; margin-left:5px; vertical-align:2px;
 }
-.lb-score{text-align:right}
+.lb-score{text-align:right; min-width:0}
 .lb-scorebar{
   height:10px; border-radius:999px; background:#EADFC2; overflow:hidden;
   border:1.5px solid #fff; margin-bottom:4px; box-shadow:inset 0 1.5px 2px rgba(30,58,95,.15);
 }
 .lb-scorebar i{display:block; height:100%; background:linear-gradient(180deg,var(--green-lt),var(--green-dk)); border-radius:999px}
-.lb-flame{font-family:var(--font-num); font-weight:900; font-size:13px}
+.lb-flame{font-family:var(--font-num); font-weight:900; font-size:13px; white-space:nowrap}
 .lb-flame span{font-size:11px; margin-right:2px}
 
+/* ข้อความสถานะ/ปุ่ม retry ที่ runtime สร้างในลิสต์อันดับ */
+.data-note{font-size:11px; color:#5B7191; text-align:center; padding:0 4px}
+.data-message{padding:14px; text-align:center; font-size:13px; font-weight:500; color:#5B7191}
+.data-retry{
+  min-height:44px; margin-top:8px; align-self:center;
+  padding:0 18px; font-size:13px; font-weight:600; color:#fff;
+  background:linear-gradient(180deg,var(--orange),#EDAD30);
+  border:2px solid var(--orange-dk); border-radius:999px;
+  box-shadow:0 3px 0 var(--orange-sh);
+}
+.data-retry:active{transform:translateY(2px); box-shadow:0 1px 0 var(--orange-sh)}
+
+/* ปุ่ม retry ในแถบสถานะ — สถานะ disabled ระหว่างเชื่อมต่อ */
+#syncRetry:disabled{
+  background:#C9C2AE; border-color:#B4AC95; box-shadow:none;
+  color:rgba(255,255,255,.85); cursor:default; transform:none;
+}
+
 /* ── Goals ── */
-.goal-hero{display:flex; align-items:center; gap:16px; padding:16px; margin-bottom:12px}
+.goal-hero{display:flex; align-items:center; gap:14px; padding:14px; margin-bottom:12px}
 .goal-ring{width:118px; height:118px; flex:none}
 .ring-bg{fill:none; stroke:#EADFC2; stroke-width:11}
 .ring-fill{
@@ -316,6 +436,7 @@ body{
 }
 .ring-num{font-family:var(--font-num); font-weight:900; font-size:26px; fill:var(--navy); text-anchor:middle}
 .ring-label{font-family:var(--font-th); font-size:11px; fill:#5B7191; text-anchor:middle}
+.goal-hero-info{flex:1; min-width:0}
 .goal-hero-info h3{font-size:16px; font-weight:600; margin-bottom:2px}
 .goal-hero-info p{font-size:12.5px; color:#5B7191; margin-bottom:9px}
 .badge-green{
@@ -341,10 +462,11 @@ body{
 .cal-nav{display:flex; align-items:center; justify-content:space-between; margin-bottom:10px}
 .cal-nav h3{font-size:16px; font-weight:600}
 .cal-nav button{
-  width:32px; height:32px; border-radius:10px; border:2px solid var(--cream-dk);
-  background:#fff; color:var(--navy); font-size:18px; font-family:var(--font-num); font-weight:900;
-  box-shadow:0 2px 0 rgba(30,58,95,.12); cursor:pointer;
+  width:44px; height:44px; border-radius:12px; border:2px solid var(--cream-dk);
+  background:#fff; color:var(--navy); font-size:20px; font-family:var(--font-num); font-weight:900;
+  box-shadow:0 2px 0 rgba(30,58,95,.12);
 }
+.cal-nav button:active{transform:translateY(2px); box-shadow:none}
 .cal-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:3px}
 .cal-head span{text-align:center; font-size:11px; color:#5B7191; font-weight:500; padding:4px 0}
 .cal-head span:first-child{color:var(--red)}
@@ -357,7 +479,7 @@ body{
 .cal-day.done{background:#fff; border:1.5px solid var(--cream-dk)}
 .cal-day.done::after{content:'🔥'; font-size:9px; line-height:1; margin-top:1px}
 .cal-day.today{background:var(--orange); color:#fff; border:1.5px solid var(--orange-dk); box-shadow:0 3px 6px rgba(222,155,31,.4)}
-.cal-day.today::after{content:'แตะเพื่อเริ่ม!'; font-size:6.5px; font-family:var(--font-th); font-weight:500; margin-top:1px}
+.cal-day.today::after{content:'วันนี้'; font-size:9px; font-family:var(--font-th); font-weight:500; margin-top:1px}
 .cal-legend{display:flex; gap:14px; margin-top:10px; font-size:11px; color:#5B7191}
 .cal-legend .dot{display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:4px; vertical-align:-1px}
 .dot.done{background:#fff; border:1.5px solid var(--cream-dk)}
@@ -365,7 +487,7 @@ body{
 .summary-card{margin-top:12px; padding:14px}
 .summary-card h3{font-size:15px; font-weight:600; margin-bottom:10px}
 .summary-row{display:flex; text-align:center}
-.summary-row > div{flex:1}
+.summary-row > div{flex:1; min-width:0}
 .summary-row > div:not(:first-child){border-left:2px solid var(--cream-dk)}
 .summary-row b{display:block; font-family:var(--font-num); font-weight:900; font-size:21px; color:var(--green-dk)}
 .summary-row small{font-size:10.5px; color:#5B7191}
@@ -376,8 +498,13 @@ body{
   padding:10px 16px; font-size:13.5px; color:#8AA0BC; margin-bottom:14px;
   box-shadow:0 3px 0 rgba(30,58,95,.1);
 }
-.friends-row{display:flex; gap:12px; overflow-x:auto; padding:2px 2px 8px; scrollbar-width:none}
-.friends-row::-webkit-scrollbar{display:none}
+.friends-row{
+  display:flex; gap:12px; overflow-x:auto; padding:2px 2px 8px;
+  scrollbar-width:thin; scrollbar-color:rgba(30,58,95,.35) transparent;
+}
+.friends-row::-webkit-scrollbar{height:8px}
+.friends-row::-webkit-scrollbar-track{background:transparent}
+.friends-row::-webkit-scrollbar-thumb{background:rgba(30,58,95,.3); border-radius:999px}
 .friend{
   flex:none; display:flex; flex-direction:column; align-items:center; gap:5px; width:64px;
 }
@@ -400,16 +527,20 @@ body{
 .feed-item .lb-ava{margin-top:2px}
 .feed-item h4{font-size:13.5px; font-weight:500; line-height:1.45}
 .feed-item h4 b{font-weight:600}
-.feed-meta{display:flex; gap:12px; margin-top:6px; font-family:var(--font-num); font-weight:800; font-size:11.5px; color:#8AA0BC}
-.feed-meta button{
+.feed-meta{display:flex; flex-wrap:wrap; gap:12px; margin-top:6px; font-family:var(--font-num); font-weight:800; font-size:11.5px; color:#8AA0BC}
+.feed-meta button,
+.feed-meta .like-btn{
+  min-height:44px; display:flex; align-items:center; gap:4px;
   border:none; background:none; font-family:var(--font-num); font-weight:800; font-size:11.5px;
-  color:#8AA0BC; cursor:pointer; display:flex; align-items:center; gap:4px; padding:0;
+  color:#8AA0BC; padding:0 10px; border-radius:10px;
 }
-.feed-meta button.liked{color:var(--red)}
+.feed-meta button.liked,
+.feed-meta .like-btn.liked{color:var(--red)}
 
 /* ต้นไม้มุมหน้า leaderboard (mockup) */
 .tree-corner{
-  position:absolute; bottom:96px; width:110px; height:130px; opacity:.95;
+  position:absolute; bottom:calc(var(--nav-h) + 14px + env(safe-area-inset-bottom,0px));
+  width:110px; height:130px; opacity:.95;
   background:radial-gradient(circle at 50% 34%, #6ED67F 0 34%, #58C469 34% 100%);
   border-radius:50% 50% 46% 46%;
   box-shadow:inset -10px -12px 0 rgba(46,155,71,.35);
@@ -422,12 +553,12 @@ body{
 .bottom-nav{
   position:absolute; left:0; right:0; bottom:0; z-index:10;
   display:flex; justify-content:space-evenly; align-items:flex-end; gap:2px;
-  padding:10px 6px calc(10px + env(safe-area-inset-bottom));
+  padding:10px 6px calc(10px + env(safe-area-inset-bottom,0px));
 }
 .nav-btn{
   position:relative; background:none; border:none; cursor:pointer;
   display:flex; flex-direction:column; align-items:center; gap:3px;
-  font-family:var(--font-th); padding:0; transition:transform .18s;
+  font-family:var(--font-th); padding:0; min-height:44px; transition:transform .18s;
 }
 .nav-btn:active{transform:translateY(2px)}
 .nav-ico{
@@ -453,4 +584,330 @@ body{
 }
 .nav-btn.active label{font-weight:600}
 
+/* ═══════════════════════════════════════════════════════════
+   จอเล็กมาก (320px) — ลด padding/ขนาดเพื่อไม่ให้ล้นแนวนอน
+   ═══════════════════════════════════════════════════════════ */
+@media (max-width:359px){
+  .page-scroll{padding-left:12px; padding-right:12px}
+  .sync-dot{display:none}
+  #syncRetry{padding:0 10px; font-size:11px}
+  .mission-card{width:146px}
+  .goal-hero{gap:10px; padding:12px}
+  .goal-ring{width:100px; height:100px}
+  .ring-num{font-size:22px}
+  .lb-cols,.lb-row{grid-template-columns:40px 1fr 78px}
+  .lb-row{padding:7px 8px 7px 4px}
+}
+
+/* ═══════════════════════════════════════════════════════════
+   จอกว้าง (≥768px) และมือถือแนวนอนจอเตี้ย — แผง HUD ซ้าย + ตัวละครขวา
+   ═══════════════════════════════════════════════════════════ */
+@media (min-width:768px){
+  .bottom-nav{justify-content:center;gap:clamp(16px,4vw,56px)}
+  .page-scroll{padding-left:max(16px,calc(50vw - 400px));padding-right:max(16px,calc(50vw - 400px))}
+  .page-head h2{font-size:26px}
+}
+
+/* ═══════════ ลดการเคลื่อนไหว (reduced motion) ═══════════ */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms!important;
+    animation-iteration-count:1!important;
+    transition-duration:.01ms!important;
+    scroll-behavior:auto!important;
+  }
+  .cloud,.sun{animation:none!important}
+}
+
 .hidden{display:none!important}
+button:disabled{cursor:wait; opacity:.65}
+button:hover:not(:disabled){filter:brightness(1.04)}
+[hidden]{display:none!important}
+#loader{z-index:2;pointer-events:none}
+@media (max-width:767px){#scene3d{touch-action:pan-y pinch-zoom}}
+.sync-bar[data-state="setup"] .sync-dot,.sync-bar[data-state="error"] .sync-dot{background:var(--orange);animation:none;box-shadow:none}
+.sync-bar[data-state="offline"] .sync-dot{background:var(--navy);animation:none;box-shadow:none}
+#syncRetry{padding-inline:10px;color:var(--navy)}
+.data-message{padding:18px;line-height:1.7}
+.data-note{font-size:13px;padding:8px}
+.data-retry{min-height:44px;background:var(--cream);border:2px solid var(--cream-dk);border-radius:var(--r-md);color:var(--navy);padding:10px 16px}
+.profile-info h1{color:var(--navy);text-shadow:none}
+
+/* Game stage: HUD and quest dock sit outside the character's playable area. */
+:root{--game-hud:218px;--quest-dock:104px}
+#screen-home{overflow:hidden;padding:0}
+#scene3d{inset:calc(var(--game-hud) + env(safe-area-inset-top,0px)) 0 calc(var(--quest-dock) + var(--nav-h) + env(safe-area-inset-bottom,0px));width:100%;height:calc(100% - var(--game-hud) - var(--quest-dock) - var(--nav-h) - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));cursor:pointer;touch-action:pan-y pinch-zoom}
+#scene3d:focus-visible{outline:3px dashed var(--navy);outline-offset:-6px;border-radius:24px}
+.home-ui{position:absolute;inset:0;display:block;padding:0;width:auto;overflow:visible;pointer-events:none}
+.hud-top{position:absolute;top:env(safe-area-inset-top,0px);left:12px;right:12px;padding:10px 0 0;width:auto;background:none;border:0;box-shadow:none;overflow:visible;pointer-events:none}
+.profile-row{max-width:640px;margin:auto;gap:10px;align-items:center}
+.avatar{width:44px;height:44px;font-size:24px}
+.profile-info h1{font-size:14px}
+.xp-bar{height:10px;margin-top:6px}
+.coin-chip{font-size:14px;padding:7px 10px}
+.player-info-button{display:flex;align-items:center;gap:8px;margin:10px auto 0;min-height:28px;padding:3px 12px;border:1px solid rgba(255,255,255,.8);border-radius:999px;background:rgba(255,255,255,.85);color:var(--navy);font-size:11px;pointer-events:auto;min-width:44px}
+.player-info-button span{font-size:10px;border-left:1px solid var(--cream-dk);padding-left:8px;color:var(--navy)}
+.player-info-button[data-state="setup"] span,.player-info-button[data-state="error"] span{color:#80530B}
+.player-info-button{min-height:44px;margin-top:3px}
+.home-meta{display:flex;justify-content:center;align-items:center;gap:8px;margin-top:4px;pointer-events:auto}
+.home-meta .streak-banner{margin:0;padding:4px 8px;gap:4px;font-size:10px}
+.home-meta .streak-flame{font-size:14px}
+.home-meta .divider{display:none}
+.home-meta .player-info-button{position:static;margin:0;font-size:10px;padding-inline:8px}
+.home-meta .player-info-button span{font-size:9px;padding-left:6px}
+.health-panel{position:absolute;top:calc(110px + env(safe-area-inset-top,0px));left:12px;right:12px;pointer-events:auto}
+.health-panel .mock-label{margin:0 0 5px;font-size:10px;padding:2px 8px}
+.health-panel .stats-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.health-panel .stat-card{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;text-align:center;min-width:0}
+.health-panel .stat-ico{width:22px;height:22px;font-size:15px;border-radius:8px}
+.health-panel .stat-card h3{font-size:10px;line-height:1.5}
+.health-panel .stat-card p{font-size:12px;line-height:1.4}
+.health-panel .stat-card p b{font-size:13px}
+.health-panel .stat-card em{font-size:9px}
+.home-controls{position:absolute;left:12px;right:12px;bottom:calc(var(--nav-h) + env(safe-area-inset-bottom,0px) + 8px);display:flex;flex-direction:column;gap:8px;width:auto;max-width:480px;margin:0 auto;align-items:stretch}
+.play-hint{text-align:center;font-size:12px;font-weight:500;color:var(--navy);pointer-events:none;text-shadow:0 1px 0 var(--cream)}
+.home-controls .mission-card{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:10px 14px;min-height:64px;border-radius:18px;pointer-events:auto}
+.quest-icon{width:36px;height:36px;border-radius:12px;background:var(--orange);color:var(--navy);display:grid;place-items:center;font-size:24px;flex:none;border:2px solid var(--orange-dk)}
+.quest-copy{min-width:0;flex:1}
+.quest-title{display:block;font-size:10px;color:var(--navy)}
+.quest-title #missionName{display:block;font-size:12px;color:var(--navy);margin:0;line-height:1.5}
+.mission-bar{display:block;height:8px;margin-top:4px}
+.mission-fill{display:block}
+.quest-count{font-family:var(--font-num);font-weight:900;font-size:22px;color:var(--navy);white-space:nowrap}
+.quest-count small{font-size:10px;margin:0;color:var(--green-dk)}
+.fullscreen-btn{top:calc(var(--game-hud) + env(safe-area-inset-top,0px) + 8px);bottom:auto;right:12px;z-index:3}
+.bottom-nav{background:linear-gradient(0deg,var(--cream) 60%,transparent);padding-top:8px}
+.player-dialog{margin:auto;width:min(440px,calc(100% - 24px));max-height:calc(100dvh - 32px);padding:20px;color:var(--navy);background:var(--cream);border:3px solid #fff;border-radius:24px;box-shadow:0 12px 40px rgba(30,58,95,.3);overflow-y:auto;user-select:text}
+.player-dialog::backdrop{background:rgba(22,41,63,.5);backdrop-filter:blur(5px)}
+.dialog-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.dialog-heading h2{font-size:20px}
+.dialog-heading button{width:44px;height:44px;border-radius:50%;border:2px solid var(--cream-dk);background:#fff;color:var(--navy);font-size:20px}
+.player-dialog .sync-bar{position:static;width:100%;height:auto;min-height:76px;border-radius:16px;box-shadow:none;padding:10px;flex-wrap:wrap}
+.player-dialog .sync-text{flex:1;min-width:170px}
+.player-dialog #syncRetry{margin-left:auto}
+.player-dialog .streak-banner{margin:16px auto}
+.player-dialog .mock-label{margin:0 0 8px}
+@media (min-width:768px){
+  :root{--game-hud:100px;--quest-dock:110px}
+  .hud-top{left:24px;right:24px}
+  .profile-row{margin:0;max-width:340px}
+  .player-info-button{position:absolute;right:0;top:10px;margin:0;font-size:12px}
+  .fullscreen-btn{top:calc(env(safe-area-inset-top,0px) + 62px);right:24px}
+  .home-controls{max-width:440px}
+  .home-meta{position:absolute;right:0;top:10px;margin:0}
+  .health-panel{left:24px;right:auto;top:calc(90px + env(safe-area-inset-top,0px));width:220px}
+  .health-panel .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .health-panel .stat-card{padding:10px 6px}
+  .health-panel .stat-card h3{font-size:12px}
+  .health-panel .stat-card p b{font-size:16px}
+}
+@media (orientation:landscape) and (max-height:540px){
+  :root{--game-hud:64px;--quest-dock:0px;--nav-h:64px}
+  .profile-row{margin:0;width:260px}
+  .player-info-button{position:absolute;right:52px;top:8px;margin:0;font-size:10px}
+  .fullscreen-btn{top:10px;right:10px}
+  .home-controls{left:12px;right:auto;bottom:calc(var(--nav-h) + 6px);width:190px}
+  .home-controls .mission-card{padding:8px;gap:6px;min-height:56px}
+  .quest-icon{display:none}
+  .quest-title #missionName{font-size:10px}
+  .quest-count{font-size:18px}
+  .play-hint{font-size:10px}
+  .nav-ico{width:44px;height:36px;border-radius:12px}
+  .nav-ico svg{width:21px;height:21px}
+  .bottom-nav{padding-block:4px;gap:20px;justify-content:center}
+  .nav-btn{gap:1px}.nav-btn.active .nav-ico{transform:translateY(-3px)}
+  .home-meta{position:absolute;right:52px;top:8px;margin:0;gap:6px}
+  .home-meta .streak-banner{font-size:9px}
+  .home-meta .streak-banner > b{display:none}
+  .health-panel{top:74px;left:12px;right:auto;width:190px}
+  .health-panel .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
+  .health-panel .stat-card{flex-direction:row;padding:4px;gap:4px;text-align:left}
+  .health-panel .stat-ico{width:18px;height:18px;font-size:13px;flex:none}
+  .health-panel .stat-card h3{font-size:10px}
+  .health-panel .stat-card p b{font-size:12px}
+  .health-panel .stat-card em{font-size:8px}
+}
+@media (max-width:767px) and (orientation:portrait) and (max-height:650px){
+  :root{--game-hud:108px}
+  .home-meta{gap:5px}
+  .home-meta .streak-banner > b{display:none}
+  .health-panel{top:120px;right:auto;width:96px}
+  .health-panel .stats-grid{grid-template-columns:1fr;gap:5px}
+  .health-panel .stat-card{flex-direction:row;gap:4px;text-align:left;padding:5px}
+  .health-panel .stat-card em{display:inline;font-size:8px}
+  .health-panel .stat-card p{white-space:nowrap}
+  .health-panel .mock-label{font-size:8px;white-space:nowrap;padding-inline:4px}
+  .health-panel .stat-ico{width:20px;height:20px;flex:none}
+  #scene3d{left:116px;width:calc(100% - 116px)}
+  .fullscreen-btn{right:10px}
+}
+
+/* GPS running: real metrics and a route workspace. */
+#screen-run{background:linear-gradient(180deg,var(--sky-pale),var(--cream) 55%)}
+.run-page{padding-top:calc(18px + env(safe-area-inset-top,0px));padding-bottom:calc(var(--nav-h) + 100px + env(safe-area-inset-bottom,0px));user-select:text}
+.run-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
+.run-eyebrow{font-size:11px;color:var(--navy);margin-bottom:3px}
+.run-heading h2{font-size:26px;line-height:1.3}
+.run-status{display:inline-flex;align-items:center;gap:7px;font-size:11px;background:#fff;border:1px solid var(--cream-dk);border-radius:999px;padding:7px 12px;white-space:nowrap}
+.run-status::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--navy)}
+.run-status[data-state="running"]::before{background:var(--green-dk)}
+.run-status[data-state="paused"]::before,.run-status[data-state="acquiring"]::before{background:var(--orange-dk)}
+.run-tabs{display:flex;gap:6px;margin-bottom:16px;background:rgba(255,255,255,.65);padding:4px;border-radius:14px}
+.run-tabs button{flex:1;min-height:44px;border:0;border-radius:10px;background:transparent;color:var(--navy);font-size:13px}
+.run-tabs button.active{background:var(--navy);color:#fff;box-shadow:0 3px 0 var(--navy-dk)}
+.run-metrics{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:18px 20px;margin-bottom:14px;min-width:0}
+.run-distance{display:flex;flex-direction:column;justify-content:center;gap:2px;min-width:0}
+.run-distance>span{font-size:11px;color:#5B7191}
+.run-distance strong{font-family:var(--font-num);font-weight:900;font-size:clamp(36px,11vw,50px);line-height:1.1;letter-spacing:-2px;color:var(--navy)}
+.run-metric-pair{display:grid;gap:10px;border-left:1px solid var(--cream-dk);padding-left:16px;min-width:0}
+.run-metric-pair>div{display:flex;flex-wrap:wrap;align-items:baseline;gap:3px 6px}
+.run-metric-pair span{font-size:10px;flex-basis:100%;color:#5B7191}
+.run-metric-pair strong{font-family:var(--font-num);font-weight:900;font-size:23px;letter-spacing:-.5px}
+.run-metric-pair small{font-size:9px}
+.run-map-shell{position:relative;isolation:isolate;height:240px;border-radius:22px;border:2px solid #fff;background:#E5EFDE;overflow:hidden;box-shadow:0 3px 0 rgba(30,58,95,.1)}
+.run-map-shell:has(.run-sketch:not([hidden])){background-color:#E5EFDE;background-image:linear-gradient(rgba(30,58,95,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(30,58,95,.05) 1px,transparent 1px);background-size:28px 28px}
+.run-leaflet{height:100%;width:100%;z-index:1}
+.run-sketch{display:block;width:100%;height:100%}
+.run-trace{fill:none;stroke:var(--green-dk);stroke-width:5;stroke-linecap:round;stroke-linejoin:round}
+.run-start-dot{fill:var(--green-dk);stroke:#fff;stroke-width:3}
+.run-end-dot{fill:var(--orange-dk);stroke:#fff;stroke-width:3}
+.run-map-empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;gap:8px;pointer-events:none}
+.run-map-empty>span{font-family:var(--font-num);font-size:48px;line-height:1;color:var(--green-dk)}
+.run-map-empty strong{font-size:16px}
+.run-map-empty p{font-size:11px;color:var(--navy)}
+.run-map-center{position:absolute;right:12px;bottom:12px;z-index:2;background:#fff;border:2px solid var(--cream-dk);border-radius:14px;min-width:44px;min-height:44px;color:var(--navy);font-size:24px;box-shadow:0 3px 0 rgba(30,58,95,.15)}
+.run-message{font-size:12px;line-height:1.6;margin:12px 0;min-height:38px;color:var(--navy);overflow-wrap:anywhere}
+.run-actions{display:flex;gap:10px;position:fixed;left:14px;right:14px;max-width:720px;margin-inline:auto;bottom:calc(var(--nav-h) + 10px + env(safe-area-inset-bottom,0px));padding:8px 0;z-index:4;background:var(--cream);border-radius:14px}
+.run-primary,.run-secondary,.run-link-button{min-height:48px;border-radius:14px;padding:10px 16px;font-size:13px;color:var(--navy);border:2px solid var(--cream-dk);background:#fff;font-weight:500}
+.run-actions>button{flex:1;min-width:0}
+.run-primary{background:var(--green-dk);color:#fff;border-color:#1F7A34;box-shadow:0 3px 0 #1F7A34}
+.run-primary:active{transform:translateY(2px);box-shadow:0 1px 0 #1F7A34}
+.run-pause{background:var(--orange);color:var(--navy);border-color:var(--orange-dk);box-shadow:0 3px 0 var(--orange-sh)}
+.run-secondary{background:var(--cream);border-color:var(--cream-dk)}
+.run-help{font-size:10.5px;line-height:1.65;color:#5B7191;margin:9px 0;overflow-wrap:anywhere}
+.run-options{padding:14px;margin-top:16px}
+.run-activity{display:flex;flex-wrap:wrap;gap:12px;padding:12px;margin:0 0 14px;min-width:0}
+.run-activity legend{font-size:12px;padding:0 6px}.run-activity label{display:flex;align-items:center;gap:8px;min-height:44px;font-size:12px}
+.run-activity input{appearance:auto;accent-color:var(--green-dk);width:20px;height:20px}
+#runTreadmillPanel h3{font-size:16px;margin-bottom:12px}
+.run-distance-input{display:block;font-size:12px;margin-bottom:8px}
+#runTreadmillDistance,#runStride{width:100%;min-height:48px;border:2px solid var(--cream-dk);border-radius:12px;padding:10px 12px;background:#fff;color:var(--navy);font-size:18px}
+#runTreadmillError{color:var(--danger)}
+.run-live-card{padding:14px;margin-top:16px;min-width:0}
+.run-live-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
+.run-live-heading h3{font-size:16px}
+.run-live-card .run-option + .run-option{margin-top:12px}
+.run-live-people{list-style:none;padding:0;margin:10px 0 0;display:flex;flex-wrap:wrap;gap:6px;max-height:130px;overflow:auto}
+.run-live-people button{min-height:44px;padding:8px 10px;border:1px solid var(--cream-dk);border-radius:12px;background:#fff;color:var(--navy);font-size:11px}
+.run-live-heading .run-status[data-state="live"]::before{background:var(--green-dk)}
+.run-option{display:flex;align-items:flex-start;gap:10px;font-size:12px;min-height:44px;cursor:pointer}
+.run-option input{appearance:auto;accent-color:var(--green-dk);width:20px;height:20px;flex:none;margin-top:2px}
+.run-option small{display:block;color:#5B7191;font-size:10px;line-height:1.6;margin-top:4px}
+.run-link-button{min-height:44px;font-size:11px;padding:6px 12px;box-shadow:none}
+.run-history-heading{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.run-history-heading h3{font-size:15px}
+.run-history-heading button{font-size:11px;padding:8px;min-height:44px}
+.run-history-list{list-style:none;display:grid;gap:12px;padding:0}
+.run-history-item{width:100%;display:grid;grid-template-columns:1fr auto;gap:6px;padding:14px;text-align:left;background:var(--cream);color:var(--navy);border:2px solid var(--cream-dk);border-radius:18px;box-shadow:0 3px 0 rgba(30,58,95,.1)}
+.run-history-date{font-size:11px;grid-column:1/-1}
+.run-history-item strong{font-family:var(--font-num);font-size:24px}
+.run-history-meta{font-family:var(--font-num);font-size:12px;grid-column:1/-1}
+.run-history-save{font-size:10px;grid-column:1/-1;color:#5B7191}
+.run-detail-dialog{width:min(520px,calc(100% - 24px))}
+.run-detail-dialog .dialog-heading h2{font-size:16px}
+.run-detail-metrics{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;align-items:center}
+.run-detail-metrics strong{font-family:var(--font-num);font-size:30px;grid-row:1/3}
+.run-detail-metrics>span{font-size:12px}
+.run-detail-map{height:200px}
+.run-detail-dialog h3{font-size:14px;margin-top:18px}
+.run-splits{width:100%;border-collapse:collapse;font-size:12px;text-align:left;margin:10px 0}
+.run-splits th,.run-splits td{padding:8px;border-bottom:1px solid var(--cream-dk)}
+.run-splits td{font-family:var(--font-num)}
+.run-detail-dialog>.run-primary,.run-detail-dialog>.run-secondary{width:100%;margin-top:12px}
+.visually-hidden{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
+@media (max-width:359px){
+  .bottom-nav .nav-ico{width:44px;height:40px;border-radius:13px}
+  .bottom-nav .nav-ico svg{width:22px;height:22px}
+  .bottom-nav .nav-btn label{font-size:9px}
+  .run-metrics{padding:14px;gap:10px}.run-metric-pair{padding-left:10px}.run-metric-pair strong{font-size:20px}
+}
+@media (min-width:768px){
+  .run-page{padding-top:24px;padding-left:max(24px,calc(50vw - 360px));padding-right:max(24px,calc(50vw - 360px))}
+  .run-map-shell{height:320px}.run-detail-map{height:200px}
+  .run-distance strong{font-size:56px}
+}
+@media (orientation:landscape) and (max-height:540px){
+  .run-page{padding-top:10px;padding-inline:max(14px,calc(50vw - 340px))}
+  .run-eyebrow{display:none}.run-heading{margin-bottom:8px}.run-heading h2{font-size:21px}
+  .run-tabs{margin-bottom:10px}.run-tabs button{min-height:40px}
+  #runLivePanel{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start}
+  .run-metrics{padding:12px;margin:0;gap:10px}.run-distance strong{font-size:40px}
+  .run-metric-pair{gap:4px;padding-left:10px}.run-metric-pair strong{font-size:20px}
+  #runLivePanel>.run-map-shell{height:135px}
+  #runLivePanel>.run-message,#runLivePanel>.run-help,#runLivePanel>.run-options,#runLivePanel>.run-live-card,#runLivePanel>.run-activity{grid-column:1/-1}
+  .run-detail-map{height:160px}
+}
+
+/* Running workspace: the user's map-first reference, separate from the game HUD. */
+#screen-run,.run-detail-dialog{--run-surface:#fff;--run-ink:#242a2a;--run-muted:#647076;--run-rule:#e7eaeb;--run-action:#087e46;--run-route:#ed233b;color:var(--run-ink);background:var(--run-surface)}
+.run-page{padding:calc(12px + env(safe-area-inset-top,0px)) 16px calc(var(--nav-h) + 24px + env(safe-area-inset-bottom,0px));max-width:760px;margin-inline:auto}
+.run-heading{margin-bottom:8px}.run-heading h2{font-size:23px;color:var(--run-ink);margin-bottom:0;text-align:left;text-shadow:none}
+.run-eyebrow{color:var(--run-muted);font-size:10px;letter-spacing:.04em}
+.run-status{border-color:var(--run-rule);color:var(--run-ink)}
+.run-tabs{background:transparent;border-bottom:1px solid var(--run-rule);padding:0;border-radius:0;margin-bottom:12px;gap:0}
+.run-tabs button{border-radius:0;color:var(--run-muted)}
+.run-tabs button.active{background:transparent;color:var(--run-ink);box-shadow:inset 0 -3px var(--run-action)}
+.run-activity{border:0;border-radius:0;box-shadow:none;background:transparent;padding:0;margin-bottom:12px;gap:8px}
+.run-activity legend{font-size:10px;padding:0;color:var(--run-muted)}
+.run-activity label{flex:1;justify-content:center;border:1px solid var(--run-rule);border-radius:6px;font-size:11px;padding:4px 8px;gap:6px}
+.run-activity label:has(input:checked){border-color:var(--run-action);background:#eef9f2;color:var(--run-action)}
+.run-activity input{width:16px;height:16px;accent-color:var(--run-action)}
+#runLivePanel{display:block}
+#runRoutePanel{height:clamp(230px,32dvh,400px);border:0;border-radius:4px;box-shadow:none;background-color:#eef3ed}
+.run-map-settings{position:absolute;z-index:3;top:12px;right:12px;min-height:44px;padding:8px 12px;border:1px solid var(--run-rule);border-radius:4px;background:#fff;color:var(--run-ink);font-size:11px;box-shadow:0 2px 8px #242a2a16}
+.run-map-center{border:1px solid var(--run-rule);border-radius:4px;box-shadow:0 2px 8px #242a2a16;color:var(--run-ink)}
+.run-map-empty{padding-top:60px}.run-map-empty strong{color:var(--run-ink)}.run-map-empty p{color:var(--run-muted)}
+.run-map-empty>span{color:var(--run-action)}
+.run-map-shell .leaflet-tile-pane{filter:grayscale(.82) saturate(.4);opacity:.72}
+.run-map-shell .leaflet-container{background:#f5f7f3}
+.run-trace{stroke:var(--run-route)}.run-end-dot{fill:var(--run-route)}
+.run-metrics{display:grid;grid-template-columns:1fr 1fr;padding:22px 0 0;margin:0;gap:16px 0;border:0;border-radius:0;box-shadow:none;background:#fff;text-align:center;position:relative}
+.run-metrics::before{content:'';position:absolute;top:8px;left:calc(50% - 16px);height:3px;width:32px;border-radius:2px;background:#d6dcdf}
+.run-time,.run-distance{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:2px;min-width:0}
+.run-time{border-right:1px solid var(--run-rule)}
+.run-time strong,.run-distance strong{font-family:var(--font-num);font-weight:900;font-size:clamp(27px,7vw,46px);line-height:1.15;letter-spacing:-1.5px;font-variant-numeric:tabular-nums;color:var(--run-ink)}
+.run-time>span,.run-distance>span,.run-distance small{color:var(--run-muted);font-size:10px}
+.run-metric-pair{grid-column:1/-1;display:flex;justify-content:center;gap:24px;border:0;border-top:1px solid var(--run-rule);padding:12px 0 0;margin-top:14px}
+.run-metric-pair>div{justify-content:center;gap:3px 5px}.run-metric-pair strong{font-size:19px;color:var(--run-ink)}.run-metric-pair span{font-size:10px;color:var(--run-muted)}
+.run-message{margin:10px 0;min-height:0;color:var(--run-muted);font-size:11px}
+.run-actions{position:static;max-width:none;margin:0;padding:0;background:transparent;border-radius:0;gap:8px}
+#screen-run .run-primary,.run-detail-dialog .run-primary{background:var(--run-action);border-color:var(--run-action);border-radius:4px;box-shadow:none;font-size:14px;min-height:52px;font-weight:500}
+#screen-run .run-secondary,.run-detail-dialog .run-secondary{background:#fff;border:1px solid #cbd3d6;border-radius:4px;box-shadow:none;color:var(--run-ink)}
+#screen-run .run-pause{background:#ffe8ac;color:var(--run-ink);border-color:#e4c470}
+#screen-run .run-help,.run-detail-dialog .run-help{color:var(--run-muted)}
+.run-settings{margin-top:18px;border-top:1px solid var(--run-rule)}
+.run-settings>summary{min-height:48px;display:list-item;align-content:center;font-size:12px;color:var(--run-ink);cursor:pointer}
+.run-settings .card,#runTreadmillPanel{background:#f7f9f8;border:1px solid var(--run-rule);border-radius:6px;box-shadow:none}
+.run-settings .run-options,.run-settings .run-live-card{margin-top:8px}
+.run-detail-dialog{width:min(560px,calc(100% - 20px));border-radius:8px;padding:18px}
+.run-detail-map{height:220px;border:0;border-radius:4px;box-shadow:none;margin:12px 0}
+.run-detail-basemap{position:absolute;top:10px;right:10px;z-index:3;display:flex;align-items:center;gap:6px;min-height:44px;padding:6px 10px;border:1px solid var(--run-rule);border-radius:4px;background:#fff;font-size:10px}
+.run-detail-basemap input{width:18px;height:18px;accent-color:var(--run-action)}
+.run-detail-basemap small{display:block;font-size:8px;color:var(--run-muted)}
+.run-detail-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:26px 10px;padding:20px 0;margin-bottom:0;text-align:center}
+.run-detail-metrics>div{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}
+.run-detail-metrics strong{font-size:20px;grid-row:auto;line-height:1.2;letter-spacing:-.4px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.run-detail-metrics span:not(.run-stat-symbol){font-size:9px;line-height:1.5;color:var(--run-muted)}
+.run-detail-metrics .run-stat-symbol{font-family:system-ui,sans-serif;color:var(--run-route);font-size:24px;line-height:1.2}
+.run-stat-symbol svg{width:24px;height:28px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;display:block}
+@media (min-width:768px){.run-page{padding-inline:24px}.run-time strong,.run-distance strong{font-size:46px}}
+@media (max-width:359px){.run-page{padding-inline:10px}.run-heading h2{font-size:20px}.run-status{padding:6px 8px;font-size:10px}.run-detail-dialog{padding:12px}.run-detail-metrics{gap:22px 6px}.run-detail-metrics strong{font-size:17px}.run-detail-metrics span:not(.run-stat-symbol){font-size:8px}}
+@media (orientation:landscape) and (max-height:540px){#runRoutePanel{height:230px}.run-page{padding-top:10px}.run-tabs button{min-height:44px}}
+
+/* Numbered pauses and resumes stay vivid above the muted street tiles. */
+.run-event-marker{border:2px solid #fff;border-radius:50%;display:grid;place-items:center;font:bold 11px/1 sans-serif;box-shadow:0 1px 5px #0005;color:white}
+.run-event-pause{background:#d97706}.run-event-resume{background:#087f46}
+.run-sketch .run-event-pause circle{fill:#d97706;stroke:white;stroke-width:2}.run-sketch .run-event-resume circle{fill:#087f46;stroke:white;stroke-width:2}
+.run-sketch g text{fill:white;font:bold 10px sans-serif}
+.run-event-list{padding-left:22px;font-size:12px;color:#45617a}.run-event-list li{margin:6px 0}
+.run-online-note{font-size:12px;color:#45617a;margin:10px 0}

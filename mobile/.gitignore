@@ -1,0 +1,10 @@
+node_modules/
+www/
+android/.gradle/
+android/local.properties
+android/**/build/
+android/captures/
+ios/App/Pods/
+ios/App/build/
+ios/**/xcuserdata/
+.DS_Store

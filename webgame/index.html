@@ -2,13 +2,17 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#4FB3E8">
+<meta name="mobile-web-app-capable" content="yes">
 <title>Weston Fit Quest</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600;700&family=Nunito:wght@800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/style.css?v=20261009-6">
+<link rel="stylesheet" href="assets/vendor/leaflet/dist/leaflet.css">
 <script type="importmap">
 {
   "imports": {
@@ -20,6 +24,12 @@
 </head>
 <body>
 <div id="app">
+
+  <!-- ปุ่มสลับเต็มจอ — ซ่อนแถบ address bar ของเบราว์เซอร์บนมือถือ (JS จะซ่อนถ้าไม่รองรับ) -->
+  <button disabled id="fullscreenToggle" type="button" class="fullscreen-btn" aria-label="เข้าโหมดเต็มจอ">
+    <svg class="ico-expand" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+    <svg class="ico-compress" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg>
+  </button>
 
   <!-- ══════════════════════ SCREEN : HOME ══════════════════════ -->
   <section id="screen-home" class="screen active">
@@ -34,64 +44,84 @@
     </div>
 
     <!-- ฉาก 3D (โมเดล + สวน) -->
-    <canvas id="scene3d"></canvas>
+    <canvas id="scene3d" role="button" tabindex="0" aria-label="เล่นกับตัวละคร" aria-describedby="playHint" aria-disabled="true"></canvas>
 
     <!-- Loading -->
     <div id="loader"><div class="loader-ring"></div><p>กำลังโหลดตัวละคร…</p></div>
 
-    <!-- HUD บน (mockup ตามรูปอ้างอิง) -->
-    <header class="hud-top">
-      <div class="profile-row">
-        <div class="avatar"><span>😎</span><i class="lv">Lv.5</i></div>
-        <div class="profile-info">
-          <h1>Player 1</h1>
-          <div class="xp-bar"><div class="xp-fill" id="xpFill"></div></div>
+    <!-- ชั้น UI หน้าหลัก: มือถือ = HUD บน / ควบคุมล่าง · เดสก์ท็อป = แผงด้านซ้าย -->
+    <div class="home-ui">
+      <header class="hud-top">
+        <div class="profile-row">
+          <div class="avatar"><span>😎</span><i class="lv" id="playerLevel">Lv.5</i></div>
+          <div class="profile-info">
+            <h1 id="playerName">Player 1</h1>
+            <div class="xp-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100"><div class="xp-fill" id="xpFill"></div></div>
+          </div>
+          <div class="coin-chip"><span class="coin-ico" aria-hidden="true">🪙</span><span id="playerCoins">1,250</span></div>
         </div>
-        <div class="coin-chip"><span>🪙</span> 1,250</div>
-      </div>
 
-      <div class="streak-banner">
-        <span class="streak-flame">🔥</span>
-        <b>Day Streak</b>
-        <i class="divider"></i>
-        <span class="streak-day">วันที่ <b id="streakDay">56</b></span>
-      </div>
+        <div class="home-meta">
+        <div class="streak-banner">
+          <span class="streak-flame">🔥</span>
+          <b>Day Streak</b>
+          <i class="divider"></i>
+          <span class="streak-day">วันที่ <b id="streakDay">56</b></span>
+        </div>
 
-      <div class="stats-grid">
-        <div class="stat-card">
-          <span class="stat-ico">🍎</span>
-          <div><h3>โภชนาการ</h3><p><b>18%</b> <em>↑2.4%</em></p></div>
+        <button disabled id="playerInfo" class="player-info-button" type="button" aria-haspopup="dialog" aria-controls="playerDialog">ข้อมูลผู้เล่น <span id="saveBadge">กำลังเชื่อมต่อ</span></button>
         </div>
-        <div class="stat-card">
-          <span class="stat-ico">💪</span>
-          <div><h3>กล้ามเนื้อ</h3><p><b>36%</b> <em>↑1.1%</em></p></div>
-        </div>
-        <div class="stat-card">
-          <span class="stat-ico">📊</span>
-          <div><h3>BMI</h3><p><b>22.5</b> <em>↑0.3</em></p></div>
-        </div>
-        <div class="stat-card">
-          <span class="stat-ico">⚖️</span>
-          <div><h3>น้ำหนัก</h3><p><b>62.4</b> <em>↑0.5</em></p></div>
-        </div>
-      </div>
-    </header>
+      </header>
 
-    <!-- การ์ดภารกิจ (mockup) -->
-    <aside class="mission-card" id="missionCard">
-      <i class="mission-alert">!</i>
-      <h3>ภารกิจ</h3>
-      <p><b id="missionDone">2</b>/<span id="missionTotal">5</span></p>
-      <div class="mission-bar"><div class="mission-fill" id="missionFill"></div></div>
-      <small id="missionName">เล่นเกมยืดเหยียด 5 ครั้ง</small>
-      <em class="tap-hint">แตะตัวละครเพื่อออกกำลังกาย!</em>
-    </aside>
+      <aside class="health-panel" aria-label="ข้อมูลสุขภาพตัวอย่าง">
+        <p class="mock-label">ข้อมูลสุขภาพตัวอย่าง</p>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-ico">🍎</span>
+            <div><h3>Fat</h3><p><b>18%</b> <em>↑2.4%</em></p></div>
+          </div>
+          <div class="stat-card">
+            <span class="stat-ico">💪</span>
+            <div><h3>กล้ามเนื้อ</h3><p><b>36%</b> <em>↑1.1%</em></p></div>
+          </div>
+          <div class="stat-card">
+            <span class="stat-ico">📊</span>
+            <div><h3>BMI</h3><p><b>22.5</b> <em>↑0.3</em></p></div>
+          </div>
+          <div class="stat-card">
+            <span class="stat-ico">⚖️</span>
+            <div><h3>น้ำหนัก</h3><p><b>62.4</b> <em>↑0.5</em></p></div>
+          </div>
+        </div>
+      </aside>
+
+      <div class="home-controls">
+        <p class="play-hint" id="playHint">แตะตัวละครเพื่อกระโดด · ลากเพื่อหมุน</p>
+        <button disabled type="button" class="mission-card" id="missionCard" aria-label="ดูภารกิจและเป้าหมาย">
+          <span class="quest-icon" aria-hidden="true">★</span>
+          <span class="quest-copy"><span class="quest-title">ภารกิจ <small id="missionName">เล่นเกมยืดเหยียด 5 ครั้ง</small></span><span class="mission-bar"><span class="mission-fill" id="missionFill"></span></span></span>
+          <span class="quest-count"><b id="missionDone">0</b>/<span id="missionTotal">5</span><small>+100 XP</small></span>
+        </button>
+      </div>
+    </div>
 
     <!-- Layer ข้อความ +1 ลอย -->
     <div id="popLayer"></div>
-    <!-- Toast แจ้งเตือน -->
-    <div id="toast"></div>
   </section>
+
+  <dialog id="playerDialog" class="player-dialog" aria-labelledby="playerDialogTitle">
+    <header class="dialog-heading"><h2 id="playerDialogTitle">ข้อมูลผู้เล่น</h2><form method="dialog" novalidate><button id="closePlayerInfo" type="submit" aria-label="ปิดข้อมูลผู้เล่น">✕</button></form></header>
+  <div class="sync-bar">
+    <span class="sync-dot" aria-hidden="true"></span>
+    <span class="sync-text">
+      <span id="syncStatus" role="status">กำลังเชื่อมต่อ</span>
+      <span id="syncDetail">ซิงก์ความคืบหน้าของคุณ</span>
+    </span>
+    <button disabled id="syncRetry" type="button">ลองเชื่อมต่ออีกครั้ง</button>
+  </div>
+
+  </dialog>
 
   <!-- ══════════════════════ SCREEN : LEADERBOARD ══════════════════════ -->
   <section id="screen-trophy" class="screen">
@@ -109,8 +139,8 @@
       </header>
 
       <div class="pill-tabs">
-        <button class="pill active" data-lb="person">บุคคล</button>
-        <button class="pill" data-lb="team">ทีม</button>
+        <button disabled class="pill active" type="button" data-lb="person">บุคคล</button>
+        <button disabled class="pill" type="button" data-lb="team">ทีม</button>
       </div>
 
       <!-- รายชื่อบุคคล -->
@@ -121,6 +151,7 @@
 
       <!-- รายชื่อทีม (mockup) -->
       <div class="lb-list hidden" id="lbTeam">
+        <p class="mock-label">ข้อมูลตัวอย่าง</p>
         <div class="lb-cols"><span>อันดับ</span><span>ทีม</span><span>คะแนนรวม</span></div>
       </div>
     </div>
@@ -138,16 +169,16 @@
       <header class="page-head"><h2>🎯 เป้าหมายของฉัน</h2></header>
 
       <div class="goal-hero card">
-        <svg viewBox="0 0 120 120" class="goal-ring">
+        <svg viewBox="0 0 120 120" class="goal-ring" role="img" aria-label="ความคืบหน้าของวันนี้">
           <circle cx="60" cy="60" r="52" class="ring-bg"/>
           <circle cx="60" cy="60" r="52" class="ring-fill" id="dayRing"/>
-          <text x="60" y="57" class="ring-num">62%</text>
+          <text x="60" y="57" class="ring-num" id="dayPercent">62%</text>
           <text x="60" y="76" class="ring-label">วันนี้</text>
         </svg>
         <div class="goal-hero-info">
-          <h3>เก่งมาก! ใกล้ครบเป้าแล้ว</h3>
-          <p>ทำต่ออีกนิดเพื่อรับความสำเร็จ 🎉</p>
-          <span class="badge-green">+180 XP เมื่อครบ 100%</span>
+          <h3 id="goalHeadline">เก่งมาก! ใกล้ครบเป้าแล้ว</h3>
+          <p id="goalDescription">ทำต่ออีกนิดเพื่อรับความสำเร็จ 🎉</p>
+          <span class="badge-green">ทำภารกิจผ่านการแตะตัวละคร</span>
         </div>
       </div>
 
@@ -168,9 +199,9 @@
 
       <div class="cal-card card">
         <div class="cal-nav">
-          <button>‹</button>
+          <button disabled id="calPrev" type="button" aria-label="เดือนก่อนหน้า">‹</button>
           <h3 id="calTitle">ตุลาคม 2026</h3>
-          <button>›</button>
+          <button disabled id="calNext" type="button" aria-label="เดือนถัดไป">›</button>
         </div>
         <div class="cal-grid cal-head" id="calHead"></div>
         <div class="cal-grid" id="calDays"></div>
@@ -183,9 +214,9 @@
       <div class="card summary-card">
         <h3>🔥 สรุปเดือนนี้</h3>
         <div class="summary-row">
-          <div><b>21</b><small>วันที่ออกกำลังกาย</small></div>
-          <div><b>1,240</b><small>แคลอรีที่เผาผลาญ</small></div>
-          <div><b>820</b><small>นาทีรวม</small></div>
+          <div><b id="summaryDays">21</b><small>วันที่เล่น</small></div>
+          <div><b id="summaryWorkouts">26</b><small>ครั้งที่เล่น</small></div>
+          <div><b id="summaryXP">1,240</b><small>XP พื้นฐาน</small></div>
         </div>
       </div>
     </div>
@@ -202,6 +233,8 @@
     <div class="page-scroll">
       <header class="page-head"><h2>👥 สังคม</h2></header>
 
+      <p class="mock-label">ข้อมูลตัวอย่าง</p>
+
       <div class="search-bar">🔍 ค้นหาเพื่อน…</div>
 
       <div class="friends-row" id="friendsRow"><!-- generated --></div>
@@ -211,36 +244,110 @@
     </div>
   </section>
 
+  <section id="screen-run" class="screen">
+    <div class="page-scroll run-page">
+      <header class="page-head run-heading"><div><p class="run-eyebrow">ออกไปขยับตัว</p><h2>วิ่งของฉัน</h2></div><span id="runStatus" class="run-status">พร้อมวิ่ง</span></header>
+      <div class="run-tabs" aria-label="หน้าวิ่ง">
+        <button disabled type="button" class="active" data-run-tab="live" aria-pressed="true">บันทึกการวิ่ง</button>
+        <button disabled type="button" data-run-tab="history" aria-pressed="false">ประวัติ</button>
+      </div>
+      <div id="runLivePanel">
+        <fieldset class="run-activity card"><legend>รูปแบบการวิ่ง</legend>
+          <label><input type="radio" name="runActivity" value="outdoor" checked> กลางแจ้ง · GPS</label>
+          <label><input type="radio" name="runActivity" value="treadmill"> ลู่วิ่งที่บ้าน</label>
+        </fieldset>
+        <div class="run-map-shell" id="runRoutePanel">
+          <div hidden id="runMap" class="run-leaflet" aria-label="แผนที่เส้นทางวิ่ง"></div>
+          <svg id="runSketch" class="run-sketch" viewBox="0 0 320 240" role="img" aria-label="เส้นทางการวิ่งของคุณ"></svg>
+          <div id="runMapEmpty" class="run-map-empty"><span aria-hidden="true">↗</span><strong>เส้นทางเริ่มที่ก้าวแรก</strong><p>กดเริ่มวิ่ง แล้วอนุญาตตำแหน่ง GPS</p></div>
+          <button disabled type="button" id="runCenter" class="run-map-center" aria-label="จัดแผนที่ให้เห็นเส้นทางทั้งหมด">◎</button>
+        </div>
+        <p id="mapMessage" class="run-help" role="status">กำลังโหลดแผนที่ถนน…</p>
+        <section hidden id="runTreadmillRecoveryPanel" class="run-options card" aria-labelledby="runTreadmillRecoveryTitle">
+          <h3 id="runTreadmillRecoveryTitle">บันทึกรอบเดิมให้เสร็จ</h3>
+          <label class="run-distance-input" for="runTreadmillDistance">ระยะทางบนหน้าจอลู่วิ่ง (กม.)</label>
+          <input id="runTreadmillDistance" type="number" inputmode="decimal" min="0" max="200" step="0.001" placeholder="เช่น 3.50" aria-describedby="runTreadmillHint runTreadmillError">
+          <p id="runTreadmillHint" class="run-help">รอบเดิมใช้การกรอกระยะทาง กรุณากรอกค่าจากเครื่องก่อนจบและบันทึก รอบใหม่จะจับก้าวอัตโนมัติ</p>
+        </section>
+        <p id="runTreadmillError" class="run-help" role="status"></p>
+        <div class="run-metrics">
+          <div class="run-time"><strong id="runTime">00:00:00</strong><span>เวลาวิ่ง</span></div>
+          <div class="run-distance"><strong id="runDistance">0.00</strong><span id="runDistanceLabel">ระยะทาง</span><small>กิโลเมตร</small></div>
+        </div>
+        <p id="runMessage" class="run-message" role="status">กำลังเตรียมพื้นที่จัดเก็บ…</p>
+        <div id="runActions" class="run-actions">
+          <button disabled type="button" id="runStart" class="run-primary">เริ่มวิ่ง</button>
+          <button disabled hidden type="button" id="runPause" class="run-primary run-pause">พักการวิ่ง</button>
+          <button disabled hidden type="button" id="runFinish" class="run-secondary">จบและบันทึก</button>
+        </div>
+        <div class="run-metric-pair"><div><span>เพซเฉลี่ย</span><strong id="runPace">—</strong><small>นาที/กม.</small></div><div hidden id="runStepMetric"><span>จำนวนก้าว</span><strong id="runStepCount">0</strong><small>ก้าว</small></div></div>
+        <p id="runScreenHint" class="run-help"></p>
+      </div>
+      <div hidden id="runHistoryPanel">
+        <div class="run-history-heading"><h3>การวิ่งที่ผ่านมา</h3></div>
+        <p id="runHistoryState" class="run-message" role="status">ยังไม่มีการวิ่ง</p>
+        <ol id="runHistoryList" class="run-history-list"></ol>
+      </div>
+    </div>
+  </section>
+  <dialog id="runDetailDialog" class="player-dialog run-detail-dialog" aria-labelledby="runDetailTitle">
+    <header class="dialog-heading"><h2 id="runDetailTitle">การวิ่งของคุณ</h2><form method="dialog" novalidate><button type="submit" aria-label="ปิดรายละเอียดการวิ่ง">✕</button></form></header>
+    <div class="run-map-shell run-detail-map"><label class="run-detail-basemap"><input type="checkbox" id="detailBasemapConsent"><span>แผนที่ถนน<small>โหลดพื้นที่ที่ดูจาก OpenStreetMap</small></span></label><div hidden id="detailMap" class="run-leaflet"></div><svg id="detailSketch" class="run-sketch" viewBox="0 0 320 240" role="img" aria-label="เส้นทางการวิ่งที่บันทึก"></svg><div id="detailMapEmpty" class="run-map-empty"><p>รอบนี้ยังไม่มีตำแหน่ง GPS ที่ใช้ได้</p></div></div>
+    <div class="run-detail-metrics">
+      <div><span class="run-stat-symbol" aria-hidden="true">↗</span><strong id="detailDistance">0 กม.</strong><span>ระยะทาง</span></div>
+      <div><span class="run-stat-symbol" aria-hidden="true">◷</span><strong id="detailTime">00:00:00</strong><span>เวลาวิ่ง</span></div>
+      <div><span class="run-stat-symbol" aria-hidden="true">↯</span><strong id="detailPace">—</strong><span>เพซเฉลี่ย · นาที/กม.</span></div>
+      <div><span class="run-stat-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13 3c1 5-5 6-3 10 1-1 2-2 3-3 4 4 5 7 2 10-3 3-9 1-9-4 0-5 5-6 7-13Z"/></svg></span><strong>—</strong><span>พลังงาน · kcal</span></div>
+      <div><span class="run-stat-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m7 5-2 8c3 4 8 6 14 6v-4l-8-3-1-6M6 20h14M11 12l-1 3M14 13l-1 3"/></svg></span><strong id="detailSteps">—</strong><span>จำนวนก้าว</span></div>
+      <div><span class="run-stat-symbol" aria-hidden="true">△</span><strong>—</strong><span>ความสูงสะสม · ม.</span></div>
+      <div><span class="run-stat-symbol" aria-hidden="true">↔</span><strong id="detailStride">—</strong><span>ความยาวก้าวที่ตั้ง · ม.</span></div>
+      <div><span class="run-stat-symbol" aria-hidden="true">≋</span><strong id="detailCadence">—</strong><span>ก้าว/นาที เฉลี่ย</span></div>
+      <div><span class="run-stat-symbol" aria-hidden="true">♡</span><strong>—</strong><span>ชีพจรเฉลี่ย · bpm</span></div>
+    </div>
+    <p class="run-help">— หมายถึงไม่มีข้อมูล · ยังไม่ได้วัดพลังงาน ความสูง และชีพจร</p>
+    <ol id="runEventList" class="run-event-list" aria-label="จุดพักและวิ่งต่อ"></ol>
+    <p id="detailMapMessage" class="run-help">เส้นทางส่วนตัว · เก็บในเครื่อง</p>
+    <h3>เวลาแต่ละกิโลเมตร</h3>
+    <table class="run-splits"><caption class="visually-hidden">สรุปเวลาและเพซแต่ละกิโลเมตร</caption><thead><tr><th scope="col">กม.</th><th scope="col">เวลา</th><th scope="col">เพซ</th></tr></thead><tbody id="runSplits"></tbody></table>
+    <p id="runSplitsEmpty" class="run-help">ยังไม่ครบ 1 กิโลเมตร</p>
+    <p class="run-online-note">บันทึกออนไลน์อัตโนมัติ · เส้นทางเห็นได้เฉพาะคุณ</p>
+    <p id="detailSaveState" class="run-message" role="status">เก็บในเครื่อง</p>
+  </dialog>
+
   <!-- ══════════════════════ BOTTOM NAV ══════════════════════ -->
-  <nav class="bottom-nav">
-    <button class="nav-btn active" data-screen="home">
+  <nav class="bottom-nav" aria-label="เมนูหลัก">
+    <button disabled class="nav-btn active" type="button" data-screen="home">
       <span class="nav-ico">
-        <svg viewBox="0 0 24 24"><path d="M4 11.2 12 4l8 7.2"/><path d="M6.3 10v10h11.4V10"/><path d="M10 20v-5.5h4V20"/></svg>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11.2 12 4l8 7.2"/><path d="M6.3 10v10h11.4V10"/><path d="M10 20v-5.5h4V20"/></svg>
       </span><label>หน้าหลัก</label><i></i>
     </button>
-    <button class="nav-btn" data-screen="trophy">
+    <button disabled class="nav-btn" type="button" data-screen="run"><span class="nav-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="15" cy="4" r="2"/><path d="m8 9 4-2 3 4 4 1M12 7l-2 7 4 3-1 4M10 14l-4 6M3 12h4"/></svg></span><label>วิ่ง</label><i></i></button>
+    <button disabled class="nav-btn" type="button" data-screen="trophy">
       <span class="nav-ico">
-        <svg viewBox="0 0 24 24"><path d="M8 21h8M12 17.5V21M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M7 6H4v1a3 3 0 0 0 3 3M17 6h3v1a3 3 0 0 1-3 3"/></svg>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 21h8M12 17.5V21M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M7 6H4v1a3 3 0 0 0 3 3M17 6h3v1a3 3 0 0 1-3 3"/></svg>
       </span><label>ถ้วยรางวัล</label><i></i>
     </button>
-    <button class="nav-btn" data-screen="goal">
+    <button disabled class="nav-btn" type="button" data-screen="goal">
       <span class="nav-ico">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="4.4"/><circle cx="12" cy="12" r="1.1" fill="currentColor"/></svg>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="4.4"/><circle cx="12" cy="12" r="1.1" fill="currentColor"/></svg>
       </span><label>เป้าหมาย</label><i></i>
     </button>
-    <button class="nav-btn" data-screen="calendar">
+    <button disabled class="nav-btn" type="button" data-screen="calendar">
       <span class="nav-ico">
-        <svg viewBox="0 0 24 24"><rect x="3.8" y="5" width="16.4" height="15" rx="2.5"/><path d="M8 3v4M16 3v4M3.8 10.5h16.4"/></svg>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.8" y="5" width="16.4" height="15" rx="2.5"/><path d="M8 3v4M16 3v4M3.8 10.5h16.4"/></svg>
       </span><label>ปฏิทิน</label><i></i>
     </button>
-    <button class="nav-btn" data-screen="social">
+    <button disabled class="nav-btn" type="button" data-screen="social">
       <span class="nav-ico">
-        <svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.3"/><path d="M3.4 19.5c0-3.1 2.5-5.1 5.6-5.1s5.6 2 5.6 5.1"/><path d="M16.2 5.7a2.8 2.8 0 0 1 0 5.4M17.6 14.7c2.2.6 3.4 2.2 3.4 4.3"/></svg>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.3"/><path d="M3.4 19.5c0-3.1 2.5-5.1 5.6-5.1s5.6 2 5.6 5.1"/><path d="M16.2 5.7a2.8 2.8 0 0 1 0 5.4M17.6 14.7c2.2.6 3.4 2.2 3.4 4.3"/></svg>
       </span><label>สังคม</label><i></i>
     </button>
   </nav>
+
+  <!-- Toast แจ้งเตือน — อยู่นอก section หน้าหลัก มองเห็นได้ทุกหน้าจอ -->
+  <div id="toast" role="status" aria-live="polite"></div>
 </div>
 
-<script type="module" src="js/main.js"></script>
+<script type="module" src="js/main.js?v=20261009-11"></script>
 </body>
 </html>

@@ -1,0 +1,8 @@
+
+com.weston.running.RunningEmulatorTest:.
+
+Time: 98.637
+
+OK (1 test)
+
+
