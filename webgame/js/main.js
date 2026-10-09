@@ -76,7 +76,7 @@ shadowCatcher.receiveShadow = true;
 scene.add(shadowCatcher);
 
 /* ── โมเดลตัวละคร (GLB มีโครงกระดูก mixamo — สำหรับ Idle Animation) ── */
-const MODEL_URL = 'assets/changrid_animate.glb';
+const MODEL_URL = 'assets/changrid_idle.glb';
 let character = null;            // group ที่หมุนได้
 let idleFn = null;               // ฟังก์ชันขยับกระดูก idle
 
