@@ -63,56 +63,17 @@ const rim = new THREE.DirectionalLight(0xbfe3f2, 0.6);
 rim.position.set(-1.5, 4, -5);
 scene.add(rim);
 
-/* ── ฉากหลัง Weston Myer: สนามหญ้า + ถนน (ตึก/ต้นไม้โหลดต่อท้ายไฟล์หลังสร้าง loader) ── */
-const ground = new THREE.Mesh(
-  new THREE.CircleGeometry(60, 56),
-  new THREE.MeshStandardMaterial({ color: 0x58c169, roughness: 1 })
+/* ── ฉากหลัง: ภาพ Weston Myer Campus (CSS) — 3D มีตัวละคร + ต้นไม้ Tree 2 ── */
+
+/* ── แผ่นรับเงาโปร่งใส (เงาตกบนพื้นภาพพื้นหลังโดยไม่เห็นพื้น 3D) ── */
+const shadowCatcher = new THREE.Mesh(
+  new THREE.PlaneGeometry(24, 16),
+  new THREE.ShadowMaterial({ opacity: 0.28 })
 );
-ground.rotation.x = -Math.PI / 2;
-ground.receiveShadow = true;
-scene.add(ground);
-
-// ถนนแอสฟัลต์พาดหน้าตึก (ตัวละครยืนบนถนนนี้)
-const road = new THREE.Mesh(
-  new THREE.PlaneGeometry(60, 5),
-  new THREE.MeshStandardMaterial({ color: 0x8d939a, roughness: 1 })
-);
-road.rotation.x = -Math.PI / 2;
-road.position.set(0, 0.01, 0.6);
-road.receiveShadow = true;
-scene.add(road);
-
-// เส้นขอบถนนขาวสองข้าง
-[-2.35, 2.35].forEach(z => {
-  const line = new THREE.Mesh(
-    new THREE.PlaneGeometry(60, 0.09),
-    new THREE.MeshBasicMaterial({ color: 0xf2f4f6 })
-  );
-  line.rotation.x = -Math.PI / 2;
-  line.position.set(0, 0.015, 0.6 + z);
-  scene.add(line);
-});
-
-/* ── เงาสัมผัสใต้ตัวละคร (ให้ยืนแนบพื้น ไม่เหมือนลอย) ── */
-const contactShadow = (() => {
-  const c = document.createElement('canvas');
-  c.width = c.height = 128;
-  const g = c.getContext('2d');
-  const grad = g.createRadialGradient(64, 64, 8, 64, 64, 60);
-  grad.addColorStop(0, 'rgba(18,58,30,.38)');
-  grad.addColorStop(1, 'rgba(18,58,30,0)');
-  g.fillStyle = grad;
-  g.fillRect(0, 0, 128, 128);
-  const mesh = new THREE.Mesh(
-    new THREE.PlaneGeometry(0.95, 0.95),
-    new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(c), transparent: true, depthWrite: false })
-  );
-  mesh.rotation.x = -Math.PI / 2;
-  mesh.position.y = 0.015;
-  mesh.renderOrder = 1;
-  return mesh;
-})();
-scene.add(contactShadow);
+shadowCatcher.rotation.x = -Math.PI / 2;
+shadowCatcher.position.y = 0.01;
+shadowCatcher.receiveShadow = true;
+scene.add(shadowCatcher);
 
 /* ── โมเดลตัวละคร (GLB จาก folder, ยืนนิ่งไม่มี Animation) ── */
 const MODEL_URL = 'assets/changrid_fat.glb';
@@ -153,31 +114,12 @@ gltfLoader.load(
   () => { loaderEl.querySelector('p').textContent = 'โหลดโมเดลไม่สำเร็จ'; }
 );
 
-/* ── ตึก Westonmyer — อยู่หลังถนน ไกลออกไปให้พอดีเฟรมมือถือ ── */
-gltfLoader.load('assets/westonmyer_building.glb', gltf => {
-  const b = gltf.scene;
-  const box = new THREE.Box3().setFromObject(b);
-  const size = box.getSize(new THREE.Vector3());
-  b.scale.setScalar(7.5 / size.y);   // สูง ~7.5 หน่วย
-  box.setFromObject(b);
-  b.position.set(0, -box.min.y, -13);
-  b.rotation.y = 0;                 // หน้าตึก (กระจกน้ำเงิน) หันเข้าหากล้อง
-  b.traverse(o => {
-    if (o.isMesh && o.material) {
-      o.material.envMapIntensity = 0.35;
-      o.castShadow = false;
-      o.receiveShadow = false;
-    }
-  });
-  scene.add(b);
-});
-
-/* ── ต้นไม้ — โหลดครั้งเดียวแล้ว clone ไปวางรอบสนาม ── */
+/* ── ต้นไม้ Tree 2 — โหลดครั้งเดียวแล้ว clone ไปวางสองข้างเฟรม ── */
 const TREE_SPOTS = [
-  [-2.1, -3.5, 1.4], [2.2, -4.2, 1.5],
-  [-3.4, -7.5, 2.0], [3.6, -8.5, 2.2],
+  [-2.0, -3.0, 2.4], [2.1, -3.6, 2.6],
+  [-3.3, -6.5, 2.8], [3.5, -7.5, 3.0],
 ];
-gltfLoader.load('assets/tree.glb', gltf => {
+gltfLoader.load('assets/tree2.glb', gltf => {
   const proto = gltf.scene;
   const box = new THREE.Box3().setFromObject(proto);
   const size = box.getSize(new THREE.Vector3());
@@ -189,10 +131,8 @@ gltfLoader.load('assets/tree.glb', gltf => {
     t.rotation.y = Math.random() * Math.PI * 2;
     t.traverse(o => {
       if (o.isMesh) {
-        // GLB ต้นไม้เก็บสีไว้ใน vertex colors — บังคับ material ให้ใช้สีนั้น
-        o.material = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1 });
-        o.material.envMapIntensity = 0.3;
         o.castShadow = true;
+        if (o.material) o.material.envMapIntensity = 0.3;
       }
     });
     scene.add(t);
