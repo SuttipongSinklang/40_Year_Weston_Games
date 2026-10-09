@@ -75,9 +75,10 @@ shadowCatcher.position.y = 0.01;
 shadowCatcher.receiveShadow = true;
 scene.add(shadowCatcher);
 
-/* ── โมเดลตัวละคร (GLB จาก folder, ยืนนิ่งไม่มี Animation) ── */
-const MODEL_URL = 'assets/changrid_fat.glb';
+/* ── โมเดลตัวละคร (GLB มีโครงกระดูก mixamo — สำหรับ Idle Animation) ── */
+const MODEL_URL = 'assets/changrid_animate.glb';
 let character = null;            // group ที่หมุนได้
+let idleFn = null;               // ฟังก์ชันขยับกระดูก idle
 
 const loaderEl = document.getElementById('loader');
 const gltfLoader = new GLTFLoader();
@@ -97,8 +98,9 @@ gltfLoader.load(
     const model = gltf.scene;
     fitModel(model, 1.32);          // ขนาดพอดีจอมือถือ
     model.traverse(o => {
-      if (o.isMesh) {
+      if (o.isMesh || o.isSkinnedMesh) {
         o.castShadow = true;
+        o.frustumCulled = false;   // skinned mesh กันหายตอนขยับ
         if (o.material) o.material.envMapIntensity = 0.35;
       }
     });
@@ -106,6 +108,38 @@ gltfLoader.load(
     character = new THREE.Group();
     character.add(model);
     scene.add(character);
+
+    /* ── Idle Animation: ขยับกระดูก (โครง mixamo) ทับบนท่าพื้นฐาน ── */
+    const bones = {};
+    model.traverse(o => { if (o.isBone) bones[o.name.replace('mixamorig:', '')] = o; });
+    const parts = ['Hips', 'Spine1', 'Spine2', 'Head', 'LeftArm', 'RightArm', 'LeftForeArm', 'RightForeArm'];
+    const rig = parts.map(n => bones[n]).filter(Boolean);
+    const rest = rig.map(b => b.quaternion.clone());
+    const restHipsY = bones.Hips ? bones.Hips.position.y : 0;
+    const q = new THREE.Quaternion(), eu = new THREE.Euler();
+    const bend = (bone, rx, ry, rz) => {
+      eu.set(rx, ry, rz); q.setFromEuler(eu);
+      bone.quaternion.multiply(q);
+    };
+
+    idleFn = (t) => {
+      rig.forEach((b, i) => b.quaternion.copy(rest[i]));      // กลับท่าตั้งต้นก่อน
+      // หายใจ (ช่วงอกพอง-ยุบ)
+      if (bones.Spine1) bend(bones.Spine1, Math.sin(t * 2.1) * 0.04, 0, 0);
+      if (bones.Spine2) bend(bones.Spine2, Math.sin(t * 2.1) * 0.022, 0, 0);
+      // ส่ายเอวพริ้ว + ลอยขึ้นลงตามจังหวะหายใจ
+      if (bones.Hips) {
+        bend(bones.Hips, 0, 0, Math.sin(t * 0.9) * 0.05);
+        bones.Hips.position.y = restHipsY + Math.abs(Math.sin(t * 2.1)) * 0.012;
+      }
+      // หันหน้ามองซ้าย-ขวาช้า ๆ + พยักหัวนิด ๆ
+      if (bones.Head) bend(bones.Head, Math.sin(t * 1.2) * 0.055, Math.sin(t * 0.55) * 0.24, 0);
+      // แขนแกว่งเบา ๆ สลับเฟสกัน
+      if (bones.LeftArm) bend(bones.LeftArm, Math.sin(t * 1.4) * 0.06, 0, Math.sin(t * 1.4) * 0.07);
+      if (bones.RightArm) bend(bones.RightArm, Math.sin(t * 1.4 + Math.PI) * 0.06, 0, Math.sin(t * 1.4 + Math.PI) * 0.07);
+      if (bones.LeftForeArm) bend(bones.LeftForeArm, Math.sin(t * 1.15) * 0.05, 0, 0);
+      if (bones.RightForeArm) bend(bones.RightForeArm, Math.sin(t * 1.15 + Math.PI) * 0.05, 0, 0);
+    };
 
     loaderEl.classList.add('done');
     setTimeout(() => toast('ยินดีต้อนรับ! แตะตัวละครเพื่อออกกำลังกาย 👆'), 500);
@@ -146,9 +180,8 @@ function tick() {
   if (character) {
     // หมุนช้า ๆ เมื่อไม่ได้แตะนาน 3 วิ
     if (performance.now() - lastInput > 3000) character.rotation.y += 0.004;
-    // หายใจเบา ๆ ตอนยืน
-    const breathe = 1 + Math.sin(elapsed * 2.2) * 0.008;
-    character.scale.set(2 - breathe, breathe, 2 - breathe);
+    // Idle Animation (ขยับกระดูก)
+    if (idleFn) idleFn(elapsed);
   }
   renderer.render(scene, camera);
 }
