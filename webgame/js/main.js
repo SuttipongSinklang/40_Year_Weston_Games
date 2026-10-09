@@ -231,6 +231,7 @@ function workout(e) {
   updateGoal();
   if (goalPct >= 100 && !goalHit) {
     goalHit = true;
+    setBell(true, 'ยอดเยี่ยม! คุณครบเป้าหมายวันนี้แล้ว 🎉');
     setTimeout(() => toast('ครบเป้าหมายวันนี้แล้ว! 🎉'), 600);
   }
 
@@ -239,6 +240,7 @@ function workout(e) {
     mDone++;
     updateMission();
     if (mDone === mTotal) {
+      setBell(true, 'ภารกิจสำเร็จ! รับรางวัลแล้ว 🎉');
       setTimeout(() => {
         toast('ภารกิจสำเร็จ! 🎉');
         setTimeout(() => {
@@ -260,6 +262,33 @@ function toast(msg) {
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
 }
+
+/* ── Dropdown เปิด/ปิดช่องค่าสถิติ ── */
+const statsToggle = document.getElementById('statsToggle');
+const statsGrid = document.getElementById('statsGrid');
+statsToggle.addEventListener('click', () => {
+  const collapsed = statsGrid.classList.toggle('collapsed');
+  statsToggle.classList.toggle('collapsed', collapsed);
+  statsToggle.setAttribute('aria-expanded', String(!collapsed));
+});
+
+/* ── กระดิ่งแจ้งเตือน: สั่นเมื่อมี Notification, กดแล้วอ่านและหยุดสั่น ── */
+const bellBtn = document.getElementById('bellBtn');
+const bellImg = document.getElementById('bellImg');
+let bellMsg = 'มีภารกิจประจำวันรอคุณอยู่! กดไอคอนภารกิจเพื่อดูรายละเอียด';
+function setBell(on, msg) {
+  bellBtn.classList.toggle('notify', on);
+  bellImg.src = on ? 'assets/icons/bell_on.png' : 'assets/icons/bell_off.png';
+  if (msg) bellMsg = msg;
+}
+bellBtn.addEventListener('click', () => {
+  if (bellBtn.classList.contains('notify')) {
+    toast(bellMsg);
+    setBell(false);
+  } else {
+    toast('ไม่มีการแจ้งเตือนใหม่');
+  }
+});
 
 /* ═══════════════════════════════════════════════
    4) LEADERBOARD (mockup ตาม Leader Board Person.png)

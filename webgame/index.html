@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600;700&family=Nunito:wght@800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=18">
+<link rel="stylesheet" href="css/style.css?v=20">
 <script type="importmap">
 {
   "imports": {
@@ -41,6 +41,11 @@
         </div>
       </div>
 
+      <!-- กระดิ่งแจ้งเตือน ขวาบน -->
+      <button class="bell-btn notify" id="bellBtn" aria-label="แจ้งเตือน">
+        <img id="bellImg" src="assets/icons/bell_on.png" alt="แจ้งเตือน">
+      </button>
+
       <div class="streak-banner">
         <span class="streak-flame"><img src="assets/icons/fire.png" alt="Day Streak"></span>
         <b>Day Streak</b>
@@ -48,7 +53,13 @@
         <span class="streak-day">วันที่ <b id="streakDay">56</b></span>
       </div>
 
-      <div class="stats-grid">
+      <!-- ปุ่ม Dropdown เปิด/ปิดช่องค่าสถิติ -->
+      <button class="stats-toggle" id="statsToggle" aria-expanded="true">
+        <span>ค่าสถิติ</span>
+        <img class="chev" src="assets/icons/dropdown.png" alt="">
+      </button>
+
+      <div class="stats-grid" id="statsGrid">
         <div class="stat-card">
           <span class="stat-ico"><img src="assets/icons/fat.png" alt="ไขมัน"></span>
           <div><h3>ไขมัน</h3><p><b>18%</b> <em>↓2.4%</em></p></div>
@@ -205,6 +216,6 @@
   </nav>
 </div>
 
-<script type="module" src="js/main.js?v=19"></script>
+<script type="module" src="js/main.js?v=20"></script>
 </body>
 </html>
