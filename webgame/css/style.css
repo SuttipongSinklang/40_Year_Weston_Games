@@ -26,7 +26,7 @@ body{
 /* ── กรอบมือถือ (แสดงบนจอ desktop เป็น mockup โทรศัพท์) ── */
 #app{
   position:relative; width:100%; height:100vh; height:100dvh;
-  background:url(../assets/bg_campus.jpg) center bottom / cover no-repeat #7EC8E8;
+  background:url(../assets/bg_campus.jpg) 32% bottom / cover no-repeat #7EC8E8;
   overflow:hidden; user-select:none;
 }
 @media (min-width:560px){
