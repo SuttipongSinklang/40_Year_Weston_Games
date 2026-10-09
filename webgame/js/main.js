@@ -31,7 +31,7 @@ renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.08;
 
 const scene = new THREE.Scene();
-scene.fog = new THREE.Fog(0xbfe3f2, 10, 34);  // หมอกบรรยากาศ: ของไกลจางแบบธรรมชาติ
+scene.fog = new THREE.Fog(0xbfe3f2, 24, 60);  // หมอกบรรยากาศ: ตัวไกล (ตึก) ยังชัด ของไกลมากจาง
 
 const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
 
@@ -63,7 +63,35 @@ const rim = new THREE.DirectionalLight(0xbfe3f2, 0.6);
 rim.position.set(-1.5, 4, -5);
 scene.add(rim);
 
-/* ── พื้นหลัง: ใช้ภาพ Weston Myer Campus (CSS) — ฉาก 3D เหลือแค่ตัวละคร + เงา ── */
+/* ── ฉากหลัง Weston Myer: สนามหญ้า + ถนน (ตึก/ต้นไม้โหลดต่อท้ายไฟล์หลังสร้าง loader) ── */
+const ground = new THREE.Mesh(
+  new THREE.CircleGeometry(60, 56),
+  new THREE.MeshStandardMaterial({ color: 0x58c169, roughness: 1 })
+);
+ground.rotation.x = -Math.PI / 2;
+ground.receiveShadow = true;
+scene.add(ground);
+
+// ถนนแอสฟัลต์พาดหน้าตึก (ตัวละครยืนบนถนนนี้)
+const road = new THREE.Mesh(
+  new THREE.PlaneGeometry(60, 5),
+  new THREE.MeshStandardMaterial({ color: 0x8d939a, roughness: 1 })
+);
+road.rotation.x = -Math.PI / 2;
+road.position.set(0, 0.01, 0.6);
+road.receiveShadow = true;
+scene.add(road);
+
+// เส้นขอบถนนขาวสองข้าง
+[-2.35, 2.35].forEach(z => {
+  const line = new THREE.Mesh(
+    new THREE.PlaneGeometry(60, 0.09),
+    new THREE.MeshBasicMaterial({ color: 0xf2f4f6 })
+  );
+  line.rotation.x = -Math.PI / 2;
+  line.position.set(0, 0.015, 0.6 + z);
+  scene.add(line);
+});
 
 /* ── เงาสัมผัสใต้ตัวละคร (ให้ยืนแนบพื้น ไม่เหมือนลอย) ── */
 const contactShadow = (() => {
@@ -124,6 +152,52 @@ gltfLoader.load(
   undefined,
   () => { loaderEl.querySelector('p').textContent = 'โหลดโมเดลไม่สำเร็จ'; }
 );
+
+/* ── ตึก Westonmyer — อยู่หลังถนน ไกลออกไปให้พอดีเฟรมมือถือ ── */
+gltfLoader.load('assets/westonmyer_building.glb', gltf => {
+  const b = gltf.scene;
+  const box = new THREE.Box3().setFromObject(b);
+  const size = box.getSize(new THREE.Vector3());
+  b.scale.setScalar(7.5 / size.y);   // สูง ~7.5 หน่วย
+  box.setFromObject(b);
+  b.position.set(0, -box.min.y, -13);
+  b.rotation.y = 0;                 // หน้าตึก (กระจกน้ำเงิน) หันเข้าหากล้อง
+  b.traverse(o => {
+    if (o.isMesh && o.material) {
+      o.material.envMapIntensity = 0.35;
+      o.castShadow = false;
+      o.receiveShadow = false;
+    }
+  });
+  scene.add(b);
+});
+
+/* ── ต้นไม้ — โหลดครั้งเดียวแล้ว clone ไปวางรอบสนาม ── */
+const TREE_SPOTS = [
+  [-2.1, -3.5, 1.4], [2.2, -4.2, 1.5],
+  [-3.4, -7.5, 2.0], [3.6, -8.5, 2.2],
+];
+gltfLoader.load('assets/tree.glb', gltf => {
+  const proto = gltf.scene;
+  const box = new THREE.Box3().setFromObject(proto);
+  const size = box.getSize(new THREE.Vector3());
+  TREE_SPOTS.forEach(([x, z, h]) => {
+    const t = proto.clone();
+    t.scale.setScalar(h / size.y);
+    const b2 = new THREE.Box3().setFromObject(t);
+    t.position.set(x, -b2.min.y, z);
+    t.rotation.y = Math.random() * Math.PI * 2;
+    t.traverse(o => {
+      if (o.isMesh) {
+        // GLB ต้นไม้เก็บสีไว้ใน vertex colors — บังคับ material ให้ใช้สีนั้น
+        o.material = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1 });
+        o.material.envMapIntensity = 0.3;
+        o.castShadow = true;
+      }
+    });
+    scene.add(t);
+  });
+});
 
 /* ── อินเทอร์แอ็กชัน: ลาก = หมุน, แตะ = +1 ── */
 let dragging = false, moved = false, lastX = 0, lastInput = performance.now();
