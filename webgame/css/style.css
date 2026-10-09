@@ -174,11 +174,11 @@ body{
   box-shadow:0 3px 0 rgba(30,58,95,.12);
 }
 .stat-ico{
-  flex:none; width:34px; height:34px; border-radius:11px;
+  flex:none; width:56px; height:56px; border-radius:15px;
   background:#fff; border:2px solid var(--cream-dk);
   display:flex; align-items:center; justify-content:center; font-size:19px;
 }
-.stat-ico img{width:28px; height:28px; object-fit:contain}
+.stat-ico img{width:48px; height:48px; object-fit:contain}
 .stat-card h3{font-size:11.5px; font-weight:500; color:#5B7191; line-height:1.1}
 .stat-card p{font-family:var(--font-num); font-size:16px; font-weight:900; line-height:1.2}
 .stat-card p b{font-size:16px}
