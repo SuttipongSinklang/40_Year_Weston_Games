@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600;700&family=Nunito:wght@800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=28">
+<link rel="stylesheet" href="css/style.css?v=29">
 <link rel="stylesheet" href="assets/vendor/leaflet/dist/leaflet.css">
 <link rel="stylesheet" href="css/running.css?v=3">
 <link rel="stylesheet" href="css/profile.css?v=5">
@@ -294,25 +294,30 @@
     <p id="detailSaveState" class="run-message" role="status">เก็บในเครื่อง</p>
   </dialog>
 
-  <nav class="bottom-nav" aria-label="เมนูหลัก">
-    <button class="nav-btn active" data-screen="home">
-      <span class="nav-ico"><img src="assets/icons/home.png" alt="หน้าหลัก"></span><label>หน้าหลัก</label><i></i>
+  <div class="bottom-nav-wrap" id="bottomNavWrap">
+    <button type="button" class="nav-fold-btn" id="navFoldBtn" aria-expanded="true" aria-controls="bottomNav" aria-label="พับเมนู">
+      <img src="assets/icons/dropdown.png" alt="">
     </button>
-    <button type="button" class="nav-btn" data-screen="run" aria-label="วิ่ง"><span class="nav-ico run-nav-icon"><img src="assets/icons/run.png" alt="" aria-hidden="true"></span><label>วิ่ง</label><i></i></button>
-    <button class="nav-btn" data-screen="trophy">
-      <span class="nav-ico"><img src="assets/icons/rank.png?v=4" alt="อันดับ"></span><label>อันดับ</label><i></i>
-    </button>
-    <button class="nav-btn" data-screen="goal">
-      <span class="nav-ico"><img src="assets/icons/target.png" alt="เป้าหมาย"></span><label>เป้าหมาย</label><i></i>
-    </button>
-    <button class="nav-btn" data-screen="calendar">
-      <span class="nav-ico"><img src="assets/icons/calendar.png" alt="ปฏิทิน"></span><label>ปฏิทิน</label><i></i>
-    </button>
-    <button class="nav-btn" data-screen="social">
-      <span class="nav-ico"><img src="assets/icons/team.png" alt="ทีม"></span><label>ทีม</label><i></i>
-    </button>
-    <button type="button" class="nav-btn" data-screen="tournament" aria-label="แข่งขัน"><span class="nav-ico"><img src="assets/icons/tournament.png" alt="" aria-hidden="true"></span><label>แข่งขัน</label><i></i></button>
-  </nav>
+    <nav class="bottom-nav" id="bottomNav" aria-label="เมนูหลัก">
+      <button class="nav-btn active" data-screen="home">
+        <span class="nav-ico"><img src="assets/icons/home.png" alt="หน้าหลัก"></span><label>หน้าหลัก</label><i></i>
+      </button>
+      <button type="button" class="nav-btn" data-screen="run" aria-label="วิ่ง"><span class="nav-ico run-nav-icon"><img src="assets/icons/run.png" alt="" aria-hidden="true"></span><label>วิ่ง</label><i></i></button>
+      <button class="nav-btn" data-screen="trophy">
+        <span class="nav-ico"><img src="assets/icons/rank.png?v=4" alt="อันดับ"></span><label>อันดับ</label><i></i>
+      </button>
+      <button class="nav-btn" data-screen="goal">
+        <span class="nav-ico"><img src="assets/icons/target.png" alt="เป้าหมาย"></span><label>เป้าหมาย</label><i></i>
+      </button>
+      <button class="nav-btn" data-screen="calendar">
+        <span class="nav-ico"><img src="assets/icons/calendar.png" alt="ปฏิทิน"></span><label>ปฏิทิน</label><i></i>
+      </button>
+      <button class="nav-btn" data-screen="social">
+        <span class="nav-ico"><img src="assets/icons/team.png" alt="ทีม"></span><label>ทีม</label><i></i>
+      </button>
+      <button type="button" class="nav-btn" data-screen="tournament" aria-label="แข่งขัน"><span class="nav-ico"><img src="assets/icons/tournament.png" alt="" aria-hidden="true"></span><label>แข่งขัน</label><i></i></button>
+    </nav>
+  </div>
 
 
 
@@ -357,7 +362,7 @@
 
 </div>
 
-<script type="module" src="js/navigation.js?v=4"></script>
+<script type="module" src="js/navigation.js?v=5"></script>
 <button id="profileOpen" class="profile-open" type="button" hidden>ข้อมูลผู้เล่น</button>
 <dialog id="profileDialog" aria-labelledby="profileTitle">
   <form id="profileForm" class="profile-sheet" novalidate>

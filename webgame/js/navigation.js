@@ -1,6 +1,26 @@
 // Navigation loads independently of the 3D scene so running stays accessible.
 const buttons = [...document.querySelectorAll('.nav-btn')];
 let running, active = 'home';
+
+/* ── พับ/กางแถบ NAV (ใช้ได้ทุกหน้ายกเว้นหน้าหลัก ซึ่งแสดงเมนูตลอด) ── */
+const navWrap = document.getElementById('bottomNavWrap');
+const navFoldBtn = document.getElementById('navFoldBtn');
+let navFolded = false;
+function applyNavFold() {
+  const home = active === 'home';
+  if (home) navFolded = false;
+  navWrap?.classList.toggle('folded', navFolded);
+  navWrap?.classList.toggle('home-locked', home);
+  document.body.classList.toggle('nav-folded', navFolded);
+  if (!navFoldBtn) return;
+  navFoldBtn.setAttribute('aria-expanded', String(!navFolded));
+  navFoldBtn.setAttribute('aria-label', navFolded ? 'แสดงเมนู' : 'พับเมนู');
+}
+navFoldBtn?.addEventListener('click', () => {
+  navFolded = !navFolded;
+  applyNavFold();
+});
+
 function showScreen(target) {
   if (!buttons.some(button => button.dataset.screen === target)) target = 'home';
   if (active === 'run' && target !== 'run') running?.leave();
@@ -14,6 +34,7 @@ function showScreen(target) {
   document.querySelectorAll('.screen').forEach(screen => {
     screen.classList.toggle('active', screen.id === `screen-${target}`);
   });
+  applyNavFold();
   if (target === 'run') running?.enter();
   window.dispatchEvent(new CustomEvent('screenchange', { detail: target }));
 }

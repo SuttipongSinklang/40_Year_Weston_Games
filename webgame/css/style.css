@@ -418,11 +418,40 @@ body{
 .feed-meta button.liked{color:var(--red)}
 
 /* ═══════════ Bottom Nav ═══════════ */
-.bottom-nav{
+.bottom-nav-wrap{
   position:absolute; left:0; right:0; bottom:0; z-index:10;
+  pointer-events:none;
+}
+.bottom-nav-wrap > *{pointer-events:auto}
+.bottom-nav{
   display:flex; justify-content:space-evenly; align-items:flex-end; gap:2px;
   padding:10px 6px calc(10px + env(safe-area-inset-bottom));
+  transition:transform .32s cubic-bezier(.22,1,.36,1), opacity .25s ease;
 }
+.bottom-nav-wrap.folded .bottom-nav{
+  transform:translateY(105%); opacity:0; pointer-events:none;
+}
+/* ปุ่มลูกศรพับ/กางแถบเมนู (คร่อมขอบบนตอนกาง ติดขอบล่างจอตอนพับ) */
+.nav-fold-btn{
+  position:absolute; left:50%; z-index:2;
+  bottom:calc(100% - 12px); transform:translateX(-50%);
+  width:38px; height:38px; border-radius:50%;
+  background:var(--cream); border:2px solid var(--cream-dk);
+  display:flex; align-items:center; justify-content:center; cursor:pointer;
+  box-shadow:0 2px 0 rgba(30,58,95,.14);
+  transition:bottom .32s cubic-bezier(.22,1,.36,1);
+}
+.nav-fold-btn img{
+  width:20px; height:20px; object-fit:contain;
+  transition:transform .25s cubic-bezier(.34,1.56,.64,1);
+}
+.bottom-nav-wrap.folded .nav-fold-btn{bottom:calc(6px + env(safe-area-inset-bottom))}
+.bottom-nav-wrap.folded .nav-fold-btn img{transform:rotate(180deg)}
+/* หน้าหลัก: แถบเมนูแสดงตลอด ไม่มีปุ่มพับ */
+.bottom-nav-wrap.home-locked .nav-fold-btn{display:none}
+/* พับเมนูแล้วหน้าย่อยเลื่อนดูได้เต็มจอขึ้น */
+body.nav-folded .page-scroll{padding-bottom:calc(58px + env(safe-area-inset-bottom))}
+body.nav-folded #screen-run .page-scroll{padding-bottom:calc(58px + env(safe-area-inset-bottom))}
 .nav-btn{
   position:relative; background:none; border:none; cursor:pointer;
   display:flex; flex-direction:column; align-items:center; gap:3px;
