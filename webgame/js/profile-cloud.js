@@ -1,4 +1,4 @@
-import { playerSession } from './data.js?v=20261009-6';
+import { playerSession } from './data.js?v=20261012-2';
 export async function profileSession() { return playerSession(); }
 export async function fetchCloudProfile(api) {
   const {data,error}=await api.from('weston_health_profiles').select('*').eq('user_id',api.userId).maybeSingle();

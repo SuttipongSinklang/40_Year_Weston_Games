@@ -1,13 +1,15 @@
-import {validateProfile} from './profile-model.js';
-import {readProfile,writeProfile} from './profile-store.js';
-import {profileSession,fetchCloudProfile,saveCloudProfile} from './profile-cloud.js';
-import {loadPhoto,drawPhoto,photoBlob} from './profile-photo.js';
-import {createCamera} from './profile-camera.js';
-import {analyzeFacePhoto} from './profile-face.js';
+import {validateProfile} from './profile-model.js?v=20261012-2';
+import {readProfile,writeProfile} from './profile-store.js?v=20261012-2';
+import {profileSession,fetchCloudProfile,saveCloudProfile} from './profile-cloud.js?v=20261012-2';
+import {loadPhoto,drawPhoto,photoBlob} from './profile-photo.js?v=20261012-2';
+import {createCamera} from './profile-camera.js?v=20261012-2';
+import {analyzeFacePhoto} from './profile-face.js?v=20261012-2';
+import {subscribeLine} from './line-link.js?v=20261012-4';
 
 const dialog=document.getElementById('profileDialog'),form=document.getElementById('profileForm');
 const status=document.getElementById('profileStatus'),message=document.getElementById('profileMessage');
 const preview=document.getElementById('profilePhotoPreview'),crop=document.getElementById('profileCrop');
+let lineLinked=null;
 const keys=['age','sex','weight_kg','height_cm','bmi','body_fat_percent','muscle_mass_kg'];
 let api=null,record=null,photo=null,photoRevision=null,source=null,previewUrl=null,starting=null,syncing=null,dirty=false;
 let photoLoading=false,saving=false;
@@ -31,10 +33,13 @@ function applyRecord(){
   window.dispatchEvent(new CustomEvent('profilechange',{detail:record}));
   const profile=record?.profile;
   const values=profile?[`${profile.body_fat_percent.toFixed(1)}%`,`${profile.muscle_mass_kg.toFixed(1)} กก.`,profile.bmi.toFixed(1),`${profile.weight_kg.toFixed(1)} กก.`]:['—','—','—','—'];
-  document.querySelectorAll('#statsGrid .stat-card').forEach((card,i)=>{card.querySelector('b').textContent=values[i];card.querySelector('em')?.remove();});
+  document.querySelectorAll('#statsGrid .stat-card').forEach((card,i)=>{card.querySelector('b').textContent=values[i];const trend=card.querySelector('em');if(trend)trend.hidden=true;});
   document.querySelector('#statsGrid h3').textContent='Fat';
   const avatar=document.getElementById('profileButton');
-  avatar.replaceChildren();if(record?.photo){const img=document.createElement('img');img.src=URL.createObjectURL(record.photo);img.alt='หัวตัวละครของคุณ';img.onload=()=>URL.revokeObjectURL(img.src);avatar.append(img);}else{avatar.textContent='😎';}
+  avatar.replaceChildren();
+  if(record?.photo){const img=document.createElement('img');img.src=URL.createObjectURL(record.photo);img.alt='หัวตัวละครของคุณ';img.onload=()=>URL.revokeObjectURL(img.src);avatar.append(img);}
+  else if(lineLinked?.linePictureUrl){const img=document.createElement('img');img.src=lineLinked.linePictureUrl;img.alt='รูปโปรไฟล์จาก LINE';img.referrerPolicy='no-referrer';img.onerror=()=>{avatar.replaceChildren();avatar.textContent='😎';};avatar.append(img);}
+  else{avatar.textContent='😎';}
 }
 function fill(){
   source=null;crop.hidden=true;dirty=false;photo=record?.photo??null;photoRevision=record?.photo_revision??null;showPhoto(photo);
@@ -151,4 +156,30 @@ form.addEventListener('submit',async event=>{
 });
 window.addEventListener('screenchange',event=>{document.getElementById('profileOpen').hidden=event.detail==='home';});
 document.getElementById('profileOpen').hidden=!location.hash||location.hash==='#home';
+const lineStatus=document.getElementById('lineLinkStatus');
+subscribeLine(link=>{
+  lineLinked=link;
+  if(!lineStatus)return;
+  lineStatus.replaceChildren();
+  if(link.status==='linked'){
+    lineStatus.dataset.kind='ok';
+    if(link.devBypass){
+      const note=document.createElement('span');
+      note.textContent='โหมดพัฒนา (localhost): ข้ามการล็อกอิน LINE';
+      lineStatus.append(note);
+      applyRecord();return;
+    }
+    if(link.linePictureUrl){const pic=document.createElement('img');pic.src=link.linePictureUrl;pic.alt='รูปโปรไฟล์ LINE';pic.referrerPolicy='no-referrer';pic.className='line-chip-pic';pic.onerror=()=>pic.remove();lineStatus.append(pic);}
+    const chip=document.createElement('span');chip.className='line-chip';
+    const name=link.employeeDisplayName||link.lineDisplayName||'เชื่อม LINE แล้ว';
+    chip.textContent=link.employee?.employee_code?`${name} · รหัส ${link.employee.employee_code}`:name;
+    const note=document.createElement('span');
+    note.textContent=link.employee?'ตรวจสอบตัวตนกับระบบพนักงาน HR ผ่าน LINE ที่ลิงก์ไว้':(link.offline?'แสดงจากข้อมูลในเครื่อง จะอัปเดตเมื่อกลับมาออนไลน์':'ยังไม่พบข้อมูลพนักงานของ LINE นี้');
+    lineStatus.append(chip,note);
+    applyRecord();
+  }else{
+    lineStatus.dataset.kind=link.status==='unlinked'||link.status==='native-blocked'?'warn':'info';
+    lineStatus.textContent=link.detail||'กำลังตรวจสอบการเข้าสู่ระบบผ่าน LINE…';
+  }
+});
 applyRecord();start();

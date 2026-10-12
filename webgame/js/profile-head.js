@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import {analyzeFacePhoto} from './profile-face.js';
-import {buildAvatarHead,disposeAvatarHead} from './profile-avatar.js';
+import {analyzeFacePhoto} from './profile-face.js?v=20261012-2';
+import {buildAvatarHead,disposeAvatarHead} from './profile-avatar.js?v=20261012-2';
 // The source GLB has one merged mesh. Clip only its head, retaining outfit geometry.
 export function createPhotoHead(character,model){
   let head=null,token=0;const original=new Map();

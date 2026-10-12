@@ -2,8 +2,8 @@
 // Auto-updates through the same realtime channel the player app uses.
 import {
   getTournamentDetail, subscribeTournament, addCheer, countCheers, friendlyTournamentError,
-} from './tournament-cloud.js?v=20261012-1';
-import { computeStandings, groupMatchSections, championOf } from './tournament-bracket.js';
+} from './tournament-cloud.js?v=20261012-2';
+import { computeStandings, groupMatchSections, championOf } from './tournament-bracket.js?v=20261012-2';
 
 const el = id => document.getElementById(id);
 const tournamentId = new URLSearchParams(location.search).get('id');

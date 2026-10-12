@@ -1,5 +1,5 @@
-import { toGPX } from './run-core.js';
-import { isNativeApp } from './run-native-tracker.js';
+import { toGPX } from './run-core.js?v=20261012-2';
+import { isNativeApp } from './run-native-tracker.js?v=20261012-2';
 
 export async function shareNativeGPX(run, bridge) {
   const { Filesystem, Directory, Encoding, Share } = bridge || await import('../assets/vendor/capacitor/native-bridge.js');

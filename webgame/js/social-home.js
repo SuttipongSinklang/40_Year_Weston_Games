@@ -1,6 +1,6 @@
 // Social screen: real team membership (#3) and the live activity feed (#12).
 // Teams are created on the admin site; players pick their team here.
-import { playerSession } from './data.js';
+import { playerSession } from './data.js?v=20261012-2';
 
 const el = id => document.getElementById(id);
 

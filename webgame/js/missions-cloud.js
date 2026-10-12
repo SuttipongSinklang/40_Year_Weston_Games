@@ -1,7 +1,7 @@
 // Mission data access shared by the player home card and the admin site.
 // Admin writes rely on RLS weston_private.is_site_admin; completions are
 // stamped server-side so the reward always matches the configured value.
-import { playerSession } from './data.js';
+import { playerSession } from './data.js?v=20261012-2';
 
 function uuid() {
   if (crypto.randomUUID) return crypto.randomUUID();

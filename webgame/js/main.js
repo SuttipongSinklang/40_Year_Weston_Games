@@ -1,15 +1,16 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
-import { createPhotoHead } from './profile-head.js?v=3d-1';
-import './missions-home.js?v=20261012-1';
-import './leaderboard-home.js?v=20261012-1';
-import './social-home.js?v=20261012-1';
-import './goals-home.js?v=20261012-1';
-import './announcements-home.js?v=20261012-1';
-import './home-stats.js?v=20261012-1';
-import './calendar-home.js?v=20261012-1';
-import './achievements-home.js?v=20261012-1';
+import { recordWorkout } from './data.js?v=20261012-2';
+import { createPhotoHead } from './profile-head.js?v=20261012-2';
+import './missions-home.js?v=20261012-2';
+import './leaderboard-home.js?v=20261012-2';
+import './social-home.js?v=20261012-2';
+import './goals-home.js?v=20261012-2';
+import './announcements-home.js?v=20261012-2';
+import './home-stats.js?v=20261012-5';
+import './calendar-home.js?v=20261012-2';
+import './achievements-home.js?v=20261012-2';
 let setPhotoHead;
 window.addEventListener('profilechange',event=>{if(character){character.rotation.y=0;lastInput=performance.now();}setPhotoHead?.(event.detail?.photo).catch(()=>toast('สร้างหัว 3D ไม่ได้ กรุณาถ่ายใบหน้าคนหน้าตรงใหม่'));});
 window.addEventListener('screenchange', event => {
@@ -228,6 +229,9 @@ function workout(e) {
   pop.style.top = (e.clientY - rect.top) + 'px';
   document.getElementById('popLayer').appendChild(pop);
   setTimeout(() => pop.remove(), 1000);
+
+  // บันทึกลงคิวในเครื่องแล้ว sync ขึ้นคลาวด์ (ออฟไลน์ก็เก็บไว้ส่งภายหลัง)
+  recordWorkout();
 
   // เป้าหมายวันนี้ (%) — ตัวเลขจริงมาจาก home-stats.js (เก็บ mock ไว้เป็น fallback)
   const ring = window.westonNoteTap?.();

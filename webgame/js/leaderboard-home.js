@@ -1,7 +1,7 @@
 // Real leaderboard: game workouts + mission points (person) and team totals.
 // Replaces the mockup rows; falls back to a friendly note when data is missing.
-import { leaderboard } from './data.js';
-import { playerSession } from './data.js';
+import { leaderboard } from './data.js?v=20261012-2';
+import { playerSession } from './data.js?v=20261012-2';
 
 const el = id => document.getElementById(id);
 

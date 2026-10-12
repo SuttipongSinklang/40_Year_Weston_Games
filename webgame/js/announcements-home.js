@@ -1,7 +1,7 @@
 // Announcements from the admin site (#20) plus upcoming-match reminders (#8).
 // Shows a dismissible banner on the home screen and a toast for the latest news.
-import { playerSession } from './data.js';
-import { myUpcomingMatches } from './tournament-cloud.js?v=20261012-1';
+import { playerSession } from './data.js?v=20261012-2';
+import { myUpcomingMatches } from './tournament-cloud.js?v=20261012-2';
 
 const el = id => document.getElementById(id);
 

@@ -1,5 +1,5 @@
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config.js';
-import { bangkokDay } from './progress.js';
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config.js?v=20261012-2';
+import { bangkokDay } from './progress.js?v=20261012-2';
 
 const STORAGE_KEY = 'weston-progress-v1';
 let client, clientLoading, connecting, flushing, storageAvailable = true;
@@ -75,10 +75,86 @@ const serverLock = operation => navigator.locks
   ? navigator.locks.request('weston-cloud-sync-v1', operation)
   : operation();
 let sessionLoading;
+const ANON_STASH_KEY = 'weston-anon-before-line';
+const LINE_AUTH_STATE_KEY = 'weston-line-auth-state';
+function localGet(key) { try { return localStorage.getItem(key); } catch { return null; } }
+function localSet(key, value) { try { localStorage.setItem(key, value); } catch { /* พื้นที่เครื่องเต็มก็ข้าม */ } }
+
+// ประมวลผล ?code ที่ Supabase LINE OAuth ส่งกลับมา (คนละชุดกับ code ของ LIFF — ดู liffClientId)
+async function completePendingOAuth(api) {
+  if (localGet(LINE_AUTH_STATE_KEY) !== 'started') return;
+  const search = typeof location !== 'undefined' ? location.search : '';
+  if (!search) return;
+  const params = new URLSearchParams(search);
+  if (params.get('liffClientId')) return; // code ของ LIFF ไม่ใช่ของ Supabase
+  const oauthError = params.get('error_description') || params.get('error');
+  if (oauthError) { localSet(LINE_AUTH_STATE_KEY, 'failed'); return; }
+  const code = params.get('code');
+  if (!code) return;
+  try {
+    const { error } = await api.auth.exchangeCodeForSession(code);
+    localSet(LINE_AUTH_STATE_KEY, error ? 'failed' : 'done');
+    if (!error) {
+      try {
+        params.delete('code'); params.delete('state');
+        const query = params.toString();
+        history.replaceState(null, '', location.pathname + (query ? `?${query}` : '') + location.hash);
+      } catch { /* แก้ URL ไม่ได้ก็ไม่เป็นไร */ }
+    }
+  } catch { localSet(LINE_AUTH_STATE_KEY, 'failed'); }
+}
+
+async function lineProviderAvailable() {
+  try {
+    const response = await timedFetch(`${SUPABASE_URL}/auth/v1/settings`, { headers: { apikey: SUPABASE_ANON_KEY } });
+    if (!response.ok) return false;
+    const settings = await response.json();
+    return Boolean(settings?.external?.line);
+  } catch { return false; }
+}
+
+async function waitForLineGate(ms = 8000) {
+  const start = Date.now();
+  while (Date.now() - start < ms) {
+    if (window.westonLineLink?.status === 'linked') return true;
+    await new Promise(resolve => setTimeout(resolve, 400));
+  }
+  return false;
+}
+
+// ย้ายข้อมูลของผู้เล่น anonymous เดิม (เครื่องนี้) มาที่บัญชี LINE ที่เพิ่งล็อกอิน (RPC: weston_adopt_progress)
+async function adoptStashedProgress(api) {
+  const oldUser = localGet(ANON_STASH_KEY);
+  if (!oldUser || oldUser === api.userId) return;
+  if (!await waitForLineGate()) return;
+  try { await api.rpc('weston_adopt_progress', { old_user: oldUser }); } catch { /* ย้ายไม่ได้ก็เล่นต่อด้วยข้อมูลใหม่ */ }
+  try { localStorage.removeItem(ANON_STASH_KEY); } catch { /* ข้าม */ }
+}
+
+// อัปเกรดผู้เล่น anonymous เป็นบัญชี LINE เพื่อให้ข้อมูลตามคน ไม่ตามเครื่อง
+// ทำงานเบื้องหลัง: รอประตู LINE เปิดก่อน แล้วพาไป OAuth ของ Supabase หนึ่งรอบ แล้วกลับมาเอง
+async function upgradeAnonymousToLine(api, session) {
+  const marker = localGet(LINE_AUTH_STATE_KEY);
+  if (marker === 'failed') return; // เปิด provider ไม่ได้หรือ LINE ปฏิเสธ — เล่นแบบ anonymous ต่อ
+  if (marker === 'started') { localSet(LINE_AUTH_STATE_KEY, 'failed'); return; } // กลับมาแล้วยัง anonymous = แลก token ไม่สำเร็จ
+  if (!navigator.onLine) return;
+  if (!await waitForLineGate()) return;
+  if (!await lineProviderAvailable()) { localSet(LINE_AUTH_STATE_KEY, 'failed'); return; }
+  localSet(ANON_STASH_KEY, session.user.id);
+  localSet(LINE_AUTH_STATE_KEY, 'started');
+  const { error } = await api.auth.signInWithOAuth({
+    provider: 'line',
+    options: { redirectTo: typeof location !== 'undefined' ? location.origin + location.pathname : undefined },
+  });
+  if (error) localSet(LINE_AUTH_STATE_KEY, 'failed');
+  // ถ้าไม่ error เบราว์เซอร์กำลังถูกพาไปหน้าล็อกอิน LINE แล้วจะกลับมาที่เกมเอง
+}
+
 export function playerSession() {
   if (sessionLoading) return sessionLoading;
   sessionLoading = (async () => {
   const api = await getClient();
+  await completePendingOAuth(api);
   let { data: { session }, error } = await api.auth.getSession();
   if (error) throw error;
   if (!session) {
@@ -88,6 +164,8 @@ export function playerSession() {
   }
   if (!session) throw new Error('No player session');
   api.userId = session.user.id;
+  if (session.user.is_anonymous) void upgradeAnonymousToLine(api, session).catch(() => {});
+  else void adoptStashedProgress(api).catch(() => {});
   return api;
   })().finally(() => { sessionLoading = null; });
   return sessionLoading;

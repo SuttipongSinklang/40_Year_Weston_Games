@@ -7,14 +7,14 @@ import {
   addWalkInParticipant, removeParticipant, setTournamentStatus,
   startTournament, resetBracket, saveMatchScore, setMatchSchedule,
   friendlyTournamentError,
-} from './tournament-cloud.js?v=20261012-1';
-import { computeStandings, groupMatchSections } from './tournament-bracket.js';
+} from './tournament-cloud.js?v=20261012-2';
+import { computeStandings, groupMatchSections } from './tournament-bracket.js?v=20261012-2';
 import {
   claimSiteAdmin, setSiteAdminCode, listAllMissions, saveMission,
   deleteMission, missionCompletionStats, friendlyMissionError,
-} from './missions-cloud.js?v=20261012-1';
-import { saveAdminCode, getAdminCode } from './tournament-store.js';
-import { playerSession } from './data.js';
+} from './missions-cloud.js?v=20261012-2';
+import { saveAdminCode, getAdminCode } from './tournament-store.js?v=20261012-2';
+import { playerSession } from './data.js?v=20261012-2';
 
 const el = id => document.getElementById(id);
 const TABS = ['dashboard', 'missions', 'tournaments', 'teams', 'announcements', 'settings'];

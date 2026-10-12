@@ -1,6 +1,6 @@
-import { createRun, activeMs, addPosition, pauseRun, resumeRun, finishRun, restoreRun } from './run-core.js?v=20261009-8';
-import * as storage from './run-store.js';
-import { GPS_OPTIONS, usableBrowserFix } from './run-gps.js';
+import { createRun, activeMs, addPosition, pauseRun, resumeRun, finishRun, restoreRun } from './run-core.js?v=20261012-2';
+import * as storage from './run-store.js?v=20261012-2';
+import { GPS_OPTIONS, usableBrowserFix } from './run-gps.js?v=20261012-2';
 
 export function createRunTracker({ onChange = () => {}, store = storage, geo = navigator.geolocation,
   activity = 'outdoor', motion,

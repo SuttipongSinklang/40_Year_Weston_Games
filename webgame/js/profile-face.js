@@ -1,4 +1,4 @@
-import {loadPhoto} from './profile-photo.js';
+import {loadPhoto} from './profile-photo.js?v=20261012-2';
 const cache=new WeakMap();let detector;
 const clamp=(v,lo,hi)=>Math.max(lo,Math.min(hi,v));
 export function faceParameters(points,sample){

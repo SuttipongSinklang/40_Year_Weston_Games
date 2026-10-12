@@ -1,8 +1,8 @@
 // Achievements (#6): badges unlocked from real data (workouts, streak, runs,
 // missions, teams, championships). Newly earned badges are persisted with a
 // toast, and the DB trigger announces them on the public activity feed.
-import { playerSession, loadRunsFromCloud } from './data.js';
-import { bangkokDay, streakFor } from './progress.js';
+import { playerSession, loadRunsFromCloud } from './data.js?v=20261012-2';
+import { bangkokDay, streakFor } from './progress.js?v=20261012-2';
 
 const el = id => document.getElementById(id);
 

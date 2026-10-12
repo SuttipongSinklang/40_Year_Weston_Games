@@ -1,5 +1,5 @@
 // Goal screen with real data (#15) and health trend charts (#16).
-import { playerSession, loadRunsFromCloud } from './data.js';
+import { playerSession, loadRunsFromCloud } from './data.js?v=20261012-2';
 
 const el = id => document.getElementById(id);
 

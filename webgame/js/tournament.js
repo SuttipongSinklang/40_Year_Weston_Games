@@ -4,9 +4,9 @@
 import {
   listTournaments, getTournamentDetail, joinTournament, removeParticipant,
   subscribeTournament, addCheer, countCheers, friendlyTournamentError,
-} from './tournament-cloud.js?v=20261012-1';
-import { computeStandings, championOf, groupMatchSections } from './tournament-bracket.js';
-import { rememberJoined } from './tournament-store.js';
+} from './tournament-cloud.js?v=20261012-2';
+import { computeStandings, championOf, groupMatchSections } from './tournament-bracket.js?v=20261012-2';
+import { rememberJoined } from './tournament-store.js?v=20261012-2';
 
 const CATEGORY_LABEL = { single: 'เดี่ยว', team: 'ทีม' };
 const GENDER_LABEL = { male: 'ชาย', female: 'หญิง', mixed: 'ผสม' };

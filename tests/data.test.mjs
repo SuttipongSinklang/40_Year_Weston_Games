@@ -67,7 +67,7 @@ async function load(store, db, secure = true) {
     },
   });
   await module.link(async specifier => {
-    const values = specifier === './config.js' ? { SUPABASE_URL: 'https://example.supabase.co', SUPABASE_ANON_KEY: 'test-public-key' } : { bangkokDay };
+    const values = specifier.startsWith('./config.js') ? { SUPABASE_URL: 'https://example.supabase.co', SUPABASE_ANON_KEY: 'test-public-key' } : { bangkokDay };
     return new vm.SyntheticModule(Object.keys(values), function () { for (const [name, value] of Object.entries(values)) this.setExport(name, value); }, { context });
   });
   await module.evaluate(); return module.namespace;

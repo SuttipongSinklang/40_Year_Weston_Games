@@ -2,11 +2,11 @@
 // completions. Run missions verify against the player's real saved runs
 // server-side; daily missions reset every Bangkok day. Keeps the built-in mock
 // mission when the missions tables are missing, offline, or empty.
-import { loadRunsFromCloud } from './data.js';
+import { loadRunsFromCloud } from './data.js?v=20261012-2';
 import {
   listActiveMissions, listMyCompletions, completeMission, completeRunMission,
   friendlyMissionError,
-} from './missions-cloud.js?v=20261012-1';
+} from './missions-cloud.js?v=20261012-2';
 
 const el = id => document.getElementById(id);
 let missions = [];

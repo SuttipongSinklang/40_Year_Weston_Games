@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="css/style.css?v=25">
 <link rel="stylesheet" href="assets/vendor/leaflet/dist/leaflet.css">
 <link rel="stylesheet" href="css/running.css?v=3">
-<link rel="stylesheet" href="css/profile.css?v=3">
+<link rel="stylesheet" href="css/profile.css?v=5">
 <link rel="stylesheet" href="css/tournament.css?v=1">
 <script type="importmap">
 {
@@ -52,7 +52,7 @@
 
       <div class="streak-banner">
         <span class="streak-flame"><img src="assets/icons/fire.png" alt="Day Streak"></span>
-        <b class="streak-num" id="streakDay">56</b>
+        <b class="streak-num" id="streakDay">0</b>
         <b>Day Streak</b>
       </div>
 
@@ -65,19 +65,19 @@
       <div class="stats-grid" id="statsGrid">
         <div class="stat-card" id="statFat">
           <span class="stat-ico"><img src="assets/icons/fat.png" alt="ไขมัน"></span>
-          <div><h3>ไขมัน (%)</h3><p><b>18</b> <em hidden>↓2.4</em></p></div>
+          <div><h3>ไขมัน (%)</h3><p><b>—</b> <em hidden></em></p></div>
         </div>
         <div class="stat-card" id="statMuscle">
           <span class="stat-ico"><img src="assets/icons/muscle.png" alt="กล้ามเนื้อ"></span>
-          <div><h3>กล้ามเนื้อ (กก.)</h3><p><b>36</b> <em hidden>↑1.1</em></p></div>
+          <div><h3>กล้ามเนื้อ (กก.)</h3><p><b>—</b> <em hidden></em></p></div>
         </div>
         <div class="stat-card" id="statBmi">
           <span class="stat-ico"><img src="assets/icons/bmi.png" alt="BMI"></span>
-          <div><h3>BMI</h3><p><b>22.5</b> <em hidden>↑0.3</em></p></div>
+          <div><h3>BMI</h3><p><b>—</b> <em hidden></em></p></div>
         </div>
         <div class="stat-card" id="statWeight">
           <span class="stat-ico"><img src="assets/icons/weight.png" alt="น้ำหนัก"></span>
-          <div><h3>น้ำหนัก (กก.)</h3><p><b>62.4</b> <em hidden>↑0.5</em></p></div>
+          <div><h3>น้ำหนัก (กก.)</h3><p><b>—</b> <em hidden></em></p></div>
         </div>
       </div>
     </header>
@@ -357,7 +357,7 @@
 
 </div>
 
-<script type="module" src="js/navigation.js?v=3"></script>
+<script type="module" src="js/navigation.js?v=4"></script>
 <button id="profileOpen" class="profile-open" type="button" hidden>ข้อมูลผู้เล่น</button>
 <dialog id="profileDialog" aria-labelledby="profileTitle">
   <form id="profileForm" class="profile-sheet" novalidate>
@@ -379,13 +379,17 @@
       <div id="profileCrop" class="profile-crop" hidden><label>ขยายใบหน้า<input name="photo_zoom" type="range" min="1" max="3" step="0.01" value="1"></label><label>ตำแหน่งแนวนอน<input name="photo_x" type="range" min="0" max="1" step="0.01" value="0.5"></label><label>ตำแหน่งแนวตั้ง<input name="photo_y" type="range" min="0" max="1" step="0.01" value="0.5"></label></div>
       <p>ประมวลผลรูปบนอุปกรณ์ เก็บเฉพาะรูปที่ครอบแล้ว ไม่แสดงรูปหรือข้อมูลสุขภาพในอันดับสาธารณะ</p>
     </section>
+    <section class="profile-lineline" aria-labelledby="lineLinkTitle">
+      <h3 id="lineLinkTitle">LINE เชื่อมกับระบบพนักงาน</h3>
+      <p id="lineLinkStatus" class="profile-status" role="status" aria-live="polite">กำลังตรวจการเชื่อม LINE…</p>
+    </section>
     <p id="profileMessage" class="profile-message" role="status" aria-live="polite"></p>
     <button id="profileSave" class="profile-save" type="submit">บันทึกข้อมูลและตัวละคร</button>
     <p id="profileStatus" class="profile-status" role="status" aria-live="polite"></p><button id="profileRetry" class="profile-secondary" type="button">เชื่อมต่ออีกครั้ง</button>
   </form>
 </dialog>
-<script type="module" src="js/profile.js?v=5"></script>
-<script type="module" src="js/tournament.js?v=6"></script>
-<script type="module" src="js/main.js?v=28"></script>
+<script type="module" src="js/profile.js?v=15"></script>
+<script type="module" src="js/tournament.js?v=8"></script>
+<script type="module" src="js/main.js?v=33"></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-import { playerSession } from './data.js?v=20261009-6';
+import { playerSession } from './data.js?v=20261012-2';
 
 const TABLE = 'weston_live_runners';
 const COLUMNS = 'user_id,lat,lng,accuracy,fix_at,display_name,updated_at,expires_at';

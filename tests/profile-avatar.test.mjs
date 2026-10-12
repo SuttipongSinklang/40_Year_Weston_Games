@@ -37,7 +37,7 @@ test('head replacement preserves original body geometry and restores original ma
   let resolve;
   const analyze=new vm.SyntheticModule(['analyzeFacePhoto'],function(){this.setExport('analyzeFacePhoto',async blob=>blob==='slow'?new Promise(r=>resolve=r):parameters);},{context});
   const controller=new vm.SourceTextModule(await readFile(new URL('../webgame/js/profile-head.js',import.meta.url),'utf8'),{context});
-  const linker=name=>name==='three'?threeModule:name==='./profile-face.js'?analyze:avatarModule;
+  const linker=name=>name==='three'?threeModule:name.startsWith('./profile-face.js')?analyze:avatarModule;
   await controller.link(linker);await controller.evaluate();
   const character=new THREE.Group(),model=new THREE.Group(),geometry=new THREE.BoxGeometry(.5,.5,.5),material=new THREE.MeshStandardMaterial();
   const body=new THREE.Mesh(geometry,material);model.add(body);character.add(model);

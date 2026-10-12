@@ -1,7 +1,7 @@
 // Printable certificate page: pick any participant (or the champion) of a
 // tournament and print/save as PDF via the browser dialog.
-import { getTournamentDetail, friendlyTournamentError } from './tournament-cloud.js?v=20261012-1';
-import { computeStandings, championOf } from './tournament-bracket.js';
+import { getTournamentDetail, friendlyTournamentError } from './tournament-cloud.js?v=20261012-2';
+import { computeStandings, championOf } from './tournament-bracket.js?v=20261012-2';
 
 const el = id => document.getElementById(id);
 const tournamentId = new URLSearchParams(location.search).get('id');

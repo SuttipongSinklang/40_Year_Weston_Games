@@ -24,7 +24,7 @@ buttons.forEach(button => button.addEventListener('click', () => {
 }));
 window.addEventListener('hashchange', () => showScreen(location.hash.slice(1)));
 showScreen(location.hash.slice(1));
-import('./running.js?v=20261009-13').then(async module => {
+import('./running.js?v=20261012-2').then(async module => {
   running = await module.initializeRunning({ toast(message) {
     const element = document.getElementById('toast');
     if (element) {

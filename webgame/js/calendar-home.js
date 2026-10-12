@@ -1,8 +1,8 @@
 // Real calendar (#1): workout days from weston_days, mission points per day,
 // match days from scheduled matches, and a real monthly summary. The mockup
 // grid is replaced on first successful load.
-import { playerSession, loadRunsFromCloud } from './data.js';
-import { bangkokDay } from './progress.js';
+import { playerSession, loadRunsFromCloud } from './data.js?v=20261012-2';
+import { bangkokDay } from './progress.js?v=20261012-2';
 
 const el = id => document.getElementById(id);
 const THAI_MONTHS = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',

@@ -1,14 +1,14 @@
 // Supabase access for tournaments. All reads go through the public RLS policies,
 // writes for management go through admin-gated policies; creation and admin-code
 // claiming use the security-definer RPCs from supabase/tournaments.sql.
-import { playerSession } from './data.js';
+import { playerSession } from './data.js?v=20261012-2';
 import {
   buildSingleElimBracket,
   buildDoubleElimBracket,
   buildRoundRobinMatches,
   applyScore,
   shuffleEntries,
-} from './tournament-bracket.js';
+} from './tournament-bracket.js?v=20261012-2';
 
 function uuid() {
   if (crypto.randomUUID) return crypto.randomUUID();
