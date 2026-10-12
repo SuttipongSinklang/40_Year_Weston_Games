@@ -435,9 +435,10 @@ body{
   transform:rotate(-90deg); transition:transform .25s cubic-bezier(.34,1.56,.64,1);
 }
 .nav-toggle.open img{transform:rotate(90deg)}
-/* เมนูหลัก: เปิดออกทางขวาในแนวเดิม ปิดแล้วเลื่อนหดเข้า */
+/* เมนูหลัก: เปิดแล้วเลื่อนไปทางขวา กระจายห่างกัน ปิดแล้วหดเข้า */
 .nav-menu{
-  display:flex; align-items:flex-end; gap:2px; flex:1; min-width:0;
+  display:flex; align-items:flex-end; gap:8px; flex:1; min-width:0;
+  margin-left:auto; justify-content:space-evenly;
   max-width:640px; overflow-x:auto; scrollbar-width:none;
   transition:max-width .32s cubic-bezier(.22,1,.36,1), opacity .22s ease;
 }
