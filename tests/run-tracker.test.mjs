@@ -94,6 +94,19 @@ test('insecure LAN origin never calls geolocation', async () => {
   const e = setup({ secure: false }); await e.tracker.init(); await e.tracker.start();
   assert.equal(e.geo.starts, 0); assert.match(e.tracker.snapshot().message, /HTTPS/); e.tracker.destroy();
 });
+test('coarse browser GPS cannot start or move the recorded route', async () => {
+  const e = setup(); await e.tracker.init(); await e.tracker.start();
+  e.fix(0, 35); assert.equal(e.tracker.snapshot().run, null);
+  assert.equal(e.tracker.snapshot().mode, 'acquiring');
+  e.fix(0, 8); await settle();
+  e.setTime(T0 + 10000); e.fix(50, 35); await settle();
+  assert.equal(e.tracker.snapshot().run.points.length, 1);
+  assert.equal(e.tracker.snapshot().run.distance_m, 0);
+  e.fix(50, 8); await settle();
+  assert.equal(e.tracker.snapshot().run.points.length, 2);
+  assert.ok(Math.abs(e.tracker.snapshot().run.distance_m - 50) < .1);
+  e.tracker.destroy();
+});
 test('permission denial leaves no active timer/draft or GPS watcher; late callbacks cannot resume', async () => {
   const e = setup(); await e.tracker.init(); await e.tracker.start(); const old = e.oldCallback();
   e.error(1); await settle();

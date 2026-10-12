@@ -8,7 +8,11 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600;700&family=Nunito:wght@800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=28">
+<link rel="stylesheet" href="css/style.css?v=25">
+<link rel="stylesheet" href="assets/vendor/leaflet/dist/leaflet.css">
+<link rel="stylesheet" href="css/running.css?v=3">
+<link rel="stylesheet" href="css/profile.css?v=5">
+<link rel="stylesheet" href="css/tournament.css?v=1">
 <script type="importmap">
 {
   "imports": {
@@ -34,7 +38,7 @@
     <!-- HUD บน (mockup ตามรูปอ้างอิง) -->
     <header class="hud-top">
       <div class="profile-row">
-        <div class="avatar"><span>😎</span></div>
+        <button class="avatar" id="profileButton" type="button" aria-label="ข้อมูลผู้เล่นและรูปตัวละคร"><span>😎</span></button>
         <div class="profile-info">
           <h1><span class="goal-hint">เป้าหมายวันนี้</span><span class="goal-pct"><b id="goalPct">62</b>%</span></h1>
           <div class="xp-bar"><div class="xp-fill" id="goalFill"></div></div>
@@ -48,7 +52,7 @@
 
       <div class="streak-banner">
         <span class="streak-flame"><img src="assets/icons/fire.png" alt="Day Streak"></span>
-        <b class="streak-num" id="streakDay">56</b>
+        <b class="streak-num" id="streakDay">0</b>
         <b>Day Streak</b>
       </div>
 
@@ -59,21 +63,21 @@
       </button>
 
       <div class="stats-grid" id="statsGrid">
-        <div class="stat-card">
+        <div class="stat-card" id="statFat">
           <span class="stat-ico"><img src="assets/icons/fat.png" alt="ไขมัน"></span>
-          <div><h3>ไขมัน</h3><p><b>18%</b> <em>↓2.4%</em></p></div>
+          <div><h3>ไขมัน (%)</h3><p><b>—</b> <em hidden></em></p></div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card" id="statMuscle">
           <span class="stat-ico"><img src="assets/icons/muscle.png" alt="กล้ามเนื้อ"></span>
-          <div><h3>กล้ามเนื้อ</h3><p><b>36%</b> <em>↑1.1%</em></p></div>
+          <div><h3>กล้ามเนื้อ (กก.)</h3><p><b>—</b> <em hidden></em></p></div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card" id="statBmi">
           <span class="stat-ico"><img src="assets/icons/bmi.png" alt="BMI"></span>
-          <div><h3>BMI</h3><p><b>22.5</b> <em>↑0.3</em></p></div>
+          <div><h3>BMI</h3><p><b>—</b> <em hidden></em></p></div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card" id="statWeight">
           <span class="stat-ico"><img src="assets/icons/weight.png" alt="น้ำหนัก"></span>
-          <div><h3>น้ำหนัก</h3><p><b>62.4</b> <em>↑0.5</em></p></div>
+          <div><h3>น้ำหนัก (กก.)</h3><p><b>—</b> <em hidden></em></p></div>
         </div>
       </div>
     </header>
@@ -91,12 +95,14 @@
       <div class="mission-bar"><div class="mission-fill" id="missionFill"></div></div>
       <small id="missionName">เล่นเกมยืดเหยียด 5 ครั้ง</small>
       <em class="tap-hint">แตะตัวละครเพื่อออกกำลังกาย!</em>
+      <button id="missionClaim" class="mission-claim" type="button" hidden>✓ ทำสำเร็จแล้ว</button>
     </aside>
 
     <!-- Layer ข้อความ +1 ลอย -->
     <div id="popLayer"></div>
     <!-- Toast แจ้งเตือน -->
     <div id="toast"></div>
+    <p id="profileSavedNotice" class="profile-saved-notice" role="status" aria-live="polite" hidden></p>
   </section>
 
   <!-- ══════════════════════ SCREEN : LEADERBOARD ══════════════════════ -->
@@ -135,7 +141,7 @@
         <svg viewBox="0 0 120 120" class="goal-ring">
           <circle cx="60" cy="60" r="52" class="ring-bg"/>
           <circle cx="60" cy="60" r="52" class="ring-fill" id="dayRing"/>
-          <text x="60" y="57" class="ring-num">62%</text>
+          <text x="60" y="57" class="ring-num" id="dayRingPct">62%</text>
           <text x="60" y="76" class="ring-label">วันนี้</text>
         </svg>
         <div class="goal-hero-info">
@@ -171,7 +177,7 @@
 
       <div class="card summary-card">
         <h3>🔥 สรุปเดือนนี้</h3>
-        <div class="summary-row">
+        <div class="summary-row" id="calSummary">
           <div><b>21</b><small>วันที่ออกกำลังกาย</small></div>
           <div><b>1,240</b><small>แคลอรีที่เผาผลาญ</small></div>
           <div><b>820</b><small>นาทีรวม</small></div>
@@ -195,11 +201,104 @@
     </div>
   </section>
 
+  <!-- ══════════════════════ SCREEN : TOURNAMENT ══════════════════════ -->
+  <section id="screen-tournament" class="screen">
+    <div class="page-scroll">
+      <header class="page-head"><h2><span class="head-ico"><img src="assets/icons/tournament.svg" alt="ทัวร์นาเมนต์"></span> ทัวร์นาเมนต์</h2></header>
+
+      <div class="pill-tabs t-pill-tabs" role="tablist" aria-label="กรองรายการแข่งขัน">
+        <button type="button" class="pill active" data-t-filter="all">ทั้งหมด</button>
+        <button type="button" class="pill" data-t-filter="registering">รับสมัคร</button>
+        <button type="button" class="pill" data-t-filter="ongoing">กำลังแข่ง</button>
+        <button type="button" class="pill" data-t-filter="completed">จบแล้ว</button>
+        <button type="button" class="pill" data-t-filter="mine">ของฉัน</button>
+      </div>
+
+      <p id="tListState" class="t-state" role="status">ยังไม่ได้โหลด</p>
+      <div class="t-list" id="tList"></div>
+
+      <div class="t-actions">
+        <p class="t-help" style="text-align:center;margin:2px 0 0">การสร้างและจัดการรายการ รวมถึงภารกิจ อยู่ที่หน้าเว็บผู้ดูแล</p>
+      </div>
+    </div>
+  </section>
+
   <!-- ══════════════════════ BOTTOM NAV ══════════════════════ -->
-  <nav class="bottom-nav">
+  <section id="screen-run" class="screen">
+    <div class="page-scroll run-page">
+      <header class="page-head run-heading"><div><p class="run-eyebrow">ออกไปขยับตัว</p><h2>วิ่งของฉัน</h2></div><span id="runStatus" class="run-status">พร้อมวิ่ง</span></header>
+      <div class="run-tabs" aria-label="หน้าวิ่ง">
+        <button disabled type="button" class="active" data-run-tab="live" aria-pressed="true">บันทึกการวิ่ง</button>
+        <button disabled type="button" data-run-tab="history" aria-pressed="false">ประวัติ</button>
+      </div>
+      <div id="runLivePanel">
+        <fieldset class="run-activity card"><legend>รูปแบบการวิ่ง</legend>
+          <label><input type="radio" name="runActivity" value="outdoor" checked> กลางแจ้ง · GPS</label>
+          <label><input type="radio" name="runActivity" value="treadmill"> ลู่วิ่งที่บ้าน</label>
+        </fieldset>
+        <div class="run-map-shell" id="runRoutePanel">
+          <div hidden id="runMap" class="run-leaflet" aria-label="แผนที่เส้นทางวิ่ง"></div>
+          <svg id="runSketch" class="run-sketch" viewBox="0 0 320 240" role="img" aria-label="เส้นทางการวิ่งของคุณ"></svg>
+          <div id="runMapEmpty" class="run-map-empty"><span aria-hidden="true">↗</span><strong>เส้นทางเริ่มที่ก้าวแรก</strong><p>กดเริ่มวิ่ง แล้วอนุญาตตำแหน่ง GPS</p></div>
+          <button disabled type="button" id="runCenter" class="run-map-center" aria-label="หาตำแหน่งปัจจุบันหรือจัดแผนที่ให้เห็นเส้นทาง">◎</button>
+        </div>
+        <p id="mapMessage" class="run-help" role="status">กำลังโหลดแผนที่ถนน…</p>
+        <section hidden id="runTreadmillRecoveryPanel" class="run-options card" aria-labelledby="runTreadmillRecoveryTitle">
+          <h3 id="runTreadmillRecoveryTitle">บันทึกรอบเดิมให้เสร็จ</h3>
+          <label class="run-distance-input" for="runTreadmillDistance">ระยะทางบนหน้าจอลู่วิ่ง (กม.)</label>
+          <input id="runTreadmillDistance" type="number" inputmode="decimal" min="0" max="200" step="0.001" placeholder="เช่น 3.50" aria-describedby="runTreadmillHint runTreadmillError">
+          <p id="runTreadmillHint" class="run-help">รอบเดิมใช้การกรอกระยะทาง กรุณากรอกค่าจากเครื่องก่อนจบและบันทึก รอบใหม่จะจับก้าวอัตโนมัติ</p>
+        </section>
+        <p id="runTreadmillError" class="run-help" role="status"></p>
+        <div class="run-metrics">
+          <div class="run-time"><strong id="runTime">00:00:00</strong><span>เวลาวิ่ง</span></div>
+          <div class="run-distance"><strong id="runDistance">0.00</strong><span id="runDistanceLabel">ระยะทาง</span><small>กิโลเมตร</small></div>
+        </div>
+        <p id="runMessage" class="run-message" role="status">กำลังเตรียมพื้นที่จัดเก็บ…</p>
+        <div id="runActions" class="run-actions">
+          <button disabled type="button" id="runStart" class="run-primary">เริ่มวิ่ง</button>
+          <button disabled hidden type="button" id="runPause" class="run-primary run-pause">พักการวิ่ง</button>
+          <button disabled hidden type="button" id="runFinish" class="run-secondary">จบและบันทึก</button>
+        </div>
+        <div class="run-metric-pair"><div><span>เพซเฉลี่ย</span><strong id="runPace">—</strong><small>นาที/กม.</small></div><div hidden id="runStepMetric"><span>จำนวนก้าว</span><strong id="runStepCount">0</strong><small>ก้าว</small></div></div>
+        <p id="runScreenHint" class="run-help"></p>
+      </div>
+      <div hidden id="runHistoryPanel">
+        <div class="run-history-heading"><h3>การวิ่งที่ผ่านมา</h3></div>
+        <p id="runHistoryState" class="run-message" role="status">ยังไม่มีการวิ่ง</p>
+        <ol id="runHistoryList" class="run-history-list"></ol>
+      </div>
+    </div>
+  </section>
+  <dialog id="runDetailDialog" class="player-dialog run-detail-dialog" aria-labelledby="runDetailTitle">
+    <header class="dialog-heading"><h2 id="runDetailTitle">การวิ่งของคุณ</h2><form method="dialog" novalidate><button type="submit" aria-label="ปิดรายละเอียดการวิ่ง">✕</button></form></header>
+    <div class="run-map-shell run-detail-map"><label class="run-detail-basemap"><input type="checkbox" id="detailBasemapConsent"><span>แผนที่ถนน<small>โหลดพื้นที่ที่ดูจาก OpenStreetMap</small></span></label><div hidden id="detailMap" class="run-leaflet"></div><svg id="detailSketch" class="run-sketch" viewBox="0 0 320 240" role="img" aria-label="เส้นทางการวิ่งที่บันทึก"></svg><div id="detailMapEmpty" class="run-map-empty"><p>รอบนี้ยังไม่มีตำแหน่ง GPS ที่ใช้ได้</p></div></div>
+    <div class="run-detail-metrics">
+      <div><span class="run-stat-symbol" aria-hidden="true">↗</span><strong id="detailDistance">0 กม.</strong><span>ระยะทาง</span></div>
+      <div><span class="run-stat-symbol" aria-hidden="true">◷</span><strong id="detailTime">00:00:00</strong><span>เวลาวิ่ง</span></div>
+      <div><span class="run-stat-symbol" aria-hidden="true">↯</span><strong id="detailPace">—</strong><span>เพซเฉลี่ย · นาที/กม.</span></div>
+      <div><span class="run-stat-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13 3c1 5-5 6-3 10 1-1 2-2 3-3 4 4 5 7 2 10-3 3-9 1-9-4 0-5 5-6 7-13Z"/></svg></span><strong>—</strong><span>พลังงาน · kcal</span></div>
+      <div><span class="run-stat-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m7 5-2 8c3 4 8 6 14 6v-4l-8-3-1-6M6 20h14M11 12l-1 3M14 13l-1 3"/></svg></span><strong id="detailSteps">—</strong><span>จำนวนก้าว</span></div>
+      <div><span class="run-stat-symbol" aria-hidden="true">△</span><strong>—</strong><span>ความสูงสะสม · ม.</span></div>
+      <div><span class="run-stat-symbol" aria-hidden="true">↔</span><strong id="detailStride">—</strong><span>ความยาวก้าวที่ตั้ง · ม.</span></div>
+      <div><span class="run-stat-symbol" aria-hidden="true">≋</span><strong id="detailCadence">—</strong><span>ก้าว/นาที เฉลี่ย</span></div>
+      <div><span class="run-stat-symbol" aria-hidden="true">♡</span><strong>—</strong><span>ชีพจรเฉลี่ย · bpm</span></div>
+    </div>
+    <p class="run-help">— หมายถึงไม่มีข้อมูล · ยังไม่ได้วัดพลังงาน ความสูง และชีพจร</p>
+    <ol id="runEventList" class="run-event-list" aria-label="จุดพักและวิ่งต่อ"></ol>
+    <p id="detailMapMessage" class="run-help">เส้นทางส่วนตัว · เก็บในเครื่อง</p>
+    <h3>เวลาแต่ละกิโลเมตร</h3>
+    <table class="run-splits"><caption class="visually-hidden">สรุปเวลาและเพซแต่ละกิโลเมตร</caption><thead><tr><th scope="col">กม.</th><th scope="col">เวลา</th><th scope="col">เพซ</th></tr></thead><tbody id="runSplits"></tbody></table>
+    <p id="runSplitsEmpty" class="run-help">ยังไม่ครบ 1 กิโลเมตร</p>
+    <p class="run-online-note">บันทึกออนไลน์อัตโนมัติ · เส้นทางเห็นได้เฉพาะคุณ</p>
+    <p id="detailSaveState" class="run-message" role="status">เก็บในเครื่อง</p>
+  </dialog>
+
+  <nav class="bottom-nav" aria-label="เมนูหลัก">
     <button class="nav-btn active" data-screen="home">
       <span class="nav-ico"><img src="assets/icons/home.png" alt="หน้าหลัก"></span><label>หน้าหลัก</label><i></i>
     </button>
+    <button type="button" class="nav-btn" data-screen="run" aria-label="วิ่ง"><span class="nav-ico run-nav-icon"><img src="assets/icons/run.png" alt="" aria-hidden="true"></span><label>วิ่ง</label><i></i></button>
     <button class="nav-btn" data-screen="trophy">
       <span class="nav-ico"><img src="assets/icons/rank.png" alt="อันดับ"></span><label>อันดับ</label><i></i>
     </button>
@@ -212,9 +311,85 @@
     <button class="nav-btn" data-screen="social">
       <span class="nav-ico"><img src="assets/icons/team.png" alt="ทีม"></span><label>ทีม</label><i></i>
     </button>
+    <button type="button" class="nav-btn" data-screen="tournament" aria-label="แข่งขัน"><span class="nav-ico"><img src="assets/icons/tournament.svg" alt="" aria-hidden="true"></span><label>แข่งขัน</label><i></i></button>
   </nav>
+
+
+
+
+  <dialog id="tournamentDetailDialog" class="t-dialog t-dialog-full" aria-labelledby="tournamentDetailTitle">
+    <div class="t-sheet">
+      <div class="t-dialog-heading"><div><p class="t-eyebrow" id="tDetailSport">กีฬา</p><h2 id="tournamentDetailTitle">ชื่อรายการ</h2></div><button type="button" class="t-close" data-t-close="tournamentDetailDialog" aria-label="ปิด">×</button></div>
+      <div class="t-badges" id="tDetailBadges"></div>
+      <div class="t-tabs" role="tablist" aria-label="ข้อมูลทัวร์นาเมนต์">
+        <button type="button" class="t-tab active" data-t-tab="overview" role="tab" aria-selected="true">ภาพรวม</button>
+        <button type="button" class="t-tab" data-t-tab="bracket" role="tab" aria-selected="false">สายแข่ง</button>
+        <button type="button" class="t-tab" data-t-tab="players" role="tab" aria-selected="false">ผู้เข้าแข่ง</button>
+      </div>
+      <div class="t-tab-panel" id="tPanel-overview">
+        <p id="tDetailDescription" class="t-intro"></p>
+        <div class="t-info-grid" id="tDetailInfo"></div>
+        <div id="tChampionCard" class="t-champion" hidden></div>
+        <div id="tJoinBox"></div>
+        <div id="tAdminBox" class="t-admin-box" hidden></div>
+      </div>
+      <div class="t-tab-panel" id="tPanel-bracket" hidden>
+        <div id="tBracketWrap"></div>
+        <div id="tStandingsWrap"></div>
+        <div id="tMatchListWrap"></div>
+      </div>
+      <div class="t-tab-panel" id="tPanel-players" hidden>
+        <div id="tPlayersWrap"></div>
+      </div>
+      <p id="tDetailMessage" class="t-message" role="status" aria-live="polite"></p>
+    </div>
+  </dialog>
+
+  <dialog id="tournamentJoinDialog" class="t-dialog" aria-labelledby="tournamentJoinTitle">
+    <form id="tournamentJoinForm" class="t-sheet" novalidate>
+      <div class="t-dialog-heading"><div><p class="t-eyebrow" id="tJoinEyebrow">สมัครแข่งขัน</p><h2 id="tournamentJoinTitle">ยืนยันการสมัคร</h2></div><button type="button" class="t-close" data-t-close="tournamentJoinDialog" aria-label="ปิด">×</button></div>
+      <label class="t-field" id="tJoinNameLabel">ชื่อที่แสดง<input name="name" maxlength="60" required placeholder="เช่น ตั้ม แฝงสี่คน" aria-describedby="tErr-joinName"><small id="tErr-joinName"></small></label>
+      <label class="t-field" id="tJoinMembersField" hidden>รายชื่อสมาชิกทีม (ไม่บังคับ คั่นด้วยจุลภาค)<textarea name="members" rows="3" maxlength="500" placeholder="เช่น ตั้ม, บอส, นิว, เจมส์"></textarea></label>
+      <p id="tJoinMessage" class="t-message" role="status" aria-live="polite"></p>
+      <button type="submit" class="t-btn-primary">ยืนยันสมัคร</button>
+    </form>
+  </dialog>
+
 </div>
 
+<script type="module" src="js/navigation.js?v=4"></script>
+<button id="profileOpen" class="profile-open" type="button" hidden>ข้อมูลผู้เล่น</button>
+<dialog id="profileDialog" aria-labelledby="profileTitle">
+  <form id="profileForm" class="profile-sheet" novalidate>
+    <div class="profile-heading"><div><p class="profile-eyebrow">WESTON FIT QUEST · ผู้เล่นของคุณ</p><h2 id="profileTitle">เริ่มต้นจากตัวคุณ</h2></div><button id="profileClose" class="profile-close" type="button" aria-label="ปิดข้อมูลผู้เล่น">×</button></div>
+    <p class="profile-intro">กรอกข้อมูลสุขภาพครั้งแรกหลังเข้าสู่ระบบ และกลับมาแก้ไขได้ที่รูปผู้เล่น</p>
+    <div class="profile-fields">
+      <label class="profile-field">อายุ (ปี)<input name="age" inputmode="numeric" type="number" min="1" max="120" step="1" required aria-describedby="error-age"><small id="error-age"></small></label>
+      <label class="profile-field">เพศ<select name="sex" required aria-describedby="error-sex"><option value="">เลือกเพศ</option><option value="male">ชาย</option><option value="female">หญิง</option></select><small id="error-sex"></small></label>
+      <label class="profile-field">น้ำหนัก (กก.)<input name="weight_kg" inputmode="decimal" type="number" min="0.01" step="any" required aria-describedby="error-weight_kg"><small id="error-weight_kg"></small></label>
+      <label class="profile-field">ส่วนสูง (ซม.)<input name="height_cm" inputmode="decimal" type="number" min="0.01" step="any" required aria-describedby="error-height_cm"><small id="error-height_cm"></small></label>
+      <label class="profile-field">BMI<input id="profileBmi" name="bmi" inputmode="decimal" type="number" min="0.01" step="any" required aria-describedby="error-bmi profileBmiHint"><small id="error-bmi"></small></label>
+      <label class="profile-field">Fat (%)<input name="body_fat_percent" inputmode="decimal" type="number" min="0.01" max="99.99" step="any" required aria-describedby="error-body_fat_percent"><small id="error-body_fat_percent"></small></label>
+      <label class="profile-field">กล้ามเนื้อ (กก.)<input name="muscle_mass_kg" inputmode="decimal" type="number" min="0.01" step="any" required aria-describedby="error-muscle_mass_kg"><small id="error-muscle_mass_kg"></small></label>
+    </div>
+    <p id="profileBmiHint" class="profile-status">BMI คำนวณจากน้ำหนักและส่วนสูงให้ทันที หากกรอกค่าอื่น ระบบเก็บค่าที่กรอกไว้และใช้ค่าคำนวณจริง</p>
+    <section class="profile-photo" aria-labelledby="profilePhotoTitle"><h3 id="profilePhotoTitle">หัวตัวละคร 3D จากใบหน้าคุณ</h3><p>ถ่ายใบหน้าคนหน้าตรง ระบบปรับรูปทรงหัว ตา จมูก ปากและสีจากใบหน้าเป็นหัวการ์ตูน 3D ชุดและลำตัวเดิม เลือกทำภายหลังได้</p>
+      <div class="profile-photo-row"><img id="profilePhotoPreview" class="profile-photo-preview" alt="ตัวอย่างหัวตัวละคร" hidden><div class="profile-photo-actions"><button id="profileTakePhoto" class="profile-secondary" type="button">ถ่ายรูป</button><button id="profileRemovePhoto" class="profile-secondary" type="button" hidden>ใช้หัวเดิม</button></div></div>
+      <div id="profileCamera" class="profile-camera" hidden><video id="profileCameraVideo" autoplay muted playsinline tabindex="-1" aria-label="ภาพสดจากกล้องหน้า"></video><div class="profile-photo-actions"><button id="profileCameraCapture" class="profile-secondary" type="button" disabled>ถ่ายรูป</button><button id="profileCameraCancel" class="profile-secondary" type="button">ยกเลิก</button></div></div>
+      <div id="profileCrop" class="profile-crop" hidden><label>ขยายใบหน้า<input name="photo_zoom" type="range" min="1" max="3" step="0.01" value="1"></label><label>ตำแหน่งแนวนอน<input name="photo_x" type="range" min="0" max="1" step="0.01" value="0.5"></label><label>ตำแหน่งแนวตั้ง<input name="photo_y" type="range" min="0" max="1" step="0.01" value="0.5"></label></div>
+      <p>ประมวลผลรูปบนอุปกรณ์ เก็บเฉพาะรูปที่ครอบแล้ว ไม่แสดงรูปหรือข้อมูลสุขภาพในอันดับสาธารณะ</p>
+    </section>
+    <section class="profile-lineline" aria-labelledby="lineLinkTitle">
+      <h3 id="lineLinkTitle">LINE เชื่อมกับระบบพนักงาน</h3>
+      <p id="lineLinkStatus" class="profile-status" role="status" aria-live="polite">กำลังตรวจการเชื่อม LINE…</p>
+    </section>
+    <p id="profileMessage" class="profile-message" role="status" aria-live="polite"></p>
+    <button id="profileSave" class="profile-save" type="submit">บันทึกข้อมูลและตัวละคร</button>
+    <p id="profileStatus" class="profile-status" role="status" aria-live="polite"></p><button id="profileRetry" class="profile-secondary" type="button">เชื่อมต่ออีกครั้ง</button>
+  </form>
+</dialog>
+<script type="module" src="js/profile.js?v=15"></script>
+<script type="module" src="js/tournament.js?v=8"></script>
 <script type="module" src="js/main.js?v=33"></script>
 </body>
 </html>

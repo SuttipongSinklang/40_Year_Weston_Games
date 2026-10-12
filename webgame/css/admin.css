@@ -1,0 +1,152 @@
+/* ═══════════════════════════════════════════════════════════
+   Weston Admin — เว็บจัดการภารกิจและทัวร์นาเมนต์ (desktop-first)
+   ใช้โทเคนชุดเดียวกับแอป: ครีม ส้ม เขียว ฟ้า กรมท่า
+   ═══════════════════════════════════════════════════════════ */
+:root{
+  --cream:#FFF6E3; --cream-dk:#F4E7C6;
+  --orange:#F5B83D; --orange-dk:#DE9B1F; --orange-sh:#C9870F;
+  --green:#3DBE5B; --green-dk:#2E9B47;
+  --sky:#4FB3E8; --sky-pale:#CFF0FC;
+  --navy:#1E3A5F; --navy-dk:#16293F;
+  --red:#FF5A5A;
+  --r-lg:22px; --r-md:14px;
+  --font-th:'Mitr',sans-serif;
+  --font-num:'Nunito','Mitr',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-th);color:var(--navy);background:#EDF3F8;min-height:100vh;display:flex;flex-direction:column}
+.hidden{display:none!important}
+
+/* ── Header ── */
+.adm-top{
+  display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  background:var(--navy);color:#fff;padding:16px clamp(16px,4vw,40px);
+}
+.adm-brand{display:flex;align-items:center;gap:14px}
+.adm-brand img{width:46px;height:46px}
+.adm-brand h1{font-size:21px;font-weight:600}
+.adm-brand p{font-size:12px;color:#9FB6CE}
+.adm-session{font-size:12.5px;color:#CFE0EF}
+
+.adm-tabs{display:flex;gap:6px;padding:12px clamp(16px,4vw,40px) 0;background:var(--navy);flex-wrap:wrap}
+.adm-tab{
+  border:none;border-bottom:4px solid transparent;background:rgba(255,255,255,.08);color:#D9E6F2;
+  font-family:var(--font-th);font-size:14px;font-weight:500;padding:10px 20px;border-radius:12px 12px 0 0;cursor:pointer;
+}
+.adm-tab.active{background:var(--cream);color:var(--navy);font-weight:600;border-bottom-color:var(--orange)}
+
+.adm-main{flex:1;width:100%;max-width:1180px;margin:0 auto;padding:22px clamp(12px,3vw,32px) 40px}
+.adm-panel{display:flex;flex-direction:column;gap:16px}
+.adm-grid{display:grid;grid-template-columns:minmax(320px,420px) 1fr;gap:16px;align-items:start}
+@media (max-width:880px){.adm-grid{grid-template-columns:1fr}}
+
+.adm-card{
+  background:var(--cream);border:2px solid var(--cream-dk);border-radius:var(--r-lg);
+  padding:18px;box-shadow:0 4px 0 rgba(30,58,95,.12);display:flex;flex-direction:column;gap:12px;
+}
+.adm-card h2,.adm-card h3{font-size:17px;font-weight:600}
+.adm-intro{font-size:13px;color:#5B7191;line-height:1.65}
+.adm-login-card{max-width:430px;margin:6vh auto 0;width:100%}
+
+/* ── Fields ── */
+.adm-field{display:flex;flex-direction:column;gap:5px;font-size:13px;font-weight:500}
+.adm-field input,.adm-field select,.adm-field textarea{
+  border:2px solid var(--cream-dk);background:#fff;border-radius:10px;padding:10px 12px;
+  font:inherit;font-size:14.5px;color:var(--navy);min-height:44px;width:100%;
+}
+.adm-field textarea{resize:vertical}
+.adm-field input[aria-invalid=true]{border-color:var(--red)}
+fieldset.adm-field{border:none}
+fieldset.adm-field legend{font-size:13px;font-weight:500;padding-bottom:5px}
+.adm-row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.adm-row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.adm-check{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer}
+.adm-check input{width:18px;height:18px;accent-color:var(--green)}
+.adm-chips{display:flex;flex-wrap:wrap;gap:6px}
+.adm-chip{
+  border:2px solid var(--cream-dk);background:#fff;border-radius:999px;padding:7px 13px;
+  font:inherit;font-size:13px;cursor:pointer;color:var(--navy);min-height:38px;
+}
+.adm-chip.active{background:var(--sky);border-color:var(--sky);color:#fff}
+
+/* ── Buttons / messages ── */
+.adm-btn{
+  border-radius:12px;cursor:pointer;font-family:var(--font-th);font-weight:600;font-size:14px;
+  min-height:44px;padding:10px 18px;
+}
+.adm-btn.primary{border:2px solid var(--orange-dk);background:var(--orange);color:#fff;box-shadow:0 3px 0 var(--orange-sh)}
+.adm-btn.primary:active{transform:translateY(2px);box-shadow:none}
+.adm-btn.ghost{border:2px solid var(--cream-dk);background:#fff;color:var(--navy);box-shadow:0 3px 0 rgba(30,58,95,.1)}
+.adm-btn.small{min-height:36px;font-size:12.5px;padding:6px 12px}
+.adm-btn.danger{border:2px solid #E28585;background:#FFE3E3;color:#C43A3A}
+.adm-btn-row{display:flex;gap:8px;flex-wrap:wrap}
+.adm-msg{font-size:13px;color:#5B7191;min-height:0;line-height:1.55}
+.adm-msg[data-kind=error]{color:#C43A3A}
+.adm-msg[data-kind=ok]{color:var(--green-dk)}
+
+/* ── Tables ── */
+.adm-table-wrap{overflow-x:auto}
+.adm-table{width:100%;border-collapse:collapse;font-size:13px}
+.adm-table th{text-align:left;font-size:11px;color:#5B7191;font-weight:500;padding:4px 8px;border-bottom:2px solid var(--cream-dk)}
+.adm-table td{padding:8px;border-bottom:1.5px solid var(--cream-dk);vertical-align:middle}
+.adm-table .num{font-family:var(--font-num);font-weight:800}
+.adm-pill{display:inline-block;font-size:11px;border-radius:999px;padding:2px 10px;border:1.5px solid var(--cream-dk);background:#fff;color:#5B7191}
+.adm-pill.status-active{background:#D9F5DF;color:var(--green-dk);border-color:var(--green)}
+.adm-pill.status-hidden{background:#E7ECF2;color:#5B7191}
+.adm-pill.status-registering{background:var(--sky-pale);color:#1E6E96;border-color:var(--sky)}
+.adm-pill.status-ongoing{background:#D9F5DF;color:var(--green-dk);border-color:var(--green)}
+.adm-pill.status-completed{background:#E7ECF2;color:var(--navy)}
+.adm-pill.status-cancelled{background:#FFE3E3;color:#C43A3A;border-color:var(--red)}
+
+/* ── Tournament list + manage ── */
+.adm-t-item{background:#fff;border:2px solid var(--cream-dk);border-radius:var(--r-md);padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.adm-t-item + .adm-t-item{margin-top:10px}
+.adm-t-head{display:flex;align-items:center;gap:10px}
+.adm-t-head .t-ico{font-size:22px;flex:none}
+.adm-t-head .mid{flex:1;min-width:0}
+.adm-t-head b{font-size:15px}
+.adm-t-head small{display:block;font-size:11.5px;color:#5B7191}
+.adm-t-manage{border-top:2px dashed var(--cream-dk);padding-top:10px;display:flex;flex-direction:column;gap:10px}
+.adm-t-actions{display:flex;gap:8px;flex-wrap:wrap}
+.adm-t-participants{display:flex;flex-direction:column;gap:6px}
+.adm-t-prow{display:flex;align-items:center;gap:8px;background:var(--cream);border:1.5px solid var(--cream-dk);border-radius:10px;padding:6px 10px;font-size:13px}
+.adm-t-prow .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.adm-t-prow .seed{font-family:var(--font-num);font-weight:900;color:#1E6E96;font-size:12px}
+.adm-t-prow button{border:none;background:none;color:var(--red);font-size:14px;cursor:pointer;min-width:34px;min-height:34px}
+.adm-t-addrow{display:flex;gap:8px}
+.adm-t-addrow input{flex:1;border:2px solid var(--cream-dk);border-radius:10px;padding:9px 12px;font:inherit;font-size:14px;min-height:42px}
+.adm-round-head{font-size:13px;font-weight:600;background:var(--navy);color:#fff;border-radius:999px;padding:4px 14px;width:max-content}
+.adm-match-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--cream);border:1.5px solid var(--cream-dk);border-radius:10px;padding:8px 12px;font-size:13.5px}
+.adm-match-row .vs{flex:1;min-width:180px}
+.adm-match-row .vs b.done{color:var(--green-dk)}
+.adm-match-row input{width:74px;text-align:center;font-family:var(--font-num);font-weight:800;font-size:15px;border:2px solid var(--cream-dk);border-radius:8px;padding:7px 4px;min-height:40px}
+.adm-standings{width:100%;border-collapse:collapse;font-size:12.5px}
+.adm-standings th{font-size:10.5px;color:#5B7191;padding:2px 6px;text-align:center}
+.adm-standings td{padding:6px;text-align:center;border-bottom:1.5px solid var(--cream-dk);font-family:var(--font-num);font-weight:700}
+.adm-standings td.name{font-family:var(--font-th);text-align:left;font-weight:500}
+
+.adm-footer{padding:14px;text-align:center;font-size:11.5px;color:#8AA0BC}
+
+/* ── Dashboard (#18) ── */
+.adm-dash-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.adm-dash-card{
+  background:#fff;border:2px solid var(--cream-dk);border-radius:var(--r-md);
+  padding:14px;display:flex;align-items:center;gap:12px;
+}
+.adm-dash-card .ico{font-size:26px;flex:none}
+.adm-dash-card small{display:block;font-size:11px;color:#5B7191}
+.adm-dash-card b{font-size:18px;font-family:var(--font-num);font-weight:900}
+.adm-dash-latest{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.adm-dash-event{
+  display:flex;align-items:center;gap:8px;background:#fff;border:1.5px solid var(--cream-dk);
+  border-radius:10px;padding:8px 12px;font-size:13px;
+}
+.adm-dash-event small{margin-left:auto;color:#5B7191;font-size:11px;flex:none}
+.adm-schedule{border:2px solid var(--cream-dk);border-radius:8px;padding:6px 8px;font:inherit;font-size:12px;min-height:38px;background:#fff}
+
+/* ── QR overlay (#9) ── */
+.adm-qr-overlay{position:fixed;inset:0;background:rgba(22,41,63,.6);backdrop-filter:blur(4px);z-index:50;display:flex;align-items:center;justify-content:center;padding:20px}
+.adm-qr-overlay[hidden]{display:none}
+.adm-qr-card{background:var(--cream);border:2px solid var(--cream-dk);border-radius:18px;padding:22px;max-width:380px;width:100%;display:flex;flex-direction:column;gap:12px;text-align:center}
+.adm-qr-img{display:flex;justify-content:center;background:#fff;border:2px solid var(--cream-dk);border-radius:14px;padding:14px}
+.adm-qr-img img{width:min(260px,70vw);height:auto;image-rendering:pixelated}

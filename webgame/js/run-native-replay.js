@@ -1,4 +1,4 @@
-import { createRun, activeMs, addPosition, pauseRun, resumeRun, finishRun } from './run-core.js';
+import { createRun, activeMs, addPosition, pauseRun, resumeRun, finishRun } from './run-core.js?v=20261012-2';
 
 // Replay durable native events at capture time, even if JS slept for hours.
 // Using Date.now() here would incorrectly reject buffered fixes as stale.

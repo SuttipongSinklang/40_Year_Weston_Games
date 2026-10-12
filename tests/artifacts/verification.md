@@ -110,6 +110,17 @@ Screenshots: `mobile.jpg`, `desktop.jpg`.
 
 ## APK 1.0.2 — native Proxy loading fix (2026-10-09)
 
+Safari website GPS follow-up: user reports inaccurate map position on Safari/Home
+icon. Browser-only changes request fresh high-accuracy fixes and reject >20m
+reported uncertainty; acquisition requires age <=5s and future tolerance <=1s.
+The center button can locate before recording instead of centering an empty
+Bangkok default. A blue preview dot/radius shows the reported uncertainty, without
+creating a workout or contributing distance. Timeout/denial cleans the watch;
+temporary failures wait until deadline. HTTPS is required on remote phones.
+25 targeted tests pass, covering coarse/stale fixes, preview centering/radius,
+watch cleanup, route exclusion and existing native startup. Physical Safari GPS
+accuracy is not verified; native Swift/Android and existing APK unchanged.
+
 Follow-up actual Android emulator verification: PASS / OK (1 test), 98.637 seconds.
 API35 Pixel5 AVD with WebView124 ran the exact published APK. Actual OSM tiles,
 native bridge readiness, injected GPS fixes, pause exclusion, numbered P1/R1,

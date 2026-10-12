@@ -1,5 +1,5 @@
-import { activeMs, restoreRun } from './run-core.js?v=20261009-8';
-import * as storage from './run-store.js';
+import { activeMs, restoreRun } from './run-core.js?v=20261012-2';
+import * as storage from './run-store.js?v=20261012-2';
 
 // A native bridge call that never settles (Capacitor logs the exception but never
 // rejects the promise) must surface as an error instead of freezing the tracker.

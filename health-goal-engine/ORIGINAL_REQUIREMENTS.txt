@@ -1,0 +1,1293 @@
+คุณคือ Senior Software Engineer + Health Goal System Designer
+
+ฉันต้องการสร้างระบบคำนวณเป้าหมายสุขภาพสำหรับเกมชื่อชั่วคราวว่า **BODY 150**
+
+เกมมีระยะเวลา **150 วัน** และมีรางวัลสำหรับผู้เล่นที่ทำเป้าหมายสำเร็จ
+
+สิ่งสำคัญที่สุดคือระบบต้อง:
+
+- มีมาตรฐานเดียวกัน
+- ยุติธรรมกับผู้เล่นทุกประเภท
+- ไม่เอื้อให้คนอ้วนได้เปรียบคนผอม
+- ไม่เอื้อให้คนวัยรุ่นได้เปรียบผู้สูงอายุ
+- ไม่บังคับคนสุขภาพดีให้ลดน้ำหนักเพื่อเอาคะแนน
+- ไม่ส่งเสริมการลดหรือเพิ่มน้ำหนักแบบสุดโต่ง
+- ไม่ให้ AI คิดตัวเลขเป้าหมายเองแบบไม่มีสูตร
+- ทุกค่าต้องคำนวณจาก Rule-based Goal Engine
+- AI ใช้สำหรับอธิบายผลภายหลังเท่านั้น
+
+---
+
+# 1. INPUT
+
+ระบบรับข้อมูลขั้นต่ำดังนี้
+
+```text
+age
+sex
+weight_kg
+bmi
+body_fat_percent
+muscle_mass_kg
+```
+
+ถ้ามีข้อมูลนี้ให้ใช้ด้วย:
+
+```text
+height_cm
+```
+
+ถ้าไม่มี height ให้คำนวณจาก Weight และ BMI:
+
+```text
+height_m = sqrt(weight_kg / bmi)
+```
+
+ถ้ามี height จริง ให้ใช้ height จริงเป็นหลัก
+
+---
+
+# 2. OUTPUT
+
+ผู้เล่นทุกคนต้องได้รับเป้าหมาย 150 วันทั้งหมด 4 ค่าเสมอ
+
+```text
+target_weight_kg
+target_bmi
+target_body_fat_percent
+target_muscle_mass_kg
+```
+
+เป้าหมาย 4 ค่าเหมือนกันสำหรับทุกคน
+
+แต่ตัวเลขเป้าหมายต้องแตกต่างกันตาม:
+
+```text
+Age
+Sex
+Starting Weight
+Starting BMI
+Starting Body Fat
+Starting Muscle
+Height
+Body Condition
+```
+
+---
+
+# 3. หลักการสำคัญของระบบ
+
+อย่าใช้แนวคิด:
+
+```text
+ทุกคนต้อง BMI 22
+ทุกคนต้อง Fat 20%
+ทุกคนต้องลด 5 kg
+ทุกคนต้องเพิ่มกล้าม 2 kg
+```
+
+ให้ใช้แนวคิด:
+
+```text
+Move Toward Healthy Zone
+```
+
+กล่าวคือ
+
+```text
+ต่ำกว่า Healthy Zone
+→ ขยับขึ้น
+
+อยู่ใน Healthy Zone
+→ รักษาหรือปรับ Body Composition
+
+สูงกว่า Healthy Zone
+→ ขยับลง
+```
+
+เป้าหมายคือให้ทุกคนมี “ความยากในการพัฒนาสุขภาพ” ใกล้เคียงกัน ไม่ใช่มีตัวเลขปลายทางเหมือนกัน
+
+---
+
+# 4. GOAL MODE
+
+ก่อนคำนวณเป้าหมาย ให้ระบบจัดผู้เล่นเข้า Goal Mode
+
+มี 4 Mode หลัก:
+
+```text
+BUILD
+RECOMP
+MAINTAIN_PLUS
+CUT
+```
+
+## BUILD
+
+ใช้เมื่อผู้เล่นมีน้ำหนัก/BMI ต่ำกว่าช่วงที่เหมาะสม
+
+เป้าหมายหลัก:
+
+```text
+Weight ↑
+BMI ↑
+Muscle ↑
+Body Fat → Healthy Zone
+```
+
+---
+
+## RECOMP
+
+ใช้เมื่อ Weight/BMI อยู่ในเกณฑ์ค่อนข้างดี แต่ Body Composition ยังพัฒนาได้
+
+เป้าหมาย:
+
+```text
+Weight ≈ Maintain
+BMI ≈ Maintain
+Body Fat ↓ เล็กน้อยถ้าสูง
+Muscle ↑
+```
+
+---
+
+## MAINTAIN_PLUS
+
+ใช้เมื่อผู้เล่นอยู่ในสภาวะสุขภาพดีอยู่แล้ว
+
+เป้าหมาย:
+
+```text
+Weight Maintain
+BMI Maintain
+Body Fat Maintain
+Muscle Maintain / เพิ่มเล็กน้อย
+```
+
+ผู้เล่นกลุ่มนี้ไม่ควรถูกบังคับให้ผอมลงเพื่อเอารางวัล
+
+---
+
+## CUT
+
+ใช้เมื่อ BMI สูงร่วมกับ Body Fat สูง
+
+เป้าหมาย:
+
+```text
+Weight ↓
+BMI ↓
+Body Fat ↓
+Muscle Maintain / ↑ เล็กน้อย
+```
+
+สำคัญ:
+
+BMI สูงเพียงอย่างเดียวห้ามตัดสินว่าเป็น CUT หาก Body Fat ไม่สูงและ Muscle สูง
+
+---
+
+# 5. AGE GROUP
+
+แยก Engine ตามอายุ
+
+```text
+< 20       = YOUTH
+20–39      = YOUNG_ADULT
+40–64      = MIDDLE_ADULT
+>= 65      = OLDER_ADULT
+```
+
+สำหรับอายุต่ำกว่า 20:
+
+ห้ามใช้ Adult BMI Threshold ตรง ๆ
+
+ต้องออกแบบให้รองรับ:
+
+```text
+BMI-for-age
+Sex
+Age
+Growth Reference
+```
+
+ในเวอร์ชันแรก หากยังไม่มี WHO Growth Reference implementation ให้แยก function/interface ไว้ชัดเจนและห้าม fallback ไปใช้ Adult BMI แบบเงียบ ๆ
+
+---
+
+# 6. WEIGHT TARGET
+
+## 6.1 BUILD / Underweight
+
+สำหรับผู้ใหญ่ที่ BMI < 18.5
+
+ใช้สูตร:
+
+```text
+gain_percent =
+clamp(
+    0.06 + 0.02 * (18.5 - bmi),
+    0.06,
+    0.08
+)
+```
+
+จากนั้น:
+
+```text
+target_weight =
+weight * (1 + gain_percent)
+```
+
+ตัวอย่าง:
+
+```text
+Weight = 55 kg
+BMI = 18
+```
+
+คำนวณ:
+
+```text
+gain_percent
+= 6% + 2% × 0.5
+= 7%
+```
+
+ดังนั้น:
+
+```text
+target_weight
+= 55 × 1.07
+= 58.85 kg
+```
+
+เป้าหมายประมาณ:
+
+```text
+55 → 58.9 kg
+```
+
+---
+
+# 7. HEALTHY WEIGHT / MAINTAIN
+
+ถ้า BMI อยู่ใน Healthy Range และ Body Composition ดี
+
+ไม่บังคับให้น้ำหนักเปลี่ยน
+
+ใช้:
+
+```text
+target_weight = current_weight
+```
+
+และสร้าง Target Zone:
+
+```text
+weight_min = weight * 0.985
+weight_max = weight * 1.015
+```
+
+ประมาณ ±1.5%
+
+ตัวอย่าง:
+
+```text
+65 kg
+```
+
+Target Zone:
+
+```text
+64.0 – 66.0 kg
+```
+
+การอยู่ใน Target Zone ถือว่าสำเร็จเต็มได้
+
+---
+
+# 8. CUT / OVERWEIGHT + HIGH FAT
+
+ห้ามใช้เพียง BMI เพื่อลดน้ำหนัก
+
+ต้องพิจารณา:
+
+```text
+BMI
+Body Fat
+Sex
+Age
+```
+
+หา Body Fat Upper Healthy Reference:
+
+```text
+bf_upper = reference(age, sex)
+```
+
+จากนั้น:
+
+```text
+excess_fat =
+max(0, body_fat_percent - bf_upper)
+```
+
+สูตร Weight Loss:
+
+```text
+loss_percent =
+clamp(
+    0.04
+    + 0.01 * (bmi - 25)
+    + 0.003 * excess_fat,
+    0.05,
+    0.08
+)
+```
+
+จากนั้น:
+
+```text
+target_weight =
+weight * (1 - loss_percent)
+```
+
+Hard Cap:
+
+```text
+ห้าม Target Weight Loss เกิน 8% ใน 150 วัน
+```
+
+ตัวอย่าง:
+
+```text
+Weight = 80
+BMI = 27
+Body Fat = 30
+BF Upper = 25
+```
+
+```text
+Excess Fat = 5
+```
+
+```text
+Loss
+= 4%
++ 2%
++ 1.5%
+= 7.5%
+```
+
+```text
+Target Weight
+= 80 × 0.925
+= 74 kg
+```
+
+---
+
+# 9. BMI TARGET
+
+BMI ห้ามตั้งแยกจาก Weight
+
+ต้องคำนวณจาก Target Weight และ Height เท่านั้น
+
+สูตร:
+
+```text
+target_bmi =
+target_weight / (height_m ^ 2)
+```
+
+ห้าม AI กำหนด BMI Target
+
+ห้าม hardcode BMI Target ที่ไม่สัมพันธ์กับ Weight
+
+ตัวอย่าง:
+
+```text
+Weight Start = 55
+BMI Start = 18
+Target Weight = 58.85
+```
+
+เนื่องจาก:
+
+```text
+height² = 55 / 18
+```
+
+จึงได้:
+
+```text
+Target BMI ≈ 19.26
+```
+
+---
+
+# 10. BODY FAT TARGET
+
+Body Fat ต้องพิจารณาตาม:
+
+```text
+Age
+Sex
+Current Body Fat
+```
+
+สร้าง Reference Function:
+
+```text
+getBodyFatReference(age, sex)
+```
+
+return:
+
+```text
+bf_low
+bf_high
+```
+
+อย่าให้ LLM สร้าง reference เอง
+
+Reference Table ต้องแยกออกจาก Business Logic เพื่อให้สามารถเปลี่ยนมาตรฐานภายหลังได้
+
+---
+
+## ถ้า Body Fat สูงกว่า Healthy Zone
+
+ใช้:
+
+```text
+fat_drop =
+clamp(
+    body_fat_percent * 0.10,
+    2,
+    5
+)
+```
+
+หน่วยเป็น percentage points
+
+จากนั้น:
+
+```text
+target_body_fat =
+max(
+    bf_high,
+    body_fat_percent - fat_drop
+)
+```
+
+ตัวอย่าง:
+
+```text
+BF = 35%
+```
+
+```text
+Drop = 35 × 0.10
+= 3.5 percentage points
+```
+
+```text
+35 → 31.5%
+```
+
+---
+
+## ถ้า Body Fat อยู่ Healthy Zone
+
+ไม่บังคับลด
+
+```text
+target_body_fat =
+current_body_fat
+```
+
+สามารถกำหนด Target Zone:
+
+```text
+±1 percentage point
+```
+
+---
+
+## ถ้า Body Fat ต่ำกว่า Healthy Zone
+
+ให้ขยับขึ้น
+
+เช่น:
+
+```text
+fat_gain =
+min(
+    bf_low - current_bf,
+    3
+)
+```
+
+จากนั้น:
+
+```text
+target_body_fat =
+current_bf + fat_gain
+```
+
+ดังนั้น Body Fat สามารถมีเป้าหมาย:
+
+```text
+ลด
+รักษา
+หรือเพิ่ม
+```
+
+ขึ้นอยู่กับ Starting Condition
+
+---
+
+# 11. MUSCLE TARGET
+
+ห้ามใช้:
+
+```text
+ทุกคน +2 kg
+```
+
+เพราะไม่แฟร์
+
+ให้ใช้ Percentage จาก Starting Muscle และลดความยากตามอายุ
+
+สร้างสูตรตาม Mode + Age Group
+
+ตารางเริ่มต้น:
+
+```text
+                20–39       40–64       >=65
+
+BUILD            +4%         +3%         +2%
+
+RECOMP           +3%         +2%         +1%
+
+CUT              +1%        +0.5%       Maintain
+
+MAINTAIN_PLUS    +2%        +1.5%        +1%
+```
+
+คำนวณ:
+
+```text
+target_muscle =
+muscle_mass * (1 + muscle_growth_percent)
+```
+
+ตัวอย่าง:
+
+```text
+Age = 25
+Mode = BUILD
+Muscle = 40 kg
+```
+
+```text
+Target Muscle
+= 40 × 1.04
+= 41.6 kg
+```
+
+---
+
+# 12. ผู้สูงอายุ
+
+สำหรับ Age >=65
+
+เป้าหมายต้อง Conservative กว่าคนวัยหนุ่มสาว
+
+ให้ priority กับ:
+
+```text
+Muscle Preservation
+Stable Body Weight
+Healthy Body Composition
+```
+
+ห้ามบังคับผู้สูงอายุให้ลดน้ำหนักแรงเพื่อเอาคะแนน
+
+ใน CUT Mode สำหรับผู้สูงอายุ:
+
+```text
+Target Muscle >= Starting Muscle
+```
+
+การรักษากล้ามได้ถือเป็นความสำเร็จ
+
+---
+
+# 13. BODY COMPOSITION RELATIONSHIP
+
+ต้องตรวจสอบความสมเหตุสมผลของ 4 Target
+
+เช่น:
+
+ถ้าเป็น BUILD:
+
+```text
+Weight ↑
+แต่ Muscle ไม่เพิ่มเลย
+และ Fat เพิ่มทั้งหมด
+```
+
+ต้องถือว่าเป็นเป้าหมายที่ไม่ดี
+
+ถ้าเป็น CUT:
+
+```text
+Weight ↓ มาก
+แต่ Muscle ↓ มาก
+```
+
+ไม่ควรถือเป็น Success สูง
+
+Goal Engine ต้องพิจารณา Body Composition ไม่ใช่ Weight อย่างเดียว
+
+---
+
+# 14. GAME DIFFICULTY
+
+เนื่องจากเกมมีรางวัล
+
+ห้ามเพิ่มความยากด้วยวิธี:
+
+```text
+บังคับให้ลด Weight มากขึ้น
+บังคับให้เพิ่ม Weight มากขึ้น
+บังคับให้ BF ต่ำมาก
+บังคับ Muscle Gain ที่ไม่สมเหตุสมผล
+```
+
+ให้ความยากเกิดจาก:
+
+```text
+ต้องทำทั้ง 4 Target ให้ดีพร้อมกัน
+```
+
+ตัวอย่าง CUT:
+
+```text
+Weight ↓
+BMI ↓
+Fat ↓
+Muscle Maintain
+```
+
+ตัวอย่าง BUILD:
+
+```text
+Weight ↑
+BMI ↑
+Muscle ↑
+Fat อยู่ใน Healthy Direction
+```
+
+---
+
+# 15. SCORE WEIGHT
+
+ห้ามให้ Weight และ BMI เท่ากัน 25% ทั้งคู่ เพราะ BMI มาจาก Weight และ Height อยู่แล้ว ทำให้ Weight ถูกนับซ้ำ
+
+ใช้ Score Weight:
+
+```text
+Weight      = 15%
+BMI         = 10%
+Body Fat    = 35%
+Muscle      = 40%
+```
+
+รวม:
+
+```text
+100%
+```
+
+Body Composition จึงมีน้ำหนักมากกว่า Weight อย่างเดียว
+
+---
+
+# 16. PROGRESS SCORE
+
+แต่ละค่าให้คำนวณ Progress จาก Start → Target
+
+หลักทั่วไป:
+
+```text
+progress =
+(actual - start) /
+(target - start)
+```
+
+สำหรับค่าที่เป้าหมายลดลง ให้จัด Direction ให้ถูกต้อง เช่น:
+
+```text
+progress =
+(start - actual) /
+(start - target)
+```
+
+สุดท้าย:
+
+```text
+progress_score =
+clamp(progress * 100, 0, 100)
+```
+
+ห้าม Score เกิน 100
+
+---
+
+# 17. ห้ามให้รางวัลจากการทำเกิน Target
+
+สำคัญมาก
+
+ตัวอย่าง:
+
+```text
+Target Weight:
+100 → 92 kg
+```
+
+ถ้า:
+
+```text
+92 kg
+= 100 คะแนน
+```
+
+ถ้า:
+
+```text
+88 kg
+```
+
+ยังคง:
+
+```text
+100 คะแนน
+```
+
+ห้ามเป็น 120 หรือ 150 คะแนน
+
+เหตุผล:
+
+ไม่ต้องการสร้าง incentive ให้ผู้เล่นลดหรือเพิ่มน้ำหนักเกินเป้าหมายสุขภาพ
+
+ใช้หลัก:
+
+```text
+Overachievement != Extra Score
+```
+
+---
+
+# 18. REWARD ELIGIBILITY
+
+แนะนำเงื่อนไข:
+
+```text
+Total Score >= 85
+```
+
+และ:
+
+```text
+ทุก Target Score >= 70
+```
+
+ถึงจะผ่านระดับรางวัลหลัก
+
+ตัวอย่าง:
+
+```text
+Weight = 100
+BMI = 100
+Fat = 40
+Muscle = 30
+```
+
+แม้ Weight ดีมากก็:
+
+```text
+ไม่ผ่าน
+```
+
+เพราะ Body Composition แย่
+
+แต่:
+
+```text
+Weight = 92
+BMI = 91
+Fat = 88
+Muscle = 90
+```
+
+ถือว่าผ่าน
+
+---
+
+# 19. TARGET ZONE
+
+ค่าที่ควร Maintain ไม่ควรใช้ Target Point เดียว
+
+ควรสร้าง Target Zone
+
+เช่น Weight Healthy:
+
+```text
+Current Weight ±1.5%
+```
+
+Body Fat Healthy:
+
+```text
+Current BF ±1 percentage point
+```
+
+Muscle Maintain:
+
+สามารถกำหนด:
+
+```text
+>= Starting Muscle × 0.99
+```
+
+หรือ Rule ที่เหมาะสมเพื่อรองรับ measurement error
+
+---
+
+# 20. FINAL MEASUREMENT
+
+ห้ามตัดสินผู้ชนะจากการชั่งวันเดียว
+
+เพราะ:
+
+```text
+Weight
+Body Fat
+Muscle
+```
+
+สามารถเปลี่ยนจาก:
+
+```text
+น้ำในร่างกาย
+อาหาร
+เวลาในการชั่ง
+การออกกำลังกาย
+Hydration
+```
+
+ให้ระบบรองรับหลาย Measurement ช่วงท้าย เช่น:
+
+```text
+Day 145–150
+```
+
+แล้วใช้:
+
+```text
+Median
+```
+
+ของการวัดที่ valid
+
+เช่น:
+
+```text
+final_weight = median(last_valid_measurements.weight)
+final_bf = median(last_valid_measurements.body_fat)
+final_muscle = median(last_valid_measurements.muscle)
+```
+
+BMI คำนวณใหม่จาก Final Weight
+
+---
+
+# 21. ANTI-CHEAT / MEASUREMENT CONSISTENCY
+
+ถ้าเป็นระบบองค์กรและใช้เครื่องชั่ง BIA
+
+ควรกำหนด:
+
+```text
+ใช้เครื่องเดิม
+ช่วงเวลาใกล้เคียงกัน
+เงื่อนไขการวัดใกล้เคียงกัน
+```
+
+ระบบควรเก็บ Measurement History
+
+ตัวอย่าง:
+
+```text
+measurement_id
+user_id
+measured_at
+weight
+bmi
+body_fat
+muscle_mass
+device_id
+```
+
+ถ้ามี Measurement กระโดดผิดปกติ เช่น:
+
+```text
+Muscle +4 kg ใน 1 วัน
+Body Fat -6% ใน 1 วัน
+```
+
+ให้ flag:
+
+```text
+suspicious_measurement = true
+```
+
+และไม่นำมาใช้ทันทีจนกว่าจะตรวจสอบ
+
+---
+
+# 22. MID-GAME PROGRESS
+
+Goal หลัก Day 150 ไม่ควรเปลี่ยนง่าย ๆ
+
+สร้าง Milestone:
+
+```text
+Day 30
+Day 60
+Day 90
+Day 120
+Day 150
+```
+
+สามารถใช้ Linear Progress เป็น baseline:
+
+```text
+milestone_target =
+start
++
+(final_target - start)
+*
+(day / 150)
+```
+
+แต่ Architecture ต้องรองรับ Non-linear Curve ภายหลัง
+
+---
+
+# 23. AI ROLE
+
+AI ห้ามสร้าง Target Number หลัก
+
+AI ทำหน้าที่:
+
+```text
+อธิบายเป้าหมาย
+สร้างข้อความ Motivation
+อธิบาย Progress
+สร้าง Mission
+สรุป Weekly Report
+```
+
+ตัวเลขทั้งหมดต้องออกจาก:
+
+```text
+Health Goal Engine
+```
+
+Flow:
+
+```text
+User Measurement
+        ↓
+Rule Engine
+        ↓
+Calculate Targets
+        ↓
+Calculate Score
+        ↓
+AI Explanation
+```
+
+ห้าม:
+
+```text
+Measurement
+→ LLM
+→ LLM เดาตัวเลขเป้าหมาย
+```
+
+---
+
+# 24. EXAMPLE TEST CASE
+
+สร้าง Unit Test อย่างน้อยสำหรับ BMI:
+
+```text
+15
+17
+18
+18.5
+20
+23
+24.9
+25
+27
+30
+35
+40
+```
+
+และ Age:
+
+```text
+18
+25
+45
+65
+75
+```
+
+และทั้ง Sex ที่ระบบรองรับ
+
+ต้องตรวจสอบว่า:
+
+```text
+ไม่มี Target Weight ผิดทิศ
+ไม่มี Target BMI ขัดกับ Weight
+ไม่มี Fat Target ต่ำ/สูงเกิน Reference
+ไม่มี Muscle Target โหดเกินอายุ
+ไม่มี discontinuity แปลก ๆ ตรงขอบ BMI
+```
+
+เช่น:
+
+```text
+BMI 24.9
+กับ
+BMI 25.0
+```
+
+Target ไม่ควรกระโดดต่างกันรุนแรง
+
+สูตรควร Smooth เท่าที่ทำได้
+
+---
+
+# 25. ตัวอย่าง CASE สำคัญ
+
+Input:
+
+```text
+Age = 25
+Weight = 55 kg
+BMI = 18
+Muscle = 40 kg
+```
+
+BUILD Mode
+
+Weight:
+
+```text
+Gain%
+= clamp(
+6% + 2% × (18.5 - 18),
+6%,
+8%
+)
+
+= 7%
+```
+
+```text
+Target Weight
+= 55 × 1.07
+= 58.85 kg
+```
+
+BMI:
+
+```text
+Target BMI
+≈ 19.26
+```
+
+Muscle:
+
+```text
+Target Muscle
+= 40 × 1.04
+= 41.6 kg
+```
+
+Body Fat ต้องคำนวณจาก:
+
+```text
+Age
+Sex
+Current Body Fat
+BF Reference
+```
+
+ดังนั้น Final Output ตัวอย่าง:
+
+```json
+{
+  "goal_mode": "BUILD",
+  "duration_days": 150,
+  "start": {
+    "weight": 55,
+    "bmi": 18,
+    "body_fat": null,
+    "muscle": 40
+  },
+  "target": {
+    "weight": 58.85,
+    "bmi": 19.26,
+    "body_fat": null,
+    "muscle": 41.6
+  }
+}
+```
+
+---
+
+# 26. ARCHITECTURE
+
+เขียนระบบแบบ Modular
+
+ตัวอย่าง:
+
+```text
+/health-goal-engine
+
+  references/
+    bmiReference
+    bodyFatReference
+    youthGrowthReference
+
+  calculators/
+    weightGoal
+    bmiGoal
+    bodyFatGoal
+    muscleGoal
+
+  classifiers/
+    ageGroup
+    goalMode
+
+  scoring/
+    progressScore
+    finalScore
+    rewardEligibility
+
+  validation/
+    healthSafety
+    measurementValidation
+    antiCheat
+
+  tests/
+```
+
+อย่า hardcode reference tables กระจายทั่ว code
+
+ให้แยก:
+
+```text
+Reference Data
+Business Rules
+Scoring
+AI Explanation
+```
+
+ออกจากกัน
+
+---
+
+# 27. DESIGN PRINCIPLES
+
+ยึดหลักเหล่านี้ตลอดการพัฒนา:
+
+```text
+1. ทุกคนมี 4 เป้าหมายเหมือนกัน
+2. ตัวเลข Target ไม่จำเป็นต้องเหมือนกัน
+3. ความยากต้องมาจากการพัฒนาอย่างสมดุล
+4. ไม่ให้คะแนนจากการทำร้ายสุขภาพ
+5. คนสุขภาพดีต้องสามารถชนะได้
+6. คนอ้วนไม่ควรชนะเพราะลด kg ได้เยอะกว่า
+7. คนผอมไม่ควรถูกบังคับให้ลด Fat
+8. ผู้สูงอายุไม่ควรถูกบังคับให้ลด Weight แรง
+9. วัยรุ่นต้องใช้ Growth Reference แยก
+10. Weight และ BMI ต้องสัมพันธ์กันเสมอ
+11. Body Fat และ Muscle สำคัญกว่า Weight เพียงอย่างเดียว
+12. ทำเกิน Target ไม่ได้คะแนนเพิ่ม
+13. ต้องวัด Progress จาก Starting Point ของตัวเอง
+14. Final Score ต้องใช้หลายค่า ไม่ใช่ Metric เดียว
+15. Target ต้องสามารถ audit และอธิบายสูตรย้อนหลังได้
+```
+
+---
+
+# 28. สิ่งที่ต้องการให้ Codex ทำ
+
+ขั้นแรกยังไม่ต้องสร้าง UI
+
+ให้เริ่มจาก:
+
+```text
+1. วิเคราะห์กฎทั้งหมด
+2. ชี้จุดที่สูตรขัดกันหรือมี Edge Case
+3. ปรับสูตรให้ Smooth และ Consistent
+4. ออกแบบ Health Goal Engine
+5. เขียน pure functions สำหรับทุกสูตร
+6. สร้าง Type/Interface
+7. สร้าง Unit Tests จำนวนมาก
+8. สร้าง Simulation Test หลายพันเคส
+9. ตรวจหา unfair cases / discontinuities
+10. แสดงตัวอย่างผลลัพธ์ของคนหลายประเภท
+```
+
+ต้องมี Test Persona อย่างน้อย:
+
+```text
+คนผอมอายุ 25
+คนปกติอายุ 25
+คนกล้ามเยอะ BMI สูง
+คนน้ำหนักเกิน
+คนอ้วน
+คนอ้วนมาก
+คนอายุ 45
+คนอายุ 65
+คนอายุ 75
+วัยรุ่น
+```
+
+หลัง Simulation ให้รายงาน:
+
+```text
+- สูตรไหนมีปัญหา
+- กลุ่มไหนได้เปรียบ
+- กลุ่มไหนเสียเปรียบ
+- Target ใดง่ายหรือยากเกินไป
+- มี Boundary Effect ตรงไหน
+- มี Incentive ให้เล่นผิดวิธีหรือไม่
+```
+
+อย่ารีบเขียน Production Code ถ้ายังพบปัญหาความแฟร์ของสูตร
+
+เป้าหมายสุดท้ายคือสร้าง **BODY 150 Goal Engine ที่โปร่งใส ตรวจสอบได้ ยุติธรรม และใช้เป้าหมาย 4 ค่า Weight / BMI / Body Fat / Muscle สำหรับผู้เล่นทุกคน**

@@ -24,6 +24,7 @@ test('native GPS recovery can stay pending while the running map opens', async (
       maps.push(map); return map; },
     listRecords: async () => [], getRecord: async () => null, saveRecord: async () => {}, loadDraft: async () => null,
     playerSession: async () => ({}), saveRunToCloud: async () => {}, loadRunsFromCloud: async () => [],
+    locateBrowserPosition: async () => ({}),
   };
   const context = vm.createContext({ document: { hidden: false, getElementById: node,
     querySelectorAll: () => [], querySelector: () => node('query'), addEventListener() {} },

@@ -1,6 +1,6 @@
 // Durable online backup queue for finished runs: local-first, owner-bound before any network call, retried safely across reloads and tabs.
-import { saveRecord, listPendingRecords, claimRunForSync } from './run-store.js';
-import { playerSession, saveRunToCloud } from './data.js?v=20261009-6';
+import { saveRecord, listPendingRecords, claimRunForSync } from './run-store.js?v=20261012-2';
+import { playerSession, saveRunToCloud } from './data.js?v=20261012-2';
 
 const defaultStore = { save: saveRecord, listPending: listPendingRecords, claim: claimRunForSync };
 

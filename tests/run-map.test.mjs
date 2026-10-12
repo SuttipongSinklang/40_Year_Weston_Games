@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import { createRunMap } from '../webgame/js/run-map.js';
 
 function fixture() {
-  const calls = { imports: 0, fits: [], dots: [], layers: [], events: [] };
-  const map = { setView() { return this; }, invalidateSize() {}, removeLayer() {},
+  const calls = { imports: 0, fits: [], dots: [], layers: [], events: [], views: [], circles: [] };
+  const map = { setView(coords) { calls.views.push(coords); return this; }, invalidateSize() {}, removeLayer() {},
     fitBounds(points) { calls.fits.push(points); } };
   const leaflet = {
     map: () => map, control: { zoom: () => ({ addTo() {} }) },
@@ -15,6 +15,7 @@ function fixture() {
     },
     tileLayer: () => ({ on() {}, addTo() {} }),
     polyline: () => ({ addTo() {} }),
+    circle(coords, options) { calls.circles.push({coords,options}); return {addTo(){}}; },
     divIcon: options => options,
     marker(coords, options) {
       const marker = { coords, options, addTo() { calls.events.push(this); return this; }, bindTooltip(label) { this.label = label; return this; } };
@@ -32,6 +33,14 @@ function fixture() {
   return { controller, calls };
 }
 const person = { user_id: 'one', display_name: '<img src=x onerror=alert(1)>', lat: 13, lng: 100 };
+test('current position replaces default map center with its accuracy radius without a run', async () => {
+  const {controller,calls} = fixture(); await controller.setBasemap(true);
+  controller.showPosition({latitude:18,longitude:99,accuracy:8});
+  assert.deepEqual(calls.views.at(-1),[18,99]);
+  assert.equal(calls.circles.at(-1).options.radius,8);
+  assert.deepEqual(calls.circles.at(-1).coords,[18,99]);
+  assert.equal(calls.events.length,0);
+});
 
 test('live points never load the street map before map consent', () => {
   const { controller, calls } = fixture(); controller.renderPeople([person]);

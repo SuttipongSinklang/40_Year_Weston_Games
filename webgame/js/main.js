@@ -1,23 +1,25 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { recordWorkout } from './data.js?v=20261012-2';
+import { createPhotoHead } from './profile-head.js?v=20261012-2';
+import './missions-home.js?v=20261012-2';
+import './leaderboard-home.js?v=20261012-2';
+import './social-home.js?v=20261012-2';
+import './goals-home.js?v=20261012-2';
+import './announcements-home.js?v=20261012-2';
+import './home-stats.js?v=20261012-5';
+import './calendar-home.js?v=20261012-2';
+import './achievements-home.js?v=20261012-2';
+let setPhotoHead;
+window.addEventListener('profilechange',event=>{if(character){character.rotation.y=0;lastInput=performance.now();}setPhotoHead?.(event.detail?.photo).catch(()=>toast('สร้างหัว 3D ไม่ได้ กรุณาถ่ายใบหน้าคนหน้าตรงใหม่'));});
+window.addEventListener('screenchange', event => {
+  if (event.detail === 'goal') setTimeout(() => animateGoalBars(), 120);
+});
 
 /* ═══════════════════════════════════════════════
    1) NAV — สลับหน้าจอ
    ═══════════════════════════════════════════════ */
-const navBtns = document.querySelectorAll('.nav-btn');
-let activeScreen = 'home';
-
-navBtns.forEach(btn => btn.addEventListener('click', () => {
-  const target = btn.dataset.screen;
-  if (target === activeScreen) return;
-  activeScreen = target;
-  navBtns.forEach(b => b.classList.toggle('active', b === btn));
-  document.querySelectorAll('.screen').forEach(s =>
-    s.classList.toggle('active', s.id === `screen-${target}`));
-  if (target === 'goal') setTimeout(() => animateGoalBars(), 120);
-}));
-
 /* ═══════════════════════════════════════════════
    2) THREE.JS — ฉากสวน + โมเดลตัวละครกลางจอ
    ═══════════════════════════════════════════════ */
@@ -28,7 +30,7 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.0;
+renderer.toneMappingExposure = 1.08;
 
 const scene = new THREE.Scene();
 scene.fog = new THREE.Fog(0xbfe3f2, 24, 60);  // หมอกบรรยากาศ: ตัวไกล (ตึก) ยังชัด ของไกลมากจาง
@@ -39,11 +41,11 @@ const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
 const pmrem = new THREE.PMREMGenerator(renderer);
 scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
 
-// แสงกระจายจากท้องฟ้า/พื้นดิน — ลดลงเล็กน้อยกันสีซีด
-scene.add(new THREE.HemisphereLight(0xbfe5ff, 0x7cbf7a, 0.5));
+// แสงกระจายจากท้องฟ้า/พื้นดิน — เงานุ่มเหมือนกลางแจ้งจริง
+scene.add(new THREE.HemisphereLight(0xbfe5ff, 0x7cbf7a, 0.75));
 
-// แสงหลัก (key) ขาวนุ่มจากบน-หน้า-ซ้าย
-const sun = new THREE.DirectionalLight(0xffffff, 1.8);
+// แสงหลัก (key) ขาวนุ่มจากบน-หน้า-ซ้าย ตามโทนรูปอ้างอิง
+const sun = new THREE.DirectionalLight(0xffffff, 2.3);
 sun.position.set(-3.5, 5.5, 3.5);
 sun.castShadow = true;
 sun.shadow.mapSize.set(2048, 2048);
@@ -54,7 +56,7 @@ sun.shadow.normalBias = 0.02;
 scene.add(sun);
 
 // แสงเติมจากท้องฟ้าฝั่งตรงข้าม (บางเบา)
-const fill = new THREE.DirectionalLight(0xd6ecff, 0.38);
+const fill = new THREE.DirectionalLight(0xd6ecff, 0.5);
 fill.position.set(4, 3.5, 2.5);
 scene.add(fill);
 
@@ -75,11 +77,9 @@ shadowCatcher.position.y = 0.01;
 shadowCatcher.receiveShadow = true;
 scene.add(shadowCatcher);
 
-/* ── โมเดลตัวละคร (GLB มีโครงกระดูก mixamo — สำหรับ Idle Animation) ── */
-const MODEL_URL = 'assets/satinla_slim.glb';
+/* ── โมเดลตัวละคร (GLB จาก folder, ยืนนิ่งไม่มี Animation) ── */
+const MODEL_URL = 'assets/changrid_fat.glb';
 let character = null;            // group ที่หมุนได้
-let idleFn = null;               // ฟังก์ชันขยับกระดูก idle
-let idleDone = false;            // true = โมเดลมีโครง (idleFn ทำงานเอง)
 
 const loaderEl = document.getElementById('loader');
 const gltfLoader = new GLTFLoader();
@@ -99,9 +99,8 @@ gltfLoader.load(
     const model = gltf.scene;
     fitModel(model, 1.32);          // ขนาดพอดีจอมือถือ
     model.traverse(o => {
-      if (o.isMesh || o.isSkinnedMesh) {
+      if (o.isMesh) {
         o.castShadow = true;
-        o.frustumCulled = false;   // skinned mesh กันหายตอนขยับ
         if (o.material) o.material.envMapIntensity = 0.35;
       }
     });
@@ -109,40 +108,8 @@ gltfLoader.load(
     character = new THREE.Group();
     character.add(model);
     scene.add(character);
-
-    /* ── Idle Animation: ขยับกระดูก (โครง mixamo) ทับบนท่าพื้นฐาน ── */
-    const bones = {};
-    model.traverse(o => { if (o.isBone) bones[o.name.replace('mixamorig:', '')] = o; });
-    const parts = ['Hips', 'Spine1', 'Spine2', 'Head', 'LeftArm', 'RightArm', 'LeftForeArm', 'RightForeArm'];
-    const rig = parts.map(n => bones[n]).filter(Boolean);
-    const rest = rig.map(b => b.quaternion.clone());
-    const restHipsY = bones.Hips ? bones.Hips.position.y : 0;
-    const q = new THREE.Quaternion(), eu = new THREE.Euler();
-    const bend = (bone, rx, ry, rz) => {
-      eu.set(rx, ry, rz); q.setFromEuler(eu);
-      bone.quaternion.multiply(q);
-    };
-
-    idleFn = (t) => {
-      if (!rig.length) return;   // โมเดลไม่มีโครงกระดูก → tick จะใช้การหายใจแบบ group แทน
-      idleDone = true;
-      rig.forEach((b, i) => b.quaternion.copy(rest[i]));      // กลับท่าตั้งต้นก่อน
-      // หายใจ (ช่วงอกพอง-ยุบ)
-      if (bones.Spine1) bend(bones.Spine1, Math.sin(t * 2.1) * 0.04, 0, 0);
-      if (bones.Spine2) bend(bones.Spine2, Math.sin(t * 2.1) * 0.022, 0, 0);
-      // ส่ายเอวพริ้ว + ลอยขึ้นลงตามจังหวะหายใจ
-      if (bones.Hips) {
-        bend(bones.Hips, 0, 0, Math.sin(t * 0.9) * 0.05);
-        bones.Hips.position.y = restHipsY + Math.abs(Math.sin(t * 2.1)) * 0.012;
-      }
-      // หันหน้ามองซ้าย-ขวาช้า ๆ + พยักหัวนิด ๆ
-      if (bones.Head) bend(bones.Head, Math.sin(t * 1.2) * 0.055, Math.sin(t * 0.55) * 0.24, 0);
-      // แขนแกว่งเบา ๆ สลับเฟสกัน
-      if (bones.LeftArm) bend(bones.LeftArm, Math.sin(t * 1.4) * 0.06, 0, Math.sin(t * 1.4) * 0.07);
-      if (bones.RightArm) bend(bones.RightArm, Math.sin(t * 1.4 + Math.PI) * 0.06, 0, Math.sin(t * 1.4 + Math.PI) * 0.07);
-      if (bones.LeftForeArm) bend(bones.LeftForeArm, Math.sin(t * 1.15) * 0.05, 0, 0);
-      if (bones.RightForeArm) bend(bones.RightForeArm, Math.sin(t * 1.15 + Math.PI) * 0.05, 0, 0);
-    };
+    setPhotoHead=createPhotoHead(character,model);
+    setPhotoHead(window.westonProfile?.photo).catch(()=>toast('โหลดหัวตัวละครไม่สำเร็จ'));
 
     loaderEl.classList.add('done');
     setTimeout(() => toast('ยินดีต้อนรับ! แตะตัวละครเพื่อออกกำลังกาย 👆'), 500);
@@ -182,13 +149,10 @@ function tick() {
 
   if (character) {
     // หมุนช้า ๆ เมื่อไม่ได้แตะนาน 3 วิ
-    if (performance.now() - lastInput > 3000) character.rotation.y += 0.004;
-    // Idle Animation (ขยับกระดูก — ถ้าโมเดลไม่มีโครง ใช้หายใจแบบ group)
-    if (idleFn) idleFn(elapsed);
-    if (idleDone === false) {
-      const breathe = 1 + Math.sin(elapsed * 2.2) * 0.008;
-      character.scale.set(2 - breathe, breathe, 2 - breathe);
-    }
+    if (!window.westonProfile?.photo && performance.now() - lastInput > 3000) character.rotation.y += 0.004;
+    // หายใจเบา ๆ ตอนยืน
+    const breathe = 1 + Math.sin(elapsed * 2.2) * 0.008;
+    character.scale.set(2 - breathe, breathe, 2 - breathe);
   }
   renderer.render(scene, camera);
 }
@@ -266,17 +230,19 @@ function workout(e) {
   document.getElementById('popLayer').appendChild(pop);
   setTimeout(() => pop.remove(), 1000);
 
-  // เป้าหมายวันนี้ (%)
-  goalPct = Math.min(100, goalPct + 8);
-  updateGoal();
-  if (goalPct >= 100 && !goalHit) {
+  // บันทึกลงคิวในเครื่องแล้ว sync ขึ้นคลาวด์ (ออฟไลน์ก็เก็บไว้ส่งภายหลัง)
+  recordWorkout();
+
+  // เป้าหมายวันนี้ (%) — ตัวเลขจริงมาจาก home-stats.js (เก็บ mock ไว้เป็น fallback)
+  const ring = window.westonNoteTap?.();
+  if (ring && ring.pct >= 100 && !goalHit) {
     goalHit = true;
     setBell(true, 'ยอดเยี่ยม! คุณครบเป้าหมายวันนี้แล้ว 🎉');
     setTimeout(() => toast('ครบเป้าหมายวันนี้แล้ว! 🎉'), 600);
   }
 
-  // ภารกิจ
-  if (mDone < mTotal) {
+  // ภารกิจ (mock ในตัว — ถ้าผู้ดูแลสร้างภารกิจไว้ missions-home.js จะรับช่วงดูแลการ์ดนี้แทน)
+  if (!window.westonAdminMissions && mDone < mTotal) {
     mDone++;
     updateMission();
     if (mDone === mTotal) {
@@ -331,60 +297,10 @@ bellBtn.addEventListener('click', () => {
 });
 
 /* ═══════════════════════════════════════════════
-   4) LEADERBOARD (mockup ตาม Leader Board Person.png)
+   4) LEADERBOARD — แถวจริงมาจาก leaderboard-home.js
    ═══════════════════════════════════════════════ */
-const players = [
-  { name: 'Player 1', ava: '🦁', score: 3200 },
-  { name: 'Player 2', ava: '😎', score: 2900 },
-  { name: 'Player 3', ava: '🦊', score: 2700 },
-  { name: 'Player 4', ava: '🐼', score: 2400 },
-  { name: 'Player 5', ava: '🐯', score: 2200 },
-  { name: 'Player 6', ava: '🐱', score: 2000 },
-  { name: 'Player 1 (คุณ)', ava: '🧒', score: 1900, you: true },
-  { name: 'Player 8', ava: '🚀', score: 1700 },
-];
-const maxScore = players[0].score;
-
-const rankCell = i => i < 3
-  ? `<img class="rank-img" src="assets/icons/rank${i + 1}.png?v=32" alt="อันดับ ${i + 1}">`
-  : `<span class="rank-badge">${i + 1}</span>`;
-
-document.getElementById('lbPerson').insertAdjacentHTML('beforeend', players.map((p, i) => `
-  <div class="lb-row ${p.you ? 'you' : ''}">
-    <div class="lb-rank">${rankCell(i)}</div>
-    <div class="lb-player">
-      <span class="lb-ava">${p.ava}</span>
-      <span class="lb-name">${p.name}${p.you ? '<span class="you-chip">คุณ</span>' : ''}</span>
-    </div>
-    <div class="lb-score">
-      <div class="lb-scorebar"><i style="width:${Math.round(p.score / maxScore * 100)}%"></i></div>
-      <div class="lb-flame"><span>🔥</span>${p.score.toLocaleString()}</div>
-    </div>
-  </div>`).join(''));
-
-const teams = [
-  { name: 'ทีมสิงโตป่า', ava: '🦁', score: 4800 },
-  { name: 'ทีมนกอินทรี', ava: '🦅', score: 4400 },
-  { name: 'ทีมเสือโคร่ง', ava: '🐯', score: 4100 },
-  { name: 'ทีมหมีขั้วโลก', ava: '🐻‍❄️', score: 3600 },
-  { name: 'ทีมกบนักกระโดด', ava: '🐸', score: 3000 },
-];
-const maxTeam = teams[0].score;
-document.getElementById('lbTeam').insertAdjacentHTML('beforeend', teams.map((t, i) => `
-  <div class="lb-row">
-    <div class="lb-rank">${rankCell(i)}</div>
-    <div class="lb-player">
-      <span class="lb-ava">${t.ava}</span>
-      <span class="lb-name">${t.name}</span>
-    </div>
-    <div class="lb-score">
-      <div class="lb-scorebar"><i style="width:${Math.round(t.score / maxTeam * 100)}%"></i></div>
-      <div class="lb-flame"><span>🔥</span>${t.score.toLocaleString()}</div>
-    </div>
-  </div>`).join(''));
-
-document.querySelectorAll('.pill').forEach(pill => pill.addEventListener('click', () => {
-  document.querySelectorAll('.pill').forEach(p => p.classList.toggle('active', p === pill));
+document.querySelectorAll('#screen-trophy .pill').forEach(pill => pill.addEventListener('click', () => {
+  document.querySelectorAll('#screen-trophy .pill').forEach(p => p.classList.toggle('active', p === pill));
   document.getElementById('lbPerson').classList.toggle('hidden', pill.dataset.lb !== 'person');
   document.getElementById('lbTeam').classList.toggle('hidden', pill.dataset.lb !== 'team');
 }));
@@ -413,26 +329,23 @@ function animateGoalBars() {
     f.style.width = '0%';
     requestAnimationFrame(() => requestAnimationFrame(() => f.style.width = f.dataset.w + '%'));
   });
+  // วงแหวนเป้าหมายวันนี้ตามเปอร์เซ็นต์จริงจาก home-stats.js (fallback 62%)
+  const pct = Number(window.westonGoalPct) || 62;
   const ring = document.getElementById('dayRing');
+  const label = document.getElementById('dayRingPct');
+  if (label) label.textContent = `${pct}%`;
   ring.style.strokeDashoffset = '326.7';
-  requestAnimationFrame(() => requestAnimationFrame(() => ring.style.strokeDashoffset = '124.1'));
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    ring.style.strokeDashoffset = String(326.7 * (1 - pct / 100));
+  }));
 }
 
 /* ═══════════════════════════════════════════════
-   6) CALENDAR — ตุลาคม 2026 (mockup)
+   6) CALENDAR — วันจริงมาจาก calendar-home.js
    ═══════════════════════════════════════════════ */
 const calHead = document.getElementById('calHead');
 ['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส'].forEach(d =>
   calHead.insertAdjacentHTML('beforeend', `<span>${d}</span>`));
-
-const calDays = document.getElementById('calDays');
-// ตุลาคม 2026 เริ่มวันพฤหัส (อา->ส) = ช่องว่าง 4 ช่อง, 31 วัน, วันนี้ = 8
-for (let i = 0; i < 4; i++) calDays.insertAdjacentHTML('beforeend', '<span class="cal-day dim"></span>');
-const doneDays = new Set([1, 2, 3, 4, 6, 7]);           // วันที่ออกกำลังกายแล้ว (mockup)
-for (let d = 1; d <= 31; d++) {
-  const cls = ['cal-day', d === 8 ? 'today' : '', d < 8 && doneDays.has(d) ? 'done' : ''].join(' ');
-  calDays.insertAdjacentHTML('beforeend', `<span class="${cls}">${d}</span>`);
-}
 
 /* ═══════════════════════════════════════════════
    7) SOCIAL (mockup)
