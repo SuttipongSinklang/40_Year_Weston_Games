@@ -76,9 +76,10 @@ shadowCatcher.receiveShadow = true;
 scene.add(shadowCatcher);
 
 /* ── โมเดลตัวละคร (GLB มีโครงกระดูก mixamo — สำหรับ Idle Animation) ── */
-const MODEL_URL = 'assets/changrid_fat.glb';
+const MODEL_URL = 'assets/satinla_slim.glb';
 let character = null;            // group ที่หมุนได้
 let idleFn = null;               // ฟังก์ชันขยับกระดูก idle
+let idleDone = false;            // true = โมเดลมีโครง (idleFn ทำงานเอง)
 
 const loaderEl = document.getElementById('loader');
 const gltfLoader = new GLTFLoader();
@@ -123,6 +124,8 @@ gltfLoader.load(
     };
 
     idleFn = (t) => {
+      if (!rig.length) return;   // โมเดลไม่มีโครงกระดูก → tick จะใช้การหายใจแบบ group แทน
+      idleDone = true;
       rig.forEach((b, i) => b.quaternion.copy(rest[i]));      // กลับท่าตั้งต้นก่อน
       // หายใจ (ช่วงอกพอง-ยุบ)
       if (bones.Spine1) bend(bones.Spine1, Math.sin(t * 2.1) * 0.04, 0, 0);
@@ -180,8 +183,12 @@ function tick() {
   if (character) {
     // หมุนช้า ๆ เมื่อไม่ได้แตะนาน 3 วิ
     if (performance.now() - lastInput > 3000) character.rotation.y += 0.004;
-    // Idle Animation (ขยับกระดูก)
+    // Idle Animation (ขยับกระดูก — ถ้าโมเดลไม่มีโครง ใช้หายใจแบบ group)
     if (idleFn) idleFn(elapsed);
+    if (idleDone === false) {
+      const breathe = 1 + Math.sin(elapsed * 2.2) * 0.008;
+      character.scale.set(2 - breathe, breathe, 2 - breathe);
+    }
   }
   renderer.render(scene, camera);
 }
