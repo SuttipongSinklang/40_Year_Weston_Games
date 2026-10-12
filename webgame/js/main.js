@@ -339,7 +339,7 @@ const players = [
 const maxScore = players[0].score;
 
 const rankCell = i => i < 3
-  ? `<img class="rank-img" src="assets/icons/rank${i + 1}.png" alt="อันดับ ${i + 1}">`
+  ? `<img class="rank-img" src="assets/icons/rank${i + 1}.png?v=32" alt="อันดับ ${i + 1}">`
   : `<span class="rank-badge">${i + 1}</span>`;
 
 document.getElementById('lbPerson').insertAdjacentHTML('beforeend', players.map((p, i) => `
