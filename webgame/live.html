@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>สายการแข่งขันสด — Weston</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600;700&family=Nunito:wght@800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/live.css?v=1">
+</head>
+<body>
+<header class="live-head">
+  <span class="live-sport" id="liveSport">🏆</span>
+  <div class="live-title">
+    <h1 id="liveTitle">กำลังโหลดรายการ…</h1>
+    <p id="liveSub"></p>
+  </div>
+  <span class="live-status" id="liveStatus">LIVE</span>
+</header>
+
+<main class="live-main">
+  <section class="live-section" id="liveBracketSection">
+    <div class="live-bracket" id="liveBracket"></div>
+  </section>
+  <section class="live-section" id="liveStandingsSection" hidden>
+    <div class="live-table-wrap"><table class="live-table" id="liveStandings"></table></div>
+  </section>
+  <section class="live-section">
+    <h2>📣 เชียร์ทีมที่ชอบ</h2>
+    <div class="live-cheers" id="liveCheers"></div>
+  </section>
+</main>
+
+<footer class="live-foot"> Weston Fit Quest · อัปเดตผลอัตโนมัติ · แตะ F11 เพื่อเต็มจอ</footer>
+
+<script type="module" src="js/live.js?v=2"></script>
+</body>
+</html>

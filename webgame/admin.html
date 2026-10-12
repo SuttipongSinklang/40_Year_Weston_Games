@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1E3A5F">
+<meta name="robots" content="noindex">
+<title>Weston Admin — จัดการภารกิจและทัวร์นาเมนต์</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600;700&family=Nunito:wght@800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/admin.css?v=1">
+</head>
+<body>
+
+<header class="adm-top">
+  <div class="adm-brand">
+    <img src="assets/icons/tournament.svg" alt="" aria-hidden="true">
+    <div>
+      <h1>Weston Admin</h1>
+      <p>ศูนย์จัดการภารกิจ คะแนน และทัวร์นาเมนต์</p>
+    </div>
+  </div>
+  <p id="admSession" class="adm-session" role="status"></p>
+</header>
+
+<nav class="adm-tabs" aria-label="เมนูแอดมิน" hidden>
+  <button type="button" class="adm-tab active" data-adm-tab="dashboard">📊 ภาพรวม</button>
+  <button type="button" class="adm-tab" data-adm-tab="missions">🎯 ภารกิจ</button>
+  <button type="button" class="adm-tab" data-adm-tab="tournaments">🏆 ทัวร์นาเมนต์</button>
+  <button type="button" class="adm-tab" data-adm-tab="teams">🦁 ทีม</button>
+  <button type="button" class="adm-tab" data-adm-tab="announcements">📣 ประกาศ</button>
+  <button type="button" class="adm-tab" data-adm-tab="settings">⚙️ ตั้งค่า</button>
+</nav>
+
+<main class="adm-main">
+
+  <!-- ── ล็อกอิน ── -->
+  <section id="admLogin" class="adm-panel" aria-labelledby="admLoginTitle">
+    <div class="adm-card adm-login-card">
+      <h2 id="admLoginTitle">🔐 เข้าสู่ระบบผู้ดูแล</h2>
+      <p class="adm-intro">ใส่รหัสแอดมิน 6 หลัก — ถ้าเป็นการตั้งครั้งแรกของระบบ รหัสที่ใส่จะกลายเป็นรหัสแอดมินหลักทันที กรุณาเก็บรหัสไว้ให้ดี</p>
+      <form id="admLoginForm" novalidate>
+        <label class="adm-field">รหัสแอดมิน
+          <input name="code" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" autocomplete="off" placeholder="000000" required aria-describedby="admLoginMsg">
+        </label>
+        <p id="admLoginMsg" class="adm-msg" role="status" aria-live="polite"></p>
+        <button type="submit" class="adm-btn primary">เข้าสู่ระบบ</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ── ภาพรวม ── -->
+  <section id="admPanel-dashboard" class="adm-panel hidden" aria-labelledby="admDashTitle">
+    <div class="adm-card">
+      <h3 id="admDashTitle">📊 ภาพรวมระบบ</h3>
+      <p id="admDashState" class="adm-msg" role="status"></p>
+      <div class="adm-dash-grid" id="admDashCards"></div>
+      <div id="admDashLatest" class="adm-dash-latest"></div>
+    </div>
+  </section>
+
+  <!-- ── ภารกิจ ── -->
+  <section id="admPanel-missions" class="adm-panel hidden" aria-labelledby="admMissionsTitle">
+    <div class="adm-grid">
+      <form id="missionForm" class="adm-card" novalidate>
+        <h3 id="admMissionsTitle">🎯 สร้าง / แก้ไขภารกิจ</h3>
+        <input type="hidden" name="id">
+        <label class="adm-field">ไอคอน (อีโมจิ)<input name="icon" maxlength="8" value="🎯" placeholder="🎯 💪 🏃"></label>
+        <label class="adm-field">ชื่อภารกิจ<input name="title" maxlength="80" required placeholder="เช่น วิ่งสะสม 3 กิโลเมตร"></label>
+        <label class="adm-field">รายละเอียด (ไม่บังคับ)<textarea name="description" maxlength="300" rows="2" placeholder="อธิบายวิธีทำภารกิจให้สำเร็จ"></textarea></label>
+        <div class="adm-row2">
+          <label class="adm-field">คะแนนเมื่อสำเร็จ<input name="rewardPoints" inputmode="numeric" type="number" min="1" max="10000" value="10" required></label>
+          <label class="adm-field">ลำดับแสดง<input name="sortIndex" inputmode="numeric" type="number" min="0" max="9999" value="0"></label>
+        </div>
+        <div class="adm-row2">
+          <label class="adm-field">วิธีตรวจสอบ<select name="verifyType">
+            <option value="self">ผู้เล่นกดยืนยันเอง</option>
+            <option value="run_distance">ตรวจจากระยะวิ่งสะสม (กม.)</option>
+            <option value="run_count">ตรวจจากจำนวนรอบวิ่ง (ครั้ง)</option>
+          </select></label>
+          <label class="adm-field">เป้าหมาย (กม. หรือ ครั้ง)<input name="targetValue" inputmode="numeric" type="number" min="1" max="100000" value="1"></label>
+        </div>
+        <label class="adm-check"><input type="checkbox" name="resetDaily"> ภารกิจรายวัน (รีเซ็ตทุกวันตามเวลาไทย)</label>
+        <label class="adm-check"><input type="checkbox" name="hidden"> ซ่อนภารกิจนี้ชั่วคราว</label>
+        <p id="missionFormMsg" class="adm-msg" role="status" aria-live="polite"></p>
+        <div class="adm-btn-row">
+          <button type="submit" class="adm-btn primary" id="missionSaveBtn">บันทึกภารกิจ</button>
+          <button type="button" class="adm-btn ghost hidden" id="missionCancelEdit">ยกเลิกการแก้ไข</button>
+        </div>
+      </form>
+
+      <div class="adm-card">
+        <h3>รายการภารกิจทั้งหมด</h3>
+        <p id="missionListState" class="adm-msg" role="status"></p>
+        <div class="adm-table-wrap">
+          <table class="adm-table" id="missionTable">
+            <thead><tr><th scope="col">ภารกิจ</th><th scope="col">คะแนน</th><th scope="col">สถานะ</th><th scope="col">สำเร็จแล้ว</th><th scope="col">จัดการ</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── ทัวร์นาเมนต์ ── -->
+  <section id="admPanel-tournaments" class="adm-panel hidden" aria-labelledby="admTournamentsTitle">
+    <div class="adm-grid">
+      <form id="admTournamentForm" class="adm-card" novalidate>
+        <h3 id="admTournamentsTitle">🏆 สร้างทัวร์นาเมนต์</h3>
+        <label class="adm-field">ชื่อรายการ<input name="title" maxlength="80" required placeholder="เช่น ปิงปองคัพ บริษัท Weston"></label>
+        <fieldset class="adm-field"><legend>กีฬา</legend>
+          <div class="adm-chips" id="admSportChips">
+            <button type="button" class="adm-chip active" data-sport="ปิงปอง" data-icon="🏓" data-draw="0">🏓 ปิงปอง</button>
+            <button type="button" class="adm-chip" data-sport="แบดมินตัน" data-icon="🏸" data-draw="0">🏸 แบดมินตัน</button>
+            <button type="button" class="adm-chip" data-sport="ฟุตบอล" data-icon="⚽" data-draw="1">⚽ ฟุตบอล</button>
+            <button type="button" class="adm-chip" data-sport="ฟุตซอล" data-icon="⚽" data-draw="1">⚽ ฟุตซอล</button>
+            <button type="button" class="adm-chip" data-sport="บาสเกตบอล" data-icon="🏀" data-draw="0">🏀 บาสเกตบอล</button>
+            <button type="button" class="adm-chip" data-sport="วอลเลย์บอล" data-icon="🏐" data-draw="0">🏐 วอลเลย์บอล</button>
+            <button type="button" class="adm-chip" data-sport="esport" data-icon="🎮" data-draw="0">🎮 esport</button>
+            <button type="button" class="adm-chip" data-sport="หมากกระดาน" data-icon="♟️" data-draw="1">♟️ หมากกระดาน</button>
+          </div>
+          <input name="sportCustom" maxlength="40" placeholder="หรือพิมพ์กีฬาอื่น เช่น RoV, ฟุตบอลทราย…">
+        </fieldset>
+        <div class="adm-row2">
+          <label class="adm-field">ประเภท<select name="category"><option value="single">เดี่ยว</option><option value="team">ทีม</option></select></label>
+          <label class="adm-field">หมวด<select name="gender"><option value="male">ชาย</option><option value="female">หญิง</option><option value="mixed" selected>ผสม</option></select></label>
+        </div>
+        <label class="adm-field">รูปแบบ<select name="format">
+          <option value="single_elim">แพ้คัดออก (สายแข่ง)</option>
+          <option value="double_elim">แพ้คัดออกคู่ — สายผู้ชนะ+สายผู้แพ้</option>
+          <option value="round_robin">ลีกพบกันหมด (ตารางคะแนน)</option>
+        </select></label>
+        <label class="adm-check" id="admThirdPlaceCheck"><input type="checkbox" name="thirdPlace"> มีการแข่งชิงอันดับ 3</label>
+        <div class="adm-row2">
+          <label class="adm-field">จำนวนสูงสุด<input name="maxParticipants" inputmode="numeric" type="number" min="2" max="256" placeholder="ไม่จำกัด"></label>
+          <label class="adm-field">หน่วยคะแนน<input name="scoreLabel" maxlength="20" value="แต้ม" placeholder="แต้ม / ประตู / เกม"></label>
+        </div>
+        <div class="adm-row3 adm-league-only">
+          <label class="adm-field">ชนะได้<input name="pointsWin" inputmode="numeric" type="number" min="0" max="99" value="3"></label>
+          <label class="adm-field">เสมอได้<input name="pointsDraw" inputmode="numeric" type="number" min="0" max="99" value="1"></label>
+          <label class="adm-field">แพ้ได้<input name="pointsLoss" inputmode="numeric" type="number" min="0" max="99" value="0"></label>
+        </div>
+        <label class="adm-check adm-league-only"><input type="checkbox" name="allowDraw"> อนุญาตให้เสมอได้ (เช่น ฟุตบอล ฟุตซอล)</label>
+        <label class="adm-field">รายละเอียด<textarea name="description" maxlength="500" rows="2" placeholder="สถานที่ วันเวลา หรือกติกาเพิ่มเติม"></textarea></label>
+        <p id="admTournamentMsg" class="adm-msg" role="status" aria-live="polite"></p>
+        <button type="submit" class="adm-btn primary">สร้างรายการ</button>
+      </form>
+
+      <div class="adm-card">
+        <h3>รายการทัวร์นาเมนต์</h3>
+        <p id="admTournamentState" class="adm-msg" role="status"></p>
+        <div id="admTournamentList"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── ทีม ── -->
+  <section id="admPanel-teams" class="adm-panel hidden" aria-labelledby="admTeamsTitle">
+    <div class="adm-grid">
+      <form id="admTeamForm" class="adm-card" novalidate>
+        <h3 id="admTeamsTitle">🦁 สร้างทีม</h3>
+        <div class="adm-row2">
+          <label class="adm-field">อีโมจิของทีม<input name="emoji" maxlength="8" value="🦁" placeholder="🦁 🦅 🐯"></label>
+          <label class="adm-field">ชื่อทีม<input name="name" maxlength="40" required placeholder="เช่น ทีมสิงโตป่า"></label>
+        </div>
+        <p id="admTeamMsg" class="adm-msg" role="status"></p>
+        <button type="submit" class="adm-btn primary">เพิ่มทีม</button>
+        <p class="adm-intro">ผู้เล่นเลือกทีมของตัวเองได้ในแอป (แท็บ “ทีม”) และคะแนนทีมรวมจากคะแนนสมาชิกบนกระดานอันดับ</p>
+      </form>
+      <div class="adm-card">
+        <h3>ทีมทั้งหมด</h3>
+        <p id="admTeamState" class="adm-msg" role="status"></p>
+        <div class="adm-table-wrap">
+          <table class="adm-table" id="admTeamTable">
+            <thead><tr><th scope="col">ทีม</th><th scope="col">สมาชิก</th><th scope="col">จัดการ</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── ประกาศ ── -->
+  <section id="admPanel-announcements" class="adm-panel hidden" aria-labelledby="admAnnTitle">
+    <div class="adm-grid">
+      <form id="admAnnounceForm" class="adm-card" novalidate>
+        <h3 id="admAnnTitle">📣 ประกาศถึงผู้เล่นทุกคน</h3>
+        <label class="adm-field">ข้อความ (สูงสุด 200 ตัวอักษร)<textarea name="message" maxlength="200" rows="3" required placeholder="เช่น พรุ่งนี้ 10:00 เริ่มรอบชิงชนะเลิศปิงปอง!"></textarea></label>
+        <p id="admAnnounceMsg" class="adm-msg" role="status"></p>
+        <button type="submit" class="adm-btn primary">ส่งประกาศ</button>
+        <p class="adm-intro">ประกาศแสดงเป็นแบนเนอร์บนหน้าแรกของทุกเครื่อง ประกาศล่าสุดจะอยู่จนกว่าจะส่งประกาศใหม่แทน</p>
+      </form>
+      <div class="adm-card">
+        <h3>ประกาศล่าสุด</h3>
+        <p id="admAnnounceState" class="adm-msg" role="status"></p>
+        <div id="admAnnounceList"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── ตั้งค่า ── -->
+  <section id="admPanel-settings" class="adm-panel hidden" aria-labelledby="admSettingsTitle">
+    <div class="adm-card adm-login-card">
+      <h2 id="admSettingsTitle">⚙️ เปลี่ยนรหัสแอดมิน</h2>
+      <p class="adm-intro">รหัสนี้ใช้เข้าหน้าเว็บแอดมิน (คนละรหัสกับรหัสผู้ดูแลของแต่ละทัวร์นาเมนต์) เปลี่ยนแล้วแจ้งทีมงานทุกคนด้วย</p>
+      <form id="admCodeForm" novalidate>
+        <div class="adm-row2">
+          <label class="adm-field">รหัสปัจจุบัน<input name="oldCode" inputmode="numeric" maxlength="6" required></label>
+          <label class="adm-field">รหัสใหม่<input name="newCode" inputmode="numeric" maxlength="6" required></label>
+        </div>
+        <p id="admCodeMsg" class="adm-msg" role="status" aria-live="polite"></p>
+        <button type="submit" class="adm-btn primary">เปลี่ยนรหัส</button>
+      </form>
+    </div>
+    <div class="adm-card">
+      <h3>👥 ผู้ดูแลระบบ</h3>
+      <p id="admAdminListState" class="adm-msg" role="status"></p>
+      <div class="adm-table-wrap">
+        <table class="adm-table" id="admAdminTable">
+          <thead><tr><th scope="col">รหัสผู้ใช้</th><th scope="col">เข้าร่วมเมื่อ</th><th scope="col">จัดการ</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="adm-intro">แอดมินคนอื่นเข้ามาได้ด้วยการเปิดหน้าเว็บนี้แล้วกรอกรหัสแอดมิน — ตารางนี้ใช้ถอนสิทธิ์เมื่อมีคนออกจากทีมงาน</p>
+    </div>
+  </section>
+
+</main>
+
+<footer class="adm-footer">Weston Fit Quest · หน้านี้สำหรับผู้ดูแลเท่านั้น — ผู้เล่นใช้แอปหลักได้ตามปกติ</footer>
+
+<div id="admQrOverlay" class="adm-qr-overlay" hidden>
+  <div class="adm-qr-card">
+    <h3>📱 QR สมัครรายการ</h3>
+    <p class="adm-intro" id="admQrTitle">—</p>
+    <div class="adm-qr-img" id="admQrImg"></div>
+    <p class="adm-msg" id="admQrLink"></p>
+    <button type="button" class="adm-btn ghost" id="admQrClose">ปิด</button>
+  </div>
+</div>
+
+<script src="assets/vendor/qrcode/qrcode.js"></script>
+<script type="module" src="js/admin.js?v=3"></script>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>เกียรติบัตร — Weston</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600;700&family=Nunito:wght@800;900&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#1E3A5F;--orange:#F5B83D;--orange-dk:#DE9B1F;--green:#3DBE5B;--cream:#FFF6E3;--font-th:'Mitr',sans-serif;--font-num:'Nunito','Mitr',sans-serif}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-th);background:#EDF3F8;min-height:100vh;padding:24px;display:flex;flex-direction:column;align-items:center;gap:18px}
+.bar{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.bar button{border:2px solid var(--orange-dk);background:var(--orange);color:#fff;font:inherit;font-weight:600;border-radius:12px;padding:10px 20px;cursor:pointer;min-height:44px}
+.bar select{border:2px solid #cfd9e4;border-radius:12px;padding:10px 12px;font:inherit;min-height:44px;background:#fff}
+.cert{
+  width:min(860px,100%);background:var(--cream);border:10px solid var(--navy);border-radius:18px;
+  padding:clamp(24px,5vw,56px);text-align:center;box-shadow:0 20px 50px rgba(30,58,95,.25);position:relative;
+}
+.cert::before{content:'';position:absolute;inset:10px;border:3px dashed var(--orange);border-radius:10px;pointer-events:none}
+.cert .trophy{font-size:clamp(48px,7vw,84px)}
+.cert h1{font-size:clamp(22px,3.4vw,36px);color:var(--navy);margin:8px 0 2px}
+.cert .sub{font-size:clamp(13px,1.6vw,17px);color:#5B7191}
+.cert .winner{font-size:clamp(30px,5vw,56px);font-weight:700;color:var(--green);margin:clamp(12px,2.5vw,26px) 0 4px}
+.cert .rank{font-size:clamp(15px,2vw,22px);color:var(--navy)}
+.cert .meta{margin-top:clamp(14px,3vw,30px);font-size:clamp(12px,1.4vw,15px);color:#5B7191}
+.cert .sig{margin-top:clamp(10px,2vw,20px);display:flex;justify-content:space-around;font-size:clamp(11px,1.3vw,14px);color:#5B7191}
+.cert .sig span{border-top:2px solid #B9C7D6;padding-top:6px;min-width:180px}
+@media print{body{background:#fff;padding:0}.bar{display:none}.cert{box-shadow:none;border-color:var(--navy)}}
+</style>
+</head>
+<body>
+<div class="bar">
+  <label class="visually-hidden" for="certPicker">เลือกผู้รับเกียรติบัตร</label>
+  <select id="certPicker"></select>
+  <button type="button" id="certPrint">🖨️ พิมพ์ / บันทึก PDF</button>
+</div>
+<div class="cert" id="certBody">
+  <div class="trophy">🏆</div>
+  <h1 id="certTitle">เกียรติบัตร</h1>
+  <p class="sub" id="certEvent">—</p>
+  <p class="winner" id="certWinner">—</p>
+  <p class="rank" id="certRank">—</p>
+  <p class="meta" id="certMeta">—</p>
+  <div class="sig"><span>ผู้อำนวยการแข่งขัน</span><span>Weston Fit Quest</span></div>
+</div>
+<script type="module" src="js/cert.js?v=2"></script>
+</body>
+</html>

@@ -1,23 +1,24 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { createPhotoHead } from './profile-head.js?v=3d-1';
+import './missions-home.js?v=20261012-1';
+import './leaderboard-home.js?v=20261012-1';
+import './social-home.js?v=20261012-1';
+import './goals-home.js?v=20261012-1';
+import './announcements-home.js?v=20261012-1';
+import './home-stats.js?v=20261012-1';
+import './calendar-home.js?v=20261012-1';
+import './achievements-home.js?v=20261012-1';
+let setPhotoHead;
+window.addEventListener('profilechange',event=>{if(character){character.rotation.y=0;lastInput=performance.now();}setPhotoHead?.(event.detail?.photo).catch(()=>toast('สร้างหัว 3D ไม่ได้ กรุณาถ่ายใบหน้าคนหน้าตรงใหม่'));});
+window.addEventListener('screenchange', event => {
+  if (event.detail === 'goal') setTimeout(() => animateGoalBars(), 120);
+});
 
 /* ═══════════════════════════════════════════════
    1) NAV — สลับหน้าจอ
    ═══════════════════════════════════════════════ */
-const navBtns = document.querySelectorAll('.nav-btn');
-let activeScreen = 'home';
-
-navBtns.forEach(btn => btn.addEventListener('click', () => {
-  const target = btn.dataset.screen;
-  if (target === activeScreen) return;
-  activeScreen = target;
-  navBtns.forEach(b => b.classList.toggle('active', b === btn));
-  document.querySelectorAll('.screen').forEach(s =>
-    s.classList.toggle('active', s.id === `screen-${target}`));
-  if (target === 'goal') setTimeout(() => animateGoalBars(), 120);
-}));
-
 /* ═══════════════════════════════════════════════
    2) THREE.JS — ฉากสวน + โมเดลตัวละครกลางจอ
    ═══════════════════════════════════════════════ */
@@ -106,6 +107,8 @@ gltfLoader.load(
     character = new THREE.Group();
     character.add(model);
     scene.add(character);
+    setPhotoHead=createPhotoHead(character,model);
+    setPhotoHead(window.westonProfile?.photo).catch(()=>toast('โหลดหัวตัวละครไม่สำเร็จ'));
 
     loaderEl.classList.add('done');
     setTimeout(() => toast('ยินดีต้อนรับ! แตะตัวละครเพื่อออกกำลังกาย 👆'), 500);
@@ -145,7 +148,7 @@ function tick() {
 
   if (character) {
     // หมุนช้า ๆ เมื่อไม่ได้แตะนาน 3 วิ
-    if (performance.now() - lastInput > 3000) character.rotation.y += 0.004;
+    if (!window.westonProfile?.photo && performance.now() - lastInput > 3000) character.rotation.y += 0.004;
     // หายใจเบา ๆ ตอนยืน
     const breathe = 1 + Math.sin(elapsed * 2.2) * 0.008;
     character.scale.set(2 - breathe, breathe, 2 - breathe);
@@ -226,17 +229,16 @@ function workout(e) {
   document.getElementById('popLayer').appendChild(pop);
   setTimeout(() => pop.remove(), 1000);
 
-  // เป้าหมายวันนี้ (%)
-  goalPct = Math.min(100, goalPct + 8);
-  updateGoal();
-  if (goalPct >= 100 && !goalHit) {
+  // เป้าหมายวันนี้ (%) — ตัวเลขจริงมาจาก home-stats.js (เก็บ mock ไว้เป็น fallback)
+  const ring = window.westonNoteTap?.();
+  if (ring && ring.pct >= 100 && !goalHit) {
     goalHit = true;
     setBell(true, 'ยอดเยี่ยม! คุณครบเป้าหมายวันนี้แล้ว 🎉');
     setTimeout(() => toast('ครบเป้าหมายวันนี้แล้ว! 🎉'), 600);
   }
 
-  // ภารกิจ
-  if (mDone < mTotal) {
+  // ภารกิจ (mock ในตัว — ถ้าผู้ดูแลสร้างภารกิจไว้ missions-home.js จะรับช่วงดูแลการ์ดนี้แทน)
+  if (!window.westonAdminMissions && mDone < mTotal) {
     mDone++;
     updateMission();
     if (mDone === mTotal) {
@@ -291,60 +293,10 @@ bellBtn.addEventListener('click', () => {
 });
 
 /* ═══════════════════════════════════════════════
-   4) LEADERBOARD (mockup ตาม Leader Board Person.png)
+   4) LEADERBOARD — แถวจริงมาจาก leaderboard-home.js
    ═══════════════════════════════════════════════ */
-const players = [
-  { name: 'Player 1', ava: '🦁', score: 3200 },
-  { name: 'Player 2', ava: '😎', score: 2900 },
-  { name: 'Player 3', ava: '🦊', score: 2700 },
-  { name: 'Player 4', ava: '🐼', score: 2400 },
-  { name: 'Player 5', ava: '🐯', score: 2200 },
-  { name: 'Player 6', ava: '🐱', score: 2000 },
-  { name: 'Player 1 (คุณ)', ava: '🧒', score: 1900, you: true },
-  { name: 'Player 8', ava: '🚀', score: 1700 },
-];
-const maxScore = players[0].score;
-
-const rankCell = i => i < 3
-  ? `<img class="rank-img" src="assets/icons/rank${i + 1}.png" alt="อันดับ ${i + 1}">`
-  : `<span class="rank-badge">${i + 1}</span>`;
-
-document.getElementById('lbPerson').insertAdjacentHTML('beforeend', players.map((p, i) => `
-  <div class="lb-row ${p.you ? 'you' : ''}">
-    <div class="lb-rank">${rankCell(i)}</div>
-    <div class="lb-player">
-      <span class="lb-ava">${p.ava}</span>
-      <span class="lb-name">${p.name}${p.you ? '<span class="you-chip">คุณ</span>' : ''}</span>
-    </div>
-    <div class="lb-score">
-      <div class="lb-scorebar"><i style="width:${Math.round(p.score / maxScore * 100)}%"></i></div>
-      <div class="lb-flame"><span>🔥</span>${p.score.toLocaleString()}</div>
-    </div>
-  </div>`).join(''));
-
-const teams = [
-  { name: 'ทีมสิงโตป่า', ava: '🦁', score: 4800 },
-  { name: 'ทีมนกอินทรี', ava: '🦅', score: 4400 },
-  { name: 'ทีมเสือโคร่ง', ava: '🐯', score: 4100 },
-  { name: 'ทีมหมีขั้วโลก', ava: '🐻‍❄️', score: 3600 },
-  { name: 'ทีมกบนักกระโดด', ava: '🐸', score: 3000 },
-];
-const maxTeam = teams[0].score;
-document.getElementById('lbTeam').insertAdjacentHTML('beforeend', teams.map((t, i) => `
-  <div class="lb-row">
-    <div class="lb-rank">${rankCell(i)}</div>
-    <div class="lb-player">
-      <span class="lb-ava">${t.ava}</span>
-      <span class="lb-name">${t.name}</span>
-    </div>
-    <div class="lb-score">
-      <div class="lb-scorebar"><i style="width:${Math.round(t.score / maxTeam * 100)}%"></i></div>
-      <div class="lb-flame"><span>🔥</span>${t.score.toLocaleString()}</div>
-    </div>
-  </div>`).join(''));
-
-document.querySelectorAll('.pill').forEach(pill => pill.addEventListener('click', () => {
-  document.querySelectorAll('.pill').forEach(p => p.classList.toggle('active', p === pill));
+document.querySelectorAll('#screen-trophy .pill').forEach(pill => pill.addEventListener('click', () => {
+  document.querySelectorAll('#screen-trophy .pill').forEach(p => p.classList.toggle('active', p === pill));
   document.getElementById('lbPerson').classList.toggle('hidden', pill.dataset.lb !== 'person');
   document.getElementById('lbTeam').classList.toggle('hidden', pill.dataset.lb !== 'team');
 }));
@@ -373,26 +325,23 @@ function animateGoalBars() {
     f.style.width = '0%';
     requestAnimationFrame(() => requestAnimationFrame(() => f.style.width = f.dataset.w + '%'));
   });
+  // วงแหวนเป้าหมายวันนี้ตามเปอร์เซ็นต์จริงจาก home-stats.js (fallback 62%)
+  const pct = Number(window.westonGoalPct) || 62;
   const ring = document.getElementById('dayRing');
+  const label = document.getElementById('dayRingPct');
+  if (label) label.textContent = `${pct}%`;
   ring.style.strokeDashoffset = '326.7';
-  requestAnimationFrame(() => requestAnimationFrame(() => ring.style.strokeDashoffset = '124.1'));
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    ring.style.strokeDashoffset = String(326.7 * (1 - pct / 100));
+  }));
 }
 
 /* ═══════════════════════════════════════════════
-   6) CALENDAR — ตุลาคม 2026 (mockup)
+   6) CALENDAR — วันจริงมาจาก calendar-home.js
    ═══════════════════════════════════════════════ */
 const calHead = document.getElementById('calHead');
 ['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส'].forEach(d =>
   calHead.insertAdjacentHTML('beforeend', `<span>${d}</span>`));
-
-const calDays = document.getElementById('calDays');
-// ตุลาคม 2026 เริ่มวันพฤหัส (อา->ส) = ช่องว่าง 4 ช่อง, 31 วัน, วันนี้ = 8
-for (let i = 0; i < 4; i++) calDays.insertAdjacentHTML('beforeend', '<span class="cal-day dim"></span>');
-const doneDays = new Set([1, 2, 3, 4, 6, 7]);           // วันที่ออกกำลังกายแล้ว (mockup)
-for (let d = 1; d <= 31; d++) {
-  const cls = ['cal-day', d === 8 ? 'today' : '', d < 8 && doneDays.has(d) ? 'done' : ''].join(' ');
-  calDays.insertAdjacentHTML('beforeend', `<span class="${cls}">${d}</span>`);
-}
 
 /* ═══════════════════════════════════════════════
    7) SOCIAL (mockup)

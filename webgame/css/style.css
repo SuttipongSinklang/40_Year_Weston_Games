@@ -442,3 +442,25 @@ body{
 .nav-btn.active label{font-weight:600}
 
 .hidden{display:none!important}
+
+/* ── ปุ่มรับรางวัลภารกิจที่ผู้ดูแลสร้าง (missions-home.js) ── */
+.mission-claim{
+  margin-top:7px;width:100%;border:2px solid var(--green-dk);background:var(--green);color:#fff;
+  font-family:var(--font-th);font-size:11.5px;font-weight:600;border-radius:10px;padding:9px 6px;
+  cursor:pointer;box-shadow:0 3px 0 var(--green-dk);min-height:44px;
+}
+.mission-claim:active{transform:translateY(2px);box-shadow:none}
+.mission-claim:disabled{opacity:.6}
+
+/* ── ปฏิทินจริง + เหรียญตรา (calendar-home / achievements-home) ── */
+.dot.match{background:var(--orange)}
+.cal-day.matchday::after{content:'🏆';font-size:7px;line-height:1;margin-top:1px;display:block}
+.cal-day.done.matchday::after{content:'🔥 🏆';font-size:7px;line-height:1;margin-top:1px}
+.badge-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.badge-chip{
+  display:flex;flex-direction:column;align-items:center;gap:4px;width:78px;
+  background:#fff;border:2px solid var(--cream-dk);border-radius:12px;padding:9px 4px;text-align:center;
+}
+.badge-chip i{font-style:normal;font-size:24px;line-height:1}
+.badge-chip small{font-size:9px;color:#5B7191;line-height:1.25}
+.badge-chip:not(.earned){opacity:.35;filter:grayscale(1)}
