@@ -278,6 +278,15 @@ statsToggle.addEventListener('click', () => {
   statsToggle.setAttribute('aria-expanded', String(!collapsed));
 });
 
+/* ── ลูกศรเปิด/ปิดเมนู NAV (หน้าหลักอยู่นอกเมนู) ── */
+const navToggle = document.getElementById('navToggle');
+const navMenu = document.getElementById('navMenu');
+navToggle.addEventListener('click', () => {
+  const open = !navMenu.classList.toggle('closed');
+  navToggle.classList.toggle('open', open);
+  navToggle.setAttribute('aria-expanded', String(open));
+});
+
 /* ── กระดิ่งแจ้งเตือน: สั่นเมื่อมี Notification, กดแล้วอ่านและหยุดสั่น ── */
 const bellBtn = document.getElementById('bellBtn');
 const bellImg = document.getElementById('bellImg');

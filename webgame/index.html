@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600;700&family=Nunito:wght@800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=25">
+<link rel="stylesheet" href="css/style.css?v=26">
 <link rel="stylesheet" href="assets/vendor/leaflet/dist/leaflet.css">
 <link rel="stylesheet" href="css/running.css?v=3">
 <link rel="stylesheet" href="css/profile.css?v=5">
@@ -56,13 +56,13 @@
         <b>Day Streak</b>
       </div>
 
-      <!-- ปุ่ม Dropdown เปิด/ปิดช่องค่าสถิติ -->
-      <button class="stats-toggle" id="statsToggle" aria-expanded="true">
+      <!-- ปุ่ม Dropdown เปิด/ปิดช่องค่าสถิติ (ปิดไว้เริ่มต้น) -->
+      <button class="stats-toggle collapsed" id="statsToggle" aria-expanded="false">
         <span>ค่าสถิติ</span>
         <img class="chev" src="assets/icons/dropdown.png" alt="">
       </button>
 
-      <div class="stats-grid" id="statsGrid">
+      <div class="stats-grid collapsed" id="statsGrid">
         <div class="stat-card" id="statFat">
           <span class="stat-ico"><img src="assets/icons/fat.png" alt="ไขมัน"></span>
           <div><h3>ไขมัน (%)</h3><p><b>—</b> <em hidden></em></p></div>
@@ -298,20 +298,25 @@
     <button class="nav-btn active" data-screen="home">
       <span class="nav-ico"><img src="assets/icons/home.png" alt="หน้าหลัก"></span><label>หน้าหลัก</label><i></i>
     </button>
-    <button type="button" class="nav-btn" data-screen="run" aria-label="วิ่ง"><span class="nav-ico run-nav-icon"><img src="assets/icons/run.png" alt="" aria-hidden="true"></span><label>วิ่ง</label><i></i></button>
-    <button class="nav-btn" data-screen="trophy">
-      <span class="nav-ico"><img src="assets/icons/rank.png" alt="อันดับ"></span><label>อันดับ</label><i></i>
+    <button type="button" class="nav-toggle" id="navToggle" aria-expanded="false" aria-label="เปิด/ปิดเมนู">
+      <img src="assets/icons/dropdown.png" alt="">
     </button>
-    <button class="nav-btn" data-screen="goal">
-      <span class="nav-ico"><img src="assets/icons/target.png" alt="เป้าหมาย"></span><label>เป้าหมาย</label><i></i>
-    </button>
-    <button class="nav-btn" data-screen="calendar">
-      <span class="nav-ico"><img src="assets/icons/calendar.png" alt="ปฏิทิน"></span><label>ปฏิทิน</label><i></i>
-    </button>
-    <button class="nav-btn" data-screen="social">
-      <span class="nav-ico"><img src="assets/icons/team.png" alt="ทีม"></span><label>ทีม</label><i></i>
-    </button>
-    <button type="button" class="nav-btn" data-screen="tournament" aria-label="แข่งขัน"><span class="nav-ico"><img src="assets/icons/tournament.svg" alt="" aria-hidden="true"></span><label>แข่งขัน</label><i></i></button>
+    <div class="nav-menu closed" id="navMenu">
+      <button type="button" class="nav-btn" data-screen="run" aria-label="วิ่ง"><span class="nav-ico run-nav-icon"><img src="assets/icons/run.png" alt="" aria-hidden="true"></span><label>วิ่ง</label><i></i></button>
+      <button class="nav-btn" data-screen="trophy">
+        <span class="nav-ico"><img src="assets/icons/rank.png" alt="อันดับ"></span><label>อันดับ</label><i></i>
+      </button>
+      <button class="nav-btn" data-screen="goal">
+        <span class="nav-ico"><img src="assets/icons/target.png" alt="เป้าหมาย"></span><label>เป้าหมาย</label><i></i>
+      </button>
+      <button class="nav-btn" data-screen="calendar">
+        <span class="nav-ico"><img src="assets/icons/calendar.png" alt="ปฏิทิน"></span><label>ปฏิทิน</label><i></i>
+      </button>
+      <button class="nav-btn" data-screen="social">
+        <span class="nav-ico"><img src="assets/icons/team.png" alt="ทีม"></span><label>ทีม</label><i></i>
+      </button>
+      <button type="button" class="nav-btn" data-screen="tournament" aria-label="แข่งขัน"><span class="nav-ico"><img src="assets/icons/tournament.svg" alt="" aria-hidden="true"></span><label>แข่งขัน</label><i></i></button>
+    </div>
   </nav>
 
 
@@ -390,6 +395,6 @@
 </dialog>
 <script type="module" src="js/profile.js?v=15"></script>
 <script type="module" src="js/tournament.js?v=8"></script>
-<script type="module" src="js/main.js?v=33"></script>
+<script type="module" src="js/main.js?v=34"></script>
 </body>
 </html>
