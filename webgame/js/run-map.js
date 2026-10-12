@@ -12,6 +12,7 @@ export function createRunMap({ container, sketch, empty, message,
   loadLeaflet = () => import('../assets/vendor/leaflet/dist/leaflet-src.esm.js') }) {
   let map, leaflet, layer, marker, tiles, run, consent = false, loading, peopleLayer;
   let people = [], hadRoute = false;
+  let preview;
   const peopleMarkers = new Map();
   function updatePeople() {
     if (!peopleLayer) return;
@@ -76,6 +77,14 @@ export function createRunMap({ container, sketch, empty, message,
     }
     for (const points of segments.values()) leaflet.polyline(points, { color: '#ED233B', weight: 5 }).addTo(layer);
     const points = run?.points || [];
+    if (!points.length && preview) {
+      const coordinates = [preview.latitude, preview.longitude];
+      leaflet.circle(coordinates, { radius: preview.accuracy, color: '#1677c8', weight: 1,
+        fillColor: '#1677c8', fillOpacity: .12 }).addTo(layer);
+      leaflet.circleMarker(coordinates, { radius: 7, color: '#fff', weight: 3,
+        fillColor: '#1677c8', fillOpacity: 1 }).addTo(layer);
+      if (fit) map.setView(coordinates, 17, { animate: false });
+    }
     for (const event of locatedEvents(run)) {
       const label = document.createElement('span'); label.textContent = eventLabel(event);
       const badge = leaflet.divIcon({ className: `run-event-marker run-event-${event.type}`,
@@ -128,6 +137,7 @@ export function createRunMap({ container, sketch, empty, message,
     render(value) {
       run = value; drawSketch();
       const hasRoute = Boolean(run?.points.length);
+      if (hasRoute) preview = undefined;
       if (consent) updateMap(hasRoute && !hadRoute);
       hadRoute = hasRoute;
     },
@@ -138,6 +148,7 @@ export function createRunMap({ container, sketch, empty, message,
       if (target.length) map.fitBounds(target.map(person => [person.lat, person.lng]), { padding: [28, 28], maxZoom: 16, animate: false });
     },
     setBasemap,
+    showPosition(fix) { preview = fix; updateMap(); },
     resize() { if (map && consent) { map.invalidateSize(); updateMap(false); } },
     center() { updateMap(); },
   };

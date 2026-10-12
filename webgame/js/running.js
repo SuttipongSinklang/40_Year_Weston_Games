@@ -1,11 +1,12 @@
 import { createNativeTreadmillTracker } from "./run-native-treadmill.js?v=20261009-2";
-import { createRunTracker } from './run-tracker.js?v=20261009-8';
+import { createRunTracker } from './run-tracker.js?v=20261009-9';
 import { createPhoneSteps } from './run-steps.js?v=20261009-6';
 import { createNativeRunTracker, isNativeApp, nativeRunningPlugin } from './run-native-tracker.js';
 import { restoreRun } from './run-core.js?v=20261009-8';
 import { createRunSync } from './run-cloud.js';
-import { createRunMap } from './run-map.js?v=20261009-8';
+import { createRunMap } from './run-map.js?v=20261009-9';
 import { listRecords, getRecord, saveRecord, loadDraft } from './run-store.js';
+import { locateBrowserPosition } from './run-gps.js?v=2';
 import { playerSession, saveRunToCloud, loadRunsFromCloud } from './data.js?v=20261009-6';
 
 const $ = id => document.getElementById(id);
@@ -22,7 +23,7 @@ export function pace(ms, meters) {
 export async function initializeRunning({ toast }) {
   const native = isNativeApp();
   let current, selected, detailTrigger, detailGeneration = 0, historyGeneration = 0, wake, wakePending, wakeMessage = '', lastMapKey;
-  let treadmillSelected = false, tracker, treadmillTracker, treadmillId, legacyTreadmill;
+  let treadmillSelected = false, tracker, treadmillTracker, treadmillId, legacyTreadmill, locationRequest;
   const { plugin } = native ? await nativeRunningPlugin() : {};
   const phoneSteps = createPhoneSteps({ plugin });
   function activityUI(type) {
@@ -256,9 +257,32 @@ export async function initializeRunning({ toast }) {
   $('detailBasemapConsent').addEventListener('change', () => {
     void detailMap.setBasemap($('detailBasemapConsent').checked);
   });
-  $('runCenter').addEventListener('click', () => map.center());
+  $('runCenter').addEventListener('click', async () => {
+    if (current?.run?.points.length || native) { map.center(); return; }
+    if (!globalThis.isSecureContext || !navigator.geolocation) {
+      $('mapMessage').textContent = 'หาตำแหน่งจริงบนโทรศัพท์ต้องเปิดเว็บผ่าน HTTPS'; return;
+    }
+    $('runCenter').disabled = true;
+    locationRequest?.abort();
+    const request = new AbortController(); locationRequest = request;
+    $('mapMessage').textContent = 'กำลังหาตำแหน่งจริงที่แม่นยำ…';
+    try {
+      const fix = await locateBrowserPosition({ signal: request.signal, onProgress(fix) {
+        if (treadmillSelected || current?.run?.points.length) return;
+        map.showPosition(fix);
+        $('mapMessage').textContent = `ตำแหน่งโดยประมาณ ±${Math.round(fix.accuracy)} ม. · กำลังปรับความแม่นยำ…`;
+      } });
+      if (treadmillSelected || current?.run?.points.length) return;
+      map.showPosition(fix);
+      $('mapMessage').textContent = fix.accuracy <= 20
+        ? `ตำแหน่งปัจจุบัน · GPS ±${Math.round(fix.accuracy)} ม. · วงสีฟ้าแสดงความคลาดเคลื่อน`
+        : `ตำแหน่งโดยประมาณ ±${Math.round(fix.accuracy)} ม. · ยังไม่แม่นยำพอบันทึกเส้นทาง ลองในพื้นที่เปิดแล้วกด ◎ อีกครั้ง`;
+    } catch (error) { $('mapMessage').textContent = error.message; }
+    finally { if (locationRequest === request) locationRequest = null; $('runCenter').disabled = false; }
+  });
   $('runDetailDialog').addEventListener('close', () => { detailGeneration++; detailTrigger?.focus(); });
   document.addEventListener('visibilitychange', () => {
+    if (document.hidden) locationRequest?.abort();
     if (!document.hidden) void syncOnline();
     if (native) { if (!document.hidden) void tracker.refresh(); }
     else if (document.hidden) void tracker.background();
@@ -304,7 +328,9 @@ export async function initializeRunning({ toast }) {
     void map.setBasemap(true);
     map.resize();
     if (native) void tracker.refresh();
+    else void tracker.foreground();
   }, leave() {
+    locationRequest?.abort();
     if (!native) void tracker.background();
   } };
 }

@@ -1,0 +1,475 @@
+{
+  "seed": 1502026,
+  "counts": {
+    "cases": 10000,
+    "calculated": 3527,
+    "needs_review": 5783,
+    "youth_blocked": 690,
+    "modes": {
+      "RECOMP": 2574,
+      "CUT": 3061,
+      "MAINTAIN_PLUS": 2351,
+      "BUILD": 1324
+    },
+    "composition_review": 195
+  },
+  "endpoint_scored_cases": 9115,
+  "reference_notice": "All BF intervals are arbitrary synthetic test fixtures; NO real clinical reference table is installed.",
+  "user_policy": "Original formulas preserved exactly; discontinuities reported, not smoothed.",
+  "baseline_scores": {
+    "RECOMP/MIDDLE_ADULT/female": {
+      "count": 564,
+      "mean": 25
+    },
+    "RECOMP/OLDER_ADULT/male": {
+      "count": 361,
+      "mean": 25
+    },
+    "CUT/MIDDLE_ADULT/female": {
+      "count": 429,
+      "mean": 0
+    },
+    "CUT/MIDDLE_ADULT/male": {
+      "count": 647,
+      "mean": 0
+    },
+    "RECOMP/YOUNG_ADULT/female": {
+      "count": 479,
+      "mean": 25
+    },
+    "CUT/OLDER_ADULT/male": {
+      "count": 654,
+      "mean": 40
+    },
+    "MAINTAIN_PLUS/MIDDLE_ADULT/female": {
+      "count": 422,
+      "mean": 60
+    },
+    "BUILD/MIDDLE_ADULT/male": {
+      "count": 256,
+      "mean": 9.16015625
+    },
+    "MAINTAIN_PLUS/OLDER_ADULT/male": {
+      "count": 420,
+      "mean": 60
+    },
+    "CUT/OLDER_ADULT/female": {
+      "count": 476,
+      "mean": 40
+    },
+    "CUT/YOUNG_ADULT/male": {
+      "count": 524,
+      "mean": 0
+    },
+    "BUILD/MIDDLE_ADULT/female": {
+      "count": 233,
+      "mean": 9.163090128755364
+    },
+    "CUT/YOUNG_ADULT/female": {
+      "count": 331,
+      "mean": 0
+    },
+    "RECOMP/YOUNG_ADULT/male": {
+      "count": 264,
+      "mean": 25
+    },
+    "MAINTAIN_PLUS/YOUNG_ADULT/female": {
+      "count": 330,
+      "mean": 60
+    },
+    "BUILD/YOUNG_ADULT/male": {
+      "count": 186,
+      "mean": 11.290322580645162
+    },
+    "RECOMP/MIDDLE_ADULT/male": {
+      "count": 343,
+      "mean": 25
+    },
+    "BUILD/YOUNG_ADULT/female": {
+      "count": 188,
+      "mean": 11.914893617021276
+    },
+    "BUILD/OLDER_ADULT/male": {
+      "count": 221,
+      "mean": 9.502262443438914
+    },
+    "MAINTAIN_PLUS/OLDER_ADULT/female": {
+      "count": 389,
+      "mean": 60
+    },
+    "MAINTAIN_PLUS/MIDDLE_ADULT/male": {
+      "count": 441,
+      "mean": 60
+    },
+    "RECOMP/OLDER_ADULT/female": {
+      "count": 563,
+      "mean": 25
+    },
+    "BUILD/OLDER_ADULT/female": {
+      "count": 240,
+      "mean": 9.625
+    },
+    "MAINTAIN_PLUS/YOUNG_ADULT/male": {
+      "count": 349,
+      "mean": 60
+    }
+  },
+  "personas": [
+    {
+      "name": "ผอม อายุ25",
+      "status": "calculated",
+      "mode": "BUILD",
+      "start": {
+        "weight_kg": 55,
+        "bmi": 18,
+        "body_fat_percent": 20,
+        "muscle_mass_kg": 40
+      },
+      "target": {
+        "target_weight_kg": 58.85,
+        "target_bmi": 19.26,
+        "target_body_fat_percent": 20,
+        "target_muscle_mass_kg": 41.6
+      },
+      "issues": [],
+      "baseline_score": 35
+    },
+    {
+      "name": "ปกติ อายุ25",
+      "status": "calculated",
+      "mode": "MAINTAIN_PLUS",
+      "start": {
+        "weight_kg": 65,
+        "bmi": 23,
+        "body_fat_percent": 20,
+        "muscle_mass_kg": 35
+      },
+      "target": {
+        "target_weight_kg": 65,
+        "target_bmi": 23,
+        "target_body_fat_percent": 20,
+        "target_muscle_mass_kg": 35.7
+      },
+      "issues": [],
+      "baseline_score": 60
+    },
+    {
+      "name": "กล้ามเยอะ BMIสูง",
+      "status": "calculated",
+      "mode": "MAINTAIN_PLUS",
+      "start": {
+        "weight_kg": 90,
+        "bmi": 28,
+        "body_fat_percent": 14,
+        "muscle_mass_kg": 60
+      },
+      "target": {
+        "target_weight_kg": 90,
+        "target_bmi": 28,
+        "target_body_fat_percent": 14,
+        "target_muscle_mass_kg": 61.2
+      },
+      "issues": [],
+      "baseline_score": 60
+    },
+    {
+      "name": "น้ำหนักเกิน",
+      "status": "calculated",
+      "mode": "CUT",
+      "start": {
+        "weight_kg": 80,
+        "bmi": 27,
+        "body_fat_percent": 30,
+        "muscle_mass_kg": 40
+      },
+      "target": {
+        "target_weight_kg": 74,
+        "target_bmi": 24.975,
+        "target_body_fat_percent": 27,
+        "target_muscle_mass_kg": 40.4
+      },
+      "issues": [],
+      "baseline_score": 0
+    },
+    {
+      "name": "อ้วน",
+      "status": "calculated",
+      "mode": "CUT",
+      "start": {
+        "weight_kg": 100,
+        "bmi": 31.999999999999996,
+        "body_fat_percent": 35,
+        "muscle_mass_kg": 45
+      },
+      "target": {
+        "target_weight_kg": 92,
+        "target_bmi": 29.439999999999994,
+        "target_body_fat_percent": 31.5,
+        "target_muscle_mass_kg": 45.45
+      },
+      "issues": [],
+      "baseline_score": 0
+    },
+    {
+      "name": "อ้วนมาก",
+      "status": "needs_review",
+      "mode": "CUT",
+      "start": {
+        "weight_kg": 125,
+        "bmi": 39.99999999999999,
+        "body_fat_percent": 45,
+        "muscle_mass_kg": 45
+      },
+      "target": {
+        "target_weight_kg": 115,
+        "target_bmi": 36.8,
+        "target_body_fat_percent": 40.5,
+        "target_muscle_mass_kg": 45.45
+      },
+      "issues": [
+        "atypical_bmi_individual_review_required"
+      ],
+      "baseline_score": 0
+    },
+    {
+      "name": "อายุ45",
+      "status": "calculated",
+      "mode": "CUT",
+      "start": {
+        "weight_kg": 80,
+        "bmi": 27,
+        "body_fat_percent": 30,
+        "muscle_mass_kg": 40
+      },
+      "target": {
+        "target_weight_kg": 74,
+        "target_bmi": 24.975,
+        "target_body_fat_percent": 27,
+        "target_muscle_mass_kg": 40.199999999999996
+      },
+      "issues": [],
+      "baseline_score": 0
+    },
+    {
+      "name": "อายุ65",
+      "status": "needs_review",
+      "mode": "CUT",
+      "start": {
+        "weight_kg": 80,
+        "bmi": 27,
+        "body_fat_percent": 30,
+        "muscle_mass_kg": 40
+      },
+      "target": {
+        "target_weight_kg": 74,
+        "target_bmi": 24.975,
+        "target_body_fat_percent": 27,
+        "target_muscle_mass_kg": 40
+      },
+      "issues": [
+        "older_adult_individual_review_required"
+      ],
+      "baseline_score": 40
+    },
+    {
+      "name": "อายุ75",
+      "status": "needs_review",
+      "mode": "CUT",
+      "start": {
+        "weight_kg": 80,
+        "bmi": 27,
+        "body_fat_percent": 30,
+        "muscle_mass_kg": 40
+      },
+      "target": {
+        "target_weight_kg": 74,
+        "target_bmi": 24.975,
+        "target_body_fat_percent": 27,
+        "target_muscle_mass_kg": 40
+      },
+      "issues": [
+        "older_adult_individual_review_required"
+      ],
+      "baseline_score": 40
+    },
+    {
+      "name": "วัยรุ่น อายุ18",
+      "status": "needs_reference",
+      "mode": null,
+      "start": null,
+      "target": {
+        "target_weight_kg": null,
+        "target_bmi": null,
+        "target_body_fat_percent": null,
+        "target_muscle_mass_kg": null
+      },
+      "issues": [
+        "youth_growth_reference_and_goal_policy_required"
+      ],
+      "baseline_score": null
+    }
+  ],
+  "boundaries": [
+    {
+      "label": "BMI18.5",
+      "below": {
+        "target_weight_kg": 58.300001099999996,
+        "target_bmi": 19.609999309999978,
+        "target_body_fat_percent": 20,
+        "target_muscle_mass_kg": 41.6
+      },
+      "at": {
+        "target_weight_kg": 55,
+        "target_bmi": 18.5,
+        "target_body_fat_percent": 20,
+        "target_muscle_mass_kg": 40.8
+      },
+      "mode_before": "BUILD",
+      "mode_after": "MAINTAIN_PLUS",
+      "difference": {
+        "target_weight_kg": -3.300001099999996,
+        "target_bmi": -1.1099993099999779,
+        "target_body_fat_percent": 0,
+        "target_muscle_mass_kg": -0.8000000000000043
+      }
+    },
+    {
+      "label": "BMI25/highfat",
+      "below": {
+        "target_weight_kg": 80,
+        "target_bmi": 24.999999,
+        "target_body_fat_percent": 27,
+        "target_muscle_mass_kg": 41.2
+      },
+      "at": {
+        "target_weight_kg": 75.6,
+        "target_bmi": 23.625,
+        "target_body_fat_percent": 27,
+        "target_muscle_mass_kg": 40.4
+      },
+      "mode_before": "RECOMP",
+      "mode_after": "CUT",
+      "difference": {
+        "target_weight_kg": -4.400000000000006,
+        "target_bmi": -1.374998999999999,
+        "target_body_fat_percent": 0,
+        "target_muscle_mass_kg": -0.8000000000000043
+      }
+    },
+    {
+      "label": "Age40/BUILD",
+      "below": {
+        "target_weight_kg": 58.85,
+        "target_bmi": 19.26,
+        "target_body_fat_percent": 20,
+        "target_muscle_mass_kg": 41.6
+      },
+      "at": {
+        "target_weight_kg": 58.85,
+        "target_bmi": 19.26,
+        "target_body_fat_percent": 20,
+        "target_muscle_mass_kg": 41.2
+      },
+      "mode_before": "BUILD",
+      "mode_after": "BUILD",
+      "difference": {
+        "target_weight_kg": 0,
+        "target_bmi": 0,
+        "target_body_fat_percent": 0,
+        "target_muscle_mass_kg": -0.3999999999999986
+      }
+    },
+    {
+      "label": "Age65/BUILD",
+      "below": {
+        "target_weight_kg": 58.85,
+        "target_bmi": 19.26,
+        "target_body_fat_percent": 20,
+        "target_muscle_mass_kg": 41.2
+      },
+      "at": {
+        "target_weight_kg": 58.85,
+        "target_bmi": 19.26,
+        "target_body_fat_percent": 20,
+        "target_muscle_mass_kg": 40.8
+      },
+      "mode_before": "BUILD",
+      "mode_after": "BUILD",
+      "difference": {
+        "target_weight_kg": 0,
+        "target_bmi": 0,
+        "target_body_fat_percent": 0,
+        "target_muscle_mass_kg": -0.4000000000000057
+      }
+    },
+    {
+      "label": "BFupper25/BMI27",
+      "below": {
+        "target_weight_kg": 80,
+        "target_bmi": 27,
+        "target_body_fat_percent": 25,
+        "target_muscle_mass_kg": 40.8
+      },
+      "at": {
+        "target_weight_kg": 75.19999976,
+        "target_bmi": 25.379999919,
+        "target_body_fat_percent": 25,
+        "target_muscle_mass_kg": 40.4
+      },
+      "mode_before": "MAINTAIN_PLUS",
+      "mode_after": "CUT",
+      "difference": {
+        "target_weight_kg": -4.800000240000003,
+        "target_bmi": -1.6200000810000006,
+        "target_body_fat_percent": 0,
+        "target_muscle_mass_kg": -0.3999999999999986
+      }
+    },
+    {
+      "label": "BFlower10/BMI23",
+      "below": {
+        "target_weight_kg": 55,
+        "target_bmi": 23,
+        "target_body_fat_percent": 10,
+        "target_muscle_mass_kg": 41.2
+      },
+      "at": {
+        "target_weight_kg": 55,
+        "target_bmi": 23,
+        "target_body_fat_percent": 10,
+        "target_muscle_mass_kg": 40.8
+      },
+      "mode_before": "RECOMP",
+      "mode_after": "MAINTAIN_PLUS",
+      "difference": {
+        "target_weight_kg": 0,
+        "target_bmi": 0,
+        "target_body_fat_percent": 0,
+        "target_muscle_mass_kg": -0.4000000000000057
+      }
+    }
+  ],
+  "sensitivity": {
+    "target_distance_kg": 0.01,
+    "actual_noise_kg": 0.01,
+    "score_without_noise": 0,
+    "score_with_noise": 100
+  },
+  "final_fixture_eligibility": {
+    "eligible": false,
+    "numerically_qualified": true,
+    "reasons": [
+      "simulation_reference_not_for_rewards"
+    ],
+    "production_ready": false,
+    "award_issued": false
+  },
+  "limitations": [
+    "Arithmetic consistency only; not a physiological/clinical fairness study",
+    "Maintain zones yield baseline points",
+    "No real BF reference or muscle definition",
+    "Youth policy absent",
+    "Older adult and atypical BMI review required",
+    "No UI/database/reward integration"
+  ]
+}

@@ -1,5 +1,6 @@
 import { createRun, activeMs, addPosition, pauseRun, resumeRun, finishRun, restoreRun } from './run-core.js?v=20261009-8';
 import * as storage from './run-store.js';
+import { GPS_OPTIONS, usableBrowserFix } from './run-gps.js';
 
 export function createRunTracker({ onChange = () => {}, store = storage, geo = navigator.geolocation,
   activity = 'outdoor', motion,
@@ -93,6 +94,10 @@ export function createRunTracker({ onChange = () => {}, store = storage, geo = n
         if (request !== generation || !['acquiring', 'running'].includes(mode)) return;
         const fix = { latitude: position.coords.latitude, longitude: position.coords.longitude,
           accuracy: position.coords.accuracy, timestamp: position.timestamp };
+        if (!usableBrowserFix(fix, now(), mode === 'acquiring' ? 5000 : 15000)) {
+          message = 'GPS ยังไม่แม่นยำ · ต้องการความคลาดเคลื่อนไม่เกิน 20 ม. ลองออกไปในพื้นที่เปิด';
+          emit(); return;
+        }
         if (mode === 'acquiring') {
           if (!Number.isFinite(fix.latitude) || Math.abs(fix.latitude) > 90 || !Number.isFinite(fix.longitude) || Math.abs(fix.longitude) > 180
             || !Number.isFinite(fix.accuracy) || fix.accuracy < 0 || fix.accuracy > 40
@@ -117,7 +122,7 @@ export function createRunTracker({ onChange = () => {}, store = storage, geo = n
           : 'GPS หมดเวลารอ กดเริ่มหรือวิ่งต่อเพื่อลองใหม่';
         if (error.code === 1) void pause(details);
         else { message = 'รอตำแหน่ง GPS ใหม่ · เวลายังเดินต่อ ช่วงไม่มี GPS จะไม่คิดระยะทาง'; emit(); }
-      }, { enableHighAccuracy: true, maximumAge: 0, timeout: 15000 });
+      }, GPS_OPTIONS);
     } catch { await storageFailure(); }
     finally { if (mode !== 'running' && mode !== 'acquiring') await motion?.stop().catch(() => {}); busy = false; emit(); }
   }
