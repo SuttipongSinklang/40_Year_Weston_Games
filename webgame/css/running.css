@@ -174,11 +174,13 @@
 /* Match the current six-item game navigation without overflow. */
 [hidden]{display:none!important}
 #screen-run{background:#fff}
-.bottom-nav .nav-btn{flex:1;min-width:0;min-height:64px}
-.bottom-nav .nav-ico{width:clamp(42px,13vw,60px);height:58px}
+/* ปุ่ม NAV ไม่บีบ (flex:none) เมนูเกินก็เลื่อนแนวนอนต่อ ตามระบบพับ/กางของ .nav-menu */
+.bottom-nav .nav-btn{flex:none;min-height:64px}
+.bottom-nav .nav-toggle{margin-bottom:10px}
+.bottom-nav .nav-ico{width:clamp(38px,12vw,54px);height:52px}
 .bottom-nav .nav-ico img{width:100%;height:100%}
 .run-nav-icon{background:none;border:0;box-shadow:none}
-.bottom-nav .run-nav-icon img{object-fit:contain;width:125%;height:125%;max-width:none}
+.bottom-nav .run-nav-icon img{object-fit:contain;width:115%;height:115%;max-width:none}
 .nav-btn:focus-visible{outline:3px solid #1e3a5f;outline-offset:3px;border-radius:8px}
 #screen-run .page-scroll{height:100%;overflow-y:auto;padding:20px 16px 120px}
 .run-event-marker.leaflet-marker-icon{display:grid}

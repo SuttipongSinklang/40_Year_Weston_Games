@@ -6,16 +6,12 @@ import { createPhotoHead } from './profile-head.js?v=20261012-2';
 import './missions-home.js?v=20261012-2';
 import './leaderboard-home.js?v=20261012-2';
 import './social-home.js?v=20261012-2';
-import './goals-home.js?v=20261012-2';
 import './announcements-home.js?v=20261012-2';
 import './home-stats.js?v=20261012-5';
 import './calendar-home.js?v=20261012-2';
 import './achievements-home.js?v=20261012-2';
 let setPhotoHead;
 window.addEventListener('profilechange',event=>{if(character){character.rotation.y=0;lastInput=performance.now();}setPhotoHead?.(event.detail?.photo).catch(()=>toast('สร้างหัว 3D ไม่ได้ กรุณาถ่ายใบหน้าคนหน้าตรงใหม่'));});
-window.addEventListener('screenchange', event => {
-  if (event.detail === 'goal') setTimeout(() => animateGoalBars(), 120);
-});
 
 /* ═══════════════════════════════════════════════
    1) NAV — สลับหน้าจอ
@@ -305,41 +301,6 @@ document.querySelectorAll('#screen-trophy .pill').forEach(pill => pill.addEventL
   document.getElementById('lbPerson').classList.toggle('hidden', pill.dataset.lb !== 'person');
   document.getElementById('lbTeam').classList.toggle('hidden', pill.dataset.lb !== 'team');
 }));
-
-/* ═══════════════════════════════════════════════
-   5) GOALS (mockup)
-   ═══════════════════════════════════════════════ */
-const goals = [
-  { ico: '🚶', name: 'เดิน', done: 7420, total: 10000, unit: 'ก้าว', pct: 74 },
-  { ico: '💧', name: 'ดื่มน้ำ', done: 5, total: 8, unit: 'แก้ว', pct: 62 },
-  { ico: '🏃', name: 'วิ่ง', done: 1.2, total: 3, unit: 'กม.', pct: 40 },
-  { ico: '😴', name: 'นอนหลับ', done: 7, total: 7, unit: 'ชม.', pct: 100 },
-];
-document.getElementById('goalList').innerHTML = goals.map(g => `
-  <div class="goal-item card">
-    <span class="goal-ico">${g.ico}</span>
-    <div class="goal-mid">
-      <h4><span>${g.name} ${g.unit}</span><b>${g.done.toLocaleString()}/${g.total.toLocaleString()}</b></h4>
-      <div class="goal-track"><div class="goal-fill" data-w="${g.pct}"></div></div>
-    </div>
-    ${g.pct >= 100 ? '<span class="goal-done">✓</span>' : ''}
-  </div>`).join('');
-
-function animateGoalBars() {
-  document.querySelectorAll('.goal-fill').forEach(f => {
-    f.style.width = '0%';
-    requestAnimationFrame(() => requestAnimationFrame(() => f.style.width = f.dataset.w + '%'));
-  });
-  // วงแหวนเป้าหมายวันนี้ตามเปอร์เซ็นต์จริงจาก home-stats.js (fallback 62%)
-  const pct = Number(window.westonGoalPct) || 62;
-  const ring = document.getElementById('dayRing');
-  const label = document.getElementById('dayRingPct');
-  if (label) label.textContent = `${pct}%`;
-  ring.style.strokeDashoffset = '326.7';
-  requestAnimationFrame(() => requestAnimationFrame(() => {
-    ring.style.strokeDashoffset = String(326.7 * (1 - pct / 100));
-  }));
-}
 
 /* ═══════════════════════════════════════════════
    6) CALENDAR — วันจริงมาจาก calendar-home.js

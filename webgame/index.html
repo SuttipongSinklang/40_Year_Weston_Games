@@ -8,11 +8,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600;700&family=Nunito:wght@800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=29">
+<link rel="stylesheet" href="css/style.css?v=31">
 <link rel="stylesheet" href="assets/vendor/leaflet/dist/leaflet.css">
-<link rel="stylesheet" href="css/running.css?v=3">
+<link rel="stylesheet" href="css/running.css?v=5">
 <link rel="stylesheet" href="css/profile.css?v=5">
 <link rel="stylesheet" href="css/tournament.css?v=1">
+<link rel="stylesheet" href="css/goal-map.css?v=20261014-2">
 <script type="importmap">
 {
   "imports": {
@@ -133,25 +134,33 @@
 
   <!-- ══════════════════════ SCREEN : GOALS ══════════════════════ -->
   <section id="screen-goal" class="screen">
-
-    <div class="page-scroll">
-      <header class="page-head"><h2><span class="head-ico"><img src="assets/icons/target.png" alt="เป้าหมาย"></span> เป้าหมายของฉัน</h2></header>
-
-      <div class="goal-hero card">
-        <svg viewBox="0 0 120 120" class="goal-ring">
-          <circle cx="60" cy="60" r="52" class="ring-bg"/>
-          <circle cx="60" cy="60" r="52" class="ring-fill" id="dayRing"/>
-          <text x="60" y="57" class="ring-num" id="dayRingPct">62%</text>
-          <text x="60" y="76" class="ring-label">วันนี้</text>
-        </svg>
-        <div class="goal-hero-info">
-          <h3>เก่งมาก! ใกล้ครบเป้าแล้ว</h3>
-          <p>ทำต่ออีกนิดเพื่อรับความสำเร็จ 🎉</p>
-          <span class="badge-green">+180 XP เมื่อครบ 100%</span>
+    <div class="journey-page">
+      <header class="journey-hud">
+        <div class="journey-heading">
+          <img src="assets/icons/target.png" alt="" width="44" height="44">
+          <div><p class="journey-eyebrow">YOUR NEXT ADVENTURE</p><h2>เป้าหมาย</h2></div>
+          <button id="journeyJournal" class="journey-journal" type="button" aria-label="เปิดสมุดการเดินทางและเหรียญตรา"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M5 3h14v18H5zM9 3v18M12 8h4M12 12h4M3 7h4M3 12h4M3 17h4"/></svg></button>
         </div>
+        <div class="journey-score-panel">
+          <div class="journey-score"><span>คะแนนสะสม</span><strong><i aria-hidden="true">★</i> <b id="journeyScore">0</b></strong></div>
+          <div class="journey-next"><span id="journeyNextLabel">จุดหมายถัดไป</span><strong><i aria-hidden="true">★</i> <b id="journeyNextScore">1,000</b></strong></div>
+          <div id="journeyProgress" class="journey-progress" role="progressbar" aria-label="ความคืบหน้าสู่จุดหมายถัดไป" aria-valuemin="0" aria-valuemax="1000" aria-valuenow="0"><span id="journeyProgressFill"></span></div>
+          <p id="journeyProgressText">อีก 1,000 แต้ม เปิดจุดหมายใหม่</p>
+        </div>
+      </header>
+      <div class="journey-map-shell">
+        <div class="journey-map-caption"><span aria-hidden="true">✦</span> ทุกก้าวเล็ก ๆ พาเราไปได้ไกล</div>
+        <div id="journeyViewport" class="journey-viewport" role="region" aria-label="แผนที่การเดินทาง เลื่อนขึ้นเพื่อสำรวจจุดหมาย" tabindex="0">
+          <div id="journeyWorld" class="journey-world">
+            <svg id="journeyPath" class="journey-path" aria-hidden="true"></svg>
+            <div id="journeyFog" class="journey-fog" aria-hidden="true"></div>
+            <div id="journeyNodes" class="journey-nodes"></div>
+            <div id="journeyCharacter" class="journey-character" role="img" aria-label="ตัวละครของคุณที่จุดเริ่มต้น"><span class="journey-you">คุณอยู่ที่นี่</span><canvas id="journeyCharacterCanvas" width="200" height="280" aria-hidden="true"></canvas><span id="journeyCharacterFallback" class="journey-character-fallback" aria-hidden="true">🧍</span></div>
+          </div>
+        </div>
+        <button id="journeyRecenter" class="journey-recenter" type="button" aria-label="กลับไปที่ตัวละครของฉัน"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.5"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg></button>
+        <p id="journeySync" class="journey-sync" role="status">กำลังอัปเดตคะแนนสะสม…</p>
       </div>
-
-      <div class="goal-list" id="goalList"><!-- generated --></div>
     </div>
   </section>
 
@@ -294,14 +303,14 @@
     <p id="detailSaveState" class="run-message" role="status">เก็บในเครื่อง</p>
   </dialog>
 
-  <div class="bottom-nav-wrap" id="bottomNavWrap">
-    <button type="button" class="nav-fold-btn" id="navFoldBtn" aria-expanded="true" aria-controls="bottomNav" aria-label="พับเมนู">
+  <nav class="bottom-nav" aria-label="เมนูหลัก">
+    <button class="nav-btn active" data-screen="home">
+      <span class="nav-ico"><img src="assets/icons/home.png" alt="หน้าหลัก"></span><label>หน้าหลัก</label><i></i>
+    </button>
+    <button type="button" class="nav-toggle" id="navToggle" aria-expanded="true" aria-controls="navMenu" aria-label="พับเมนู">
       <img src="assets/icons/dropdown.png" alt="">
     </button>
-    <nav class="bottom-nav" id="bottomNav" aria-label="เมนูหลัก">
-      <button class="nav-btn active" data-screen="home">
-        <span class="nav-ico"><img src="assets/icons/home.png" alt="หน้าหลัก"></span><label>หน้าหลัก</label><i></i>
-      </button>
+    <div class="nav-menu" id="navMenu">
       <button type="button" class="nav-btn" data-screen="run" aria-label="วิ่ง"><span class="nav-ico run-nav-icon"><img src="assets/icons/run.png" alt="" aria-hidden="true"></span><label>วิ่ง</label><i></i></button>
       <button class="nav-btn" data-screen="trophy">
         <span class="nav-ico"><img src="assets/icons/rank.png?v=4" alt="อันดับ"></span><label>อันดับ</label><i></i>
@@ -316,8 +325,8 @@
         <span class="nav-ico"><img src="assets/icons/team.png" alt="ทีม"></span><label>ทีม</label><i></i>
       </button>
       <button type="button" class="nav-btn" data-screen="tournament" aria-label="แข่งขัน"><span class="nav-ico"><img src="assets/icons/tournament.png" alt="" aria-hidden="true"></span><label>แข่งขัน</label><i></i></button>
-    </nav>
-  </div>
+    </div>
+  </nav>
 
 
 
@@ -362,7 +371,8 @@
 
 </div>
 
-<script type="module" src="js/navigation.js?v=5"></script>
+<script type="module" src="js/goals-home.js?v=20261014-2"></script>
+<script type="module" src="js/navigation.js?v=6"></script>
 <button id="profileOpen" class="profile-open" type="button" hidden>ข้อมูลผู้เล่น</button>
 <dialog id="profileDialog" aria-labelledby="profileTitle">
   <form id="profileForm" class="profile-sheet" novalidate>
@@ -395,6 +405,6 @@
 </dialog>
 <script type="module" src="js/profile.js?v=15"></script>
 <script type="module" src="js/tournament.js?v=8"></script>
-<script type="module" src="js/main.js?v=35"></script>
+<script type="module" src="js/main.js?v=20261014-1"></script>
 </body>
 </html>

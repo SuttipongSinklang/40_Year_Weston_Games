@@ -25,7 +25,7 @@ function readLatest() {
 function emit() { for (const listener of listeners) listener(snapshot()); }
 function setStatus(state, detail) { status = { state, detail }; emit(); }
 export function snapshot() {
-  return { total: cache.total + cache.pending.length,
+  return { owner: cache.owner, total: cache.total + cache.pending.length,
     days: [...new Set([...cache.days, ...cache.pending.map(e => e.played_on)])],
     daily: { ...cache.daily }, pending: cache.pending.slice(), storageAvailable, ...status };
 }

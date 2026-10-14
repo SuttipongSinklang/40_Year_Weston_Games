@@ -104,6 +104,7 @@ async function claim(event) {
     if (mission?.resetDaily) doneTodayIds.add(missionId);
     else doneEverIds.add(missionId);
     toast(`ภารกิจสำเร็จ! รับ ${points} คะแนน 🎉`);
+    window.dispatchEvent(new CustomEvent('missioncompleted', { detail: { missionId } }));
     render();
   } catch (error) {
     toast(friendlyMissionError(error));
